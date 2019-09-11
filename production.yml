@@ -1,0 +1,55 @@
+version: '3'
+
+volumes:
+  production_mysql_data: {}
+  production_mysql_data_backups: {}
+  production_traefik: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    image: beep_production_django
+    depends_on:
+      - mysql
+      - redis
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.mysql
+    command: /start
+
+  mysql:
+    build:
+      context: .
+      dockerfile: ./compose/production/mysql/Dockerfile
+    image: beep_production_mysql
+    volumes:
+      - production_mysql_data:/var/lib/mysqlql/data
+      - production_mysql_data_backups:/backups
+    env_file:
+      - ./.envs/.production/.mysql
+
+  traefik:
+    build:
+      context: .
+      dockerfile: ./compose/production/traefik/Dockerfile
+    image: beep_production_traefik
+    depends_on:
+      - django
+    volumes:
+      - production_traefik:/etc/traefik/acme
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+
+  redis:
+    image: redis:5.0
+  awscli:
+    build:
+      context: .
+      dockerfile: ./compose/production/aws/Dockerfile
+    env_file:
+      - ./.envs/.production/.django
+    volumes:
+      - production_mysql_data_backups:/backups

@@ -1,0 +1,3 @@
+from rest_framework import routers
+
+router_{{ app_name }} = routers.DefaultRouter()

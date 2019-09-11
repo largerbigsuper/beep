@@ -1,0 +1,33 @@
+version: '3'
+
+volumes:
+  dev_mysql_data: {}
+  dev_mysql_data_backups: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/dev/django/Dockerfile
+    image: beep_dev_django
+    depends_on:
+      - mysql
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.dev/.django
+      - ./.envs/.dev/.mysql
+    ports:
+      - "8000:8000"
+    command: /start
+
+  mysql:
+    build:
+      context: .
+      dockerfile: ./compose/production/mysql/Dockerfile
+    image: beep_production_mysql
+    volumes:
+      - dev_mysql_data:/var/lib/mysql/data
+      - dev_mysql_data_backups:/backups
+    env_file:
+      - ./.envs/.dev/.mysql
