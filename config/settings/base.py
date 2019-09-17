@@ -52,13 +52,15 @@ DJANGO_APPS = [
     "django.contrib.admin",
 ]
 THIRD_PARTY_APPS = [
-    "crispy_forms",
     "rest_framework",
+    'rest_framework.authtoken',
+    "crispy_forms",
+    "django_filters",
+    "drf_yasg",
 ]
 
 LOCAL_APPS = [
-    # "beep.users.apps.UsersConfig",
-    # Your stuff: custom apps go here
+    "beep.users",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -70,7 +72,6 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 # PASSWORDS
@@ -185,6 +186,7 @@ EMAIL_TIMEOUT = 5
 # ------------------------------------------------------------------------------
 # Django Admin URL.
 ADMIN_URL = "admin/"
+LOGIN_URL = "api-auth/login/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = [("""frankie""", "admin@beep.com")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
@@ -221,3 +223,65 @@ INSTALLED_APPS += ["compressor"]
 STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+AUTH_USER_MODEL = 'users.User'
+
+
+REST_FRAMEWORK = {
+
+    'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'utils.render.FormatedJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+
+    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
+
+    'DATETIME_INPUT_FORMATS': [
+        '%Y-%m-%d %H:%M:%S',  # '2006-10-25 14:30:59'
+        '%Y-%m-%d %H:%M:%S.%f',  # '2006-10-25 14:30:59.000200'
+        '%Y-%m-%d %H:%M',  # '2006-10-25 14:30'
+        '%Y-%m-%d',  # '2006-10-25'
+        '%m/%d/%Y %H:%M:%S',  # '10/25/2006 14:30:59'
+        '%m/%d/%Y %H:%M:%S.%f',  # '10/25/2006 14:30:59.000200'
+        '%m/%d/%Y %H:%M',  # '10/25/2006 14:30'
+        '%m/%d/%Y',  # '10/25/2006'
+        '%m/%d/%y %H:%M:%S',  # '10/25/06 14:30:59'
+        '%m/%d/%y %H:%M:%S.%f',  # '10/25/06 14:30:59.000200'
+        '%m/%d/%y %H:%M',  # '10/25/06 14:30'
+        '%m/%d/%y',  # '10/25/06'
+    ]
+}
+
+# ALL SETTINGS MAST BE UPPERCASE
+
+MINI_PROGRAM_APP_ID = 'wx1743dc274cf46871'
+MINI_PROGRAM_APP_SECRET = '648a7ae2cbf66aa7e48992d76f46e621'
+MINI_PROGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=authorization_code&js_code='.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
+
+
+QINIU_ACCESS_KEY = 'YU8-GbpmWJ_8UEdBc7VTv4n_eku3zlgoHuUI2l9D'
+QINIU_SECRET_KEY = 'Mkms7UphbEH4sWdkWoEnqk0PCjD3V84rIZ3EuL_H'
+QINIU_BUCKET_NAME_DICT = {
+    'image': 'img3-workspace',
+    'video': 'img-workspace'
+}
+QINIU_BUCKET_DOMAIN_DICT = {
+    'image': 'http://lhxq.top/',
+    'video': 'http://video.lhxq.top/'
+}
+
+ALIYUN_SMS_ACCESS_KEY_ID = "LTAIg1VpIb5ah7aK"
+ALIYUN_SMS_ACCESS_KEY_SECRET = "avnP9AWfnoZ0eWvXQku7cwUPagTtNt"
+ALIYUN_SMS_TEMPLATE_NAME = '浙江建筑宝典'
+ALIYUN_SMS_TEMPLATE_ID = 'SMS_168875146'
