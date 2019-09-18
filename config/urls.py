@@ -9,19 +9,20 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Snippets API",
+      title="Beep API",
       default_version='v1',
-      description="Test description",
+      description="Beep Rest API",
       terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@snippets.local"),
-      license=openapi.License(name="BSD License"),
+      contact=openapi.Contact(email="zaihuazhao@163.com"),
+      license=openapi.License(name="Not Open Source"),
    ),
    public=True,
    permission_classes=(permissions.AllowAny,),
 )
 
 
-from beep.users.drf.router import router_users
+from .router_user import router_user
+from .router_admin import router_admin
 
 urlpatterns = [
     # path('swagger(?P<format>\.json|\.yaml)', schema_view.without_ui(cache_timeout=0), name='schema-json'),
@@ -29,7 +30,8 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('users/', include(router_users.urls)),
+    path('api-user/', include(router_user.urls)),
+    path('api-admin/', include(router_admin.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

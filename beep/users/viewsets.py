@@ -1,24 +1,31 @@
 import requests
+from django.db import IntegrityError, transaction
 from django.conf import settings
 from django.contrib.auth import authenticate
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, MiniprogramLoginSerializer, MyUserProfileSerializer, ResetPasswordSerializer
+
+from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer,
+                          MiniprogramLoginSerializer, MyUserProfileSerializer, ResetPasswordSerializer,
+                          ScheduleSerializer,
+                          CheckInSerializer,
+                          PointSerializer
+                          )
 from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
-from beep.users.models import mm_User
+from .models import mm_User, mm_Schedule, mm_CheckIn, mm_Point
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
+                  mixins.UpdateModelMixin, mixins.ListModelMixin,):
 
     permission_classes = []
     serializer_class = UserSerializer
     queryset = mm_User.all()
-    
 
     @action(detail=False, methods=['post'], serializer_class=RegisterSerializer)
     def enroll(self, request):
@@ -90,12 +97,13 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get', 'post'], permission_classes=[IsAuthenticated])
     def profile(self, request):
         """个人信息获取／修改"""
-        
+
         if request.method == 'GET':
             serializer = self.serializer_class(request.user)
             return Response(data=serializer.data)
         else:
-            serializer = self.serializer_class(request.user, data=request.data, partial=True)
+            serializer = self.serializer_class(
+                request.user, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(data=serializer.data)
@@ -106,7 +114,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def reset_password(self, request):
         """重置密码
         """
-        
+
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         account = serializer.validated_data['account']
@@ -122,7 +130,7 @@ class UserViewSet(viewsets.ModelViewSet):
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated,])
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, ])
     def qiniutoken(self, request):
         """获取七牛token
         """
@@ -131,3 +139,54 @@ class UserViewSet(viewsets.ModelViewSet):
         token = QiniuService.gen_app_upload_token(bucket_name)
         data = {'token': token}
         return Response(data=data)
+
+
+class ScheduleViewSet(viewsets.ModelViewSet):
+    """用户行程表
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = ScheduleSerializer
+
+    def get_queryset(self):
+        return mm_Schedule.filter(user=self.request.user)
+
+    def perform_create(self, serailizer):
+        serailizer.save(user=self.request.user)
+
+
+class CheckInViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+    """用户签到
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = CheckInSerializer
+
+    def get_queryset(self):
+        return mm_CheckIn.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        if mm_CheckIn.is_check_in(request.user.id):
+            return Response({"msg": "今日已经签到，明天再来"})
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        with transaction.atomic():
+            serializer.save(user=self.request.user)
+            mm_Point.add_action(user_id=self.request.user.id,
+                                action=mm_Point.ATION_CHECK_IN)
+
+
+class PointViewSet(viewsets.ReadOnlyModelViewSet):
+    """用户积分
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = PointSerializer
+
+    def get_queryset(self):
+        return mm_Point.filter(user=self.request.user)

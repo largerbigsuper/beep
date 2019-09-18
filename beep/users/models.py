@@ -1,11 +1,13 @@
 import traceback
+from datetime import date
 
 from django.db import models
 from django.db import transaction
 from django.db import IntegrityError, DataError
-# from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager as AuthUserManager
+
 
 
 from utils.modelmanager import ModelManager
@@ -57,3 +59,142 @@ class User(AbstractUser):
 
 
 mm_User = User.objects
+
+
+class ScheduleManager(ModelManager):
+    pass
+
+
+class Schedule(models.Model):
+    """行程表
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE, verbose_name='用户')
+    plan_datetime = models.DateTimeField(verbose_name='计划时间')
+    content = models.CharField(max_length=500, verbose_name='计划内容')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+    objects = ScheduleManager()
+
+    class Meta:
+        db_table = 'schedule'
+        index_together = [
+            ('user', 'plan_datetime')
+        ]
+
+
+mm_Schedule = Schedule.objects
+
+
+class PointManager(ModelManager):
+    POINT_OUT = 0
+    POINT_IN = 1
+    POINT_OP_CHOICE = (
+        (POINT_OUT, '减少'),
+        (POINT_IN, '增加'),
+    )
+
+    ATION_CHECK_IN = 0
+
+    ACTION_CHOICE = (
+        (ATION_CHECK_IN, '每日签到'),
+    )
+
+    Action_Point_Mapping = {
+        ATION_CHECK_IN: 30,
+    }
+
+    Action_Desc = {action: msg for action, msg in ACTION_CHOICE}
+
+    def get_total_point(self, user_id):
+        record = self.filter(user_id=user_id).first()
+        if record:
+            return record.total_left
+        else:
+            return 0
+
+    def _add_action(self, user_id, action, amount, total_left, operator_id=None):
+        """
+        积分记录
+        :param customer_id: 用户id
+        :param amount: 操作总量
+        :param action: 行为
+        :param operator_id: 操作人auth_user.id
+        :return:
+        """
+        in_or_out = self.POINT_IN
+        self.create(user_id=user_id,
+                    in_or_out=in_or_out,
+                    amount=amount,
+                    total_left=total_left,
+                    action=action,
+                    desc=self.Action_Desc[action],
+                    operator_id=operator_id,
+                    )
+
+    def add_action(self, user_id, action):
+        """
+        增加积分记录
+        :param customer_id:
+        :param action:
+        :return:
+        """
+        amount = self.Action_Point_Mapping[action]
+        total_left = self.get_total_point(user_id) + amount
+        self._add_action(user_id=user_id,
+                         action=action,
+                         amount=amount,
+                         total_left=total_left,
+                         )
+
+
+class Point(models.Model):
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
+                             related_name='points',
+                             verbose_name='用户')
+    in_or_out = models.PositiveSmallIntegerField(choices=PointManager.POINT_OP_CHOICE,
+                                                 default=PointManager.POINT_IN,
+                                                 verbose_name='增加|减少')
+    amount = models.PositiveSmallIntegerField(default=0, verbose_name='数量')
+    total_left = models.PositiveIntegerField(default=0, verbose_name='剩余数量')
+    action = models.PositiveSmallIntegerField(
+        choices=PointManager.ACTION_CHOICE, default=0, verbose_name='原因')
+    desc = models.CharField(verbose_name='描述', max_length=48)
+    operator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                 null=True, blank=True, verbose_name='操作人')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='记录时间')
+
+    objects = PointManager()
+
+    class Meta:
+        db_table = 'user_points'
+        ordering = ['-create_at']
+
+
+mm_Point = Point.objects
+
+
+class CheckInManager(ModelManager):
+    
+    def is_check_in(self, user_id):
+        return self.filter(user_id=user_id, create_at__gt=date.today()).exists()
+
+class CheckIn(models.Model):
+    """用户签到表
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             verbose_name='用户')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='记录时间')
+
+    objects = CheckInManager()
+
+    class Meta:
+        db_table = 'user_checkin'
+
+
+mm_CheckIn = CheckIn.objects
+

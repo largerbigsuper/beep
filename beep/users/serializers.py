@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from beep.users.models import User
+from .models import User, Schedule, CheckIn, Point
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -43,6 +43,33 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['account', 'password', 'code']
+
+
+# ========= Schedule Serializers  ==========
+
+class ScheduleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Schedule
+        fields = ['id', 'plan_datetime', 'content', 'create_at']
+
+
+# ========= CheckIn Serializers  ==========
+
+class CheckInSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CheckIn
+        fields = ['id', 'create_at']
+
+# ========= Point Serializers  ==========
+
+class PointSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Point
+        fields = ['id', 'in_or_out', 'amount', 'total_left', 'action', 'desc', 'create_at']
+
 
 # =======================================
 # ========= Admin Serializers  ==========

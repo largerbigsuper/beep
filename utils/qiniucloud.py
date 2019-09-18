@@ -4,7 +4,6 @@ from django.conf import settings
 
 class QiniuService:
     # 构建鉴权对象
-    print(settings.SITE_ID)
     access_key = settings.QINIU_ACCESS_KEY
     secret_key = settings.QINIU_SECRET_KEY
     qiniuAuth = Auth(access_key, secret_key)
