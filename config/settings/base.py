@@ -61,6 +61,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "beep.users",
+    "beep.common",
     # "beep.blog",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
