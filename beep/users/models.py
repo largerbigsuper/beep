@@ -198,3 +198,36 @@ class CheckIn(models.Model):
 
 mm_CheckIn = CheckIn.objects
 
+class RelationShipManager(ModelManager):
+    
+    def add_relation(self, user, following):
+        """添加关注
+        """
+        created, relation = self.get_or_create(user=user, following=following)
+        return relation
+
+    def remove_relation(self, user, following):
+        """取消关注
+        """
+        self.filter(user=user, following=following).delete()
+
+class RelationShip(models.Model):
+    """用户关系"""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='following_set', verbose_name='我')
+    following = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='followers_set', verbose_name='关注的人')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+    objects = RelationShipManager()
+
+    class Meta:
+        db_table = 'user_relationship'
+        index_together = [
+            ['user', 'following']
+        ]
+        unique_together = [
+            ['user', 'following']
+        ]
+
+
+mm_RelationShip = RelationShip.objects

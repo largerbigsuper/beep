@@ -13,11 +13,13 @@ from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer,
                           MiniprogramLoginSerializer, MyUserProfileSerializer, ResetPasswordSerializer,
                           ScheduleSerializer,
                           CheckInSerializer,
-                          PointSerializer
+                          PointSerializer,
+                          NoneSerializer,
+                          MyFollowingSerializer,
                           )
 from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
-from .models import mm_User, mm_Schedule, mm_CheckIn, mm_Point
+from .models import mm_User, mm_Schedule, mm_CheckIn, mm_Point, mm_RelationShip
 
 
 class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
@@ -139,6 +141,46 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         token = QiniuService.gen_app_upload_token(bucket_name)
         data = {'token': token}
         return Response(data=data)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], serializer_class=NoneSerializer)
+    def add_following(self, request, pk=None):
+        """添加关注
+        """
+        try:
+            following = self.get_object()
+            relation = mm_RelationShip.add_relation(self.request.user, following)
+            msg = "添加关注成功"
+        except IntegrityError as e:
+            msg = "已经关注了"
+        return Response(data={'msg': msg})
+
+
+    @action(detail=True, methods=['delete'], permission_classes=[IsAuthenticated], serializer_class=NoneSerializer)
+    def remove_following(self, request, pk=None):
+        """删除关注
+        """
+        # mm_RelationShip.remove_relation(self.request.session['uid'], pk)
+        following = self.get_object()
+        mm_RelationShip.remove_relation(self.request.user, following)
+        return Response()
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], serializer_class=MyFollowingSerializer)
+    def following(self, request):
+        """我的关注的用户列表
+        """
+        queryset = request.user.following_set.select_related('following').all()
+        
+        queryset = self.filter_queryset(queryset)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 
 
 class ScheduleViewSet(viewsets.ModelViewSet):

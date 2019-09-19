@@ -1,7 +1,10 @@
 from rest_framework import serializers
 
-from .models import User, Schedule, CheckIn, Point
+from .models import User, Schedule, CheckIn, Point, RelationShip
 
+
+class NoneSerializer(serializers.Serializer):
+    pass
 
 class RegisterSerializer(serializers.Serializer):
 
@@ -69,6 +72,19 @@ class PointSerializer(serializers.ModelSerializer):
     class Meta:
         model = Point
         fields = ['id', 'in_or_out', 'amount', 'total_left', 'action', 'desc', 'create_at']
+
+
+class UserBaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'name', 'age', 'gender', 'avatar_url']
+
+class MyFollowingSerializer(serializers.ModelSerializer):
+
+    following = UserBaseSerializer()
+    class Meta:
+        model = RelationShip
+        fields = ['id', 'following', 'create_at']
 
 
 # =======================================
