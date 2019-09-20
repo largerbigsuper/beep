@@ -62,6 +62,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "beep.users",
     "beep.common",
+    "beep.activity",
     # "beep.blog",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -267,6 +268,9 @@ REST_FRAMEWORK = {
 
 # Django 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+# Storage
+DEFAULT_FILE_STORAGE = 'utils.qiniucloud.StorageObject'
 
 # ALL SETTINGS MAST BE UPPERCASE
 
