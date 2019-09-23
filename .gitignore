@@ -277,3 +277,4 @@ beep/media/
 .envs/*
 
 .vscode
+.qiniu_pythonsdk_hostscache.json
