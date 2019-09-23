@@ -17,6 +17,5 @@ router_user.register('topic', blog_viewsets.TopicViewSet, base_name='user-topic'
 router_user.register('blog', blog_viewsets.BlogViewSet, base_name='user-blog')
 router_user.register('myblog', blog_viewsets.MyBlogViewSet, base_name='user-myblog')
 router_user.register('atmsg', blog_viewsets.AtMessageViewSet, base_name='user-atmsg')
-router_user.register('mylike', blog_viewsets.MyBlogLikeViewSet, base_name='user-mylike')
-
-# router_user.register('blog', BlogViewSet, base_name='user-blog')
+router_user.register('like', blog_viewsets.BlogLikeViewSet, base_name='user-like')
+router_user.register('comment', blog_viewsets.CommentViewSet, base_name='user-comment')

@@ -102,6 +102,9 @@ class BlogLike(models.Model):
 
     class Meta:
         db_table = 'user_blog_like'
+        unique_together = [
+            ['user', 'blog']
+        ]
         ordering = ['-create_at']
 
 
@@ -127,6 +130,9 @@ class CommentManager(ModelManager):
 
     def valid(self):
         return self.filter(is_del=False)
+    
+    def my_commnets(self, user_id):
+        return self.valid().filter(user_id=user_id)
 
 
 class Comment(models.Model):
