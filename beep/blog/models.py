@@ -40,14 +40,14 @@ class Topic(models.Model):
 
 class BlogManager(ModelManager):
 
-    def my_blogs(self, author_id):
-        return self.filter(author_id=author_id)
+    def my_blogs(self, user_id):
+        return self.filter(user_id=user_id)
 
 
 class Blog(models.Model):
     """博客"""
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
                                on_delete=models.CASCADE,
                                verbose_name='作者')
     topic = models.ForeignKey(Topic,
@@ -68,7 +68,7 @@ class Blog(models.Model):
                                     related_name='blog_shares_set')
     total_share = models.PositiveIntegerField(default=0, verbose_name='分享次数')
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL,
-                                   through='BlogLike',
+                                   through='Like',
                                    related_name='blog_likes_set')
     total_like = models.PositiveIntegerField(default=0, verbose_name='点赞次数')
     comments = models.ManyToManyField(settings.AUTH_USER_MODEL,
@@ -86,11 +86,11 @@ class Blog(models.Model):
         ordering = ['-update_at']
 
 
-class BlogLikeManager(ModelManager):
+class LikeManager(ModelManager):
     pass
 
 
-class BlogLike(models.Model):
+class Like(models.Model):
     """点赞记录
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -98,10 +98,13 @@ class BlogLike(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, verbose_name='博客')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
-    objects = BlogLikeManager()
+    objects = LikeManager()
 
     class Meta:
         db_table = 'user_blog_like'
+        unique_together = [
+            ['user', 'blog']
+        ]
         ordering = ['-create_at']
 
 
@@ -121,12 +124,17 @@ class BlogShare(models.Model):
 
     class Meta:
         db_table = 'user_blog_share'
-
+        unique_together = [
+            ['user', 'blog']
+        ]
 
 class CommentManager(ModelManager):
 
     def valid(self):
         return self.filter(is_del=False)
+    
+    def my_commnets(self, user_id):
+        return self.valid().filter(user_id=user_id)
 
 
 class Comment(models.Model):
@@ -190,7 +198,7 @@ class AtMessage(models.Model):
 
 mm_Topic = Topic.objects
 mm_Blog = Blog.objects
-mm_BlogLike = BlogLike.objects
+mm_Like = Like.objects
 mm_BlogShare = BlogShare.objects
 mm_Comment = Comment.objects
 mm_AtMessage = AtMessage.objects

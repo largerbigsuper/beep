@@ -276,7 +276,7 @@ DEFAULT_FILE_STORAGE = 'utils.qiniucloud.StorageObject'
 
 MINI_PROGRAM_APP_ID = 'wx1743dc274cf46871'
 MINI_PROGRAM_APP_SECRET = '648a7ae2cbf66aa7e48992d76f46e621'
-MINI_PROGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=authorization_code&js_code='.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
+MINI_PROGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=userization_code&js_code='.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
 
 
 QINIU_ACCESS_KEY = 'YU8-GbpmWJ_8UEdBc7VTv4n_eku3zlgoHuUI2l9D'
