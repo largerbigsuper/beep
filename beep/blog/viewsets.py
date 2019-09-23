@@ -65,6 +65,15 @@ class BlogViewSet(viewsets.ModelViewSet):
             queryset = queryset.select_related('user', 'topic')
         return queryset
 
+    def retrieve(self, request, *args, **kwargs):
+        """博客详情
+        """
+        response = super().retrieve(request, *args, **kwargs)
+        blog = self.get_object()
+        blog.total_view = F('total_view') + 1
+        blog.save()
+        return response
+
     @action(detail=False, methods=['get'])
     def mine(self, request):
         """我的博文列表

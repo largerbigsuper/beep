@@ -76,8 +76,10 @@ class Blog(models.Model):
                                       related_name='blog_comments_set',
                                       through_fields=('blog', 'user'))
     total_comment = models.PositiveIntegerField(default=0, verbose_name='评论次数')
+    total_view = models.PositiveIntegerField(default=0, verbose_name='查看次数')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
+
 
     objects = BlogManager()
 

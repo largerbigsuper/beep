@@ -14,21 +14,25 @@ class TopicSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'status', 'create_at')
         read_only_fields = ['status']
 
+
 class BaseBlogSerializer(serializers.ModelSerializer):
-    
+
     topic = TopicSerializer(read_only=True)
     topic_str = serializers.CharField(write_only=True, allow_blank=True)
     img_list = serializers.ListField()
     at_list = serializers.ListField()
+
 
 class BlogCreateSerializer(BaseBlogSerializer):
 
     class Meta:
         model = Blog
         fields = ('id', 'topic', 'topic_str', 'is_anonymous',
-                  'content', 'img_list', 'at_list', 'total_share',
-                  'total_like', 'total_comment', 'update_at')
-        read_only_fields = ('total_share', 'total_like', 'total_comment')
+                  'content', 'img_list', 'at_list',
+                  'total_share', 'total_like', 'total_comment', 'total_view',
+                  'update_at')
+        read_only_fields = ('total_share', 'total_like',
+                            'total_comment', 'total_view')
 
     def create(self, validated_data):
         # deal topic
@@ -64,9 +68,11 @@ class BlogListSerialzier(BaseBlogSerializer):
     class Meta:
         model = Blog
         fields = ('id', 'user', 'topic', 'is_anonymous',
-                  'content', 'img_list', 'at_list', 'total_share',
-                  'total_like', 'total_comment', 'update_at')
-        read_only_fields = ('total_share', 'total_like', 'total_comment')
+                  'content', 'img_list', 'at_list',
+                  'total_share', 'total_like', 'total_comment', 'total_view',
+                  'update_at')
+        read_only_fields = ('total_share', 'total_like',
+                            'total_comment', 'total_view')
 
 
 class AtMessageSerializer(serializers.ModelSerializer):
@@ -77,11 +83,13 @@ class AtMessageSerializer(serializers.ModelSerializer):
         model = AtMessage
         fields = ('id', 'blog', 'status', 'create_at')
 
+
 class CommentBaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
         fields = ('id', 'text')
+
 
 class CommentCreateSerializer(serializers.ModelSerializer):
     """创建评论
@@ -89,7 +97,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'blog', 'reply_to', 'text')
-    
+
     def create(self, validated_data):
         request = self.context['request']
         blog = validated_data['blog']
@@ -100,9 +108,11 @@ class CommentCreateSerializer(serializers.ModelSerializer):
             to_user = reply_to.user
         else:
             to_user = request.user
-        instance = Comment(user=request.user, to_user=to_user, **validated_data)
+        instance = Comment(user=request.user,
+                           to_user=to_user, **validated_data)
         instance.save()
         return instance
+
 
 class CommentListSerializer(serializers.ModelSerializer):
     """评论列表
@@ -121,14 +131,16 @@ class LikeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ('id', 'blog', 'create_at')
-    
+
     def create(self, validated_data):
         blog = validated_data['blog']
         blog.total_like = F('total_like') + 1
         blog.save()
-        instance = self.Meta.model(user=self.context['request'].user, **validated_data)
+        instance = self.Meta.model(
+            user=self.context['request'].user, **validated_data)
         instance.save()
         return instance
+
 
 class MyCommentCreateSerilizer(serializers.ModelSerializer):
     """创建评论
@@ -136,7 +148,7 @@ class MyCommentCreateSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'blog', 'reply_to', 'text')
-    
+
     def create(self, validated_data):
         request = self.context['request']
         blog = validated_data['blog']
@@ -147,10 +159,12 @@ class MyCommentCreateSerilizer(serializers.ModelSerializer):
             to_user = reply_to.user
         else:
             to_user = request.user
-        instance = Comment(user=request.user, to_user=to_user, **validated_data)
+        instance = Comment(user=request.user,
+                           to_user=to_user, **validated_data)
         instance.save()
         return instance
-        
+
+
 class LikeListSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -159,8 +173,9 @@ class LikeListSerializer(serializers.ModelSerializer):
 
 
 class MyLikeListSerializer(serializers.ModelSerializer):
-    
+
     blog = BlogListSerialzier()
+
     class Meta:
         model = Like
         fields = ('id', 'blog', 'create_at')
