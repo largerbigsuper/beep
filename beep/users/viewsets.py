@@ -15,7 +15,7 @@ from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer,
                           CheckInSerializer,
                           PointSerializer,
                           NoneSerializer,
-                          MyFollowingSerializer,
+                          MyFollowingSerializer, MyFollowersSerializer
                           )
 from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
@@ -116,7 +116,6 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     def reset_password(self, request):
         """重置密码
         """
-
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         account = serializer.validated_data['account']
@@ -154,7 +153,6 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
             msg = "已经关注了"
         return Response(data={'msg': msg})
 
-
     @action(detail=True, methods=['delete'], permission_classes=[IsAuthenticated], serializer_class=NoneSerializer)
     def remove_following(self, request, pk=None):
         """删除关注
@@ -168,18 +166,17 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     def following(self, request):
         """我的关注的用户列表
         """
-        queryset = request.user.following_set.select_related('following').all()
-        
-        queryset = self.filter_queryset(queryset)
+        self.queryset = request.user.following_set.select_related('following').all()
+        return super().list(request)
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], serializer_class=MyFollowersSerializer)
+    def followers(self, request):
+        """我的粉丝列表
+        """
 
+        self.queryset = request.user.followers_set.select_related('user').all()
+        return super().list(request)
 
 
 

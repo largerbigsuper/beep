@@ -86,6 +86,13 @@ class MyFollowingSerializer(serializers.ModelSerializer):
         model = RelationShip
         fields = ['id', 'following', 'create_at']
 
+class MyFollowersSerializer(serializers.ModelSerializer):
+
+    user = UserBaseSerializer()
+    class Meta:
+        model = RelationShip
+        fields = ['id', 'user', 'create_at']
+
 
 # =======================================
 # ========= Admin Serializers  ==========
