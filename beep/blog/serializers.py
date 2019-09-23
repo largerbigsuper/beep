@@ -130,7 +130,27 @@ class LikeCreateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-
+class MyCommentCreateSerilizer(serializers.ModelSerializer):
+    """创建评论
+    """
+    class Meta:
+        model = Comment
+        fields = ('id', 'blog', 'reply_to', 'text')
+    
+    def create(self, validated_data):
+        request = self.context['request']
+        blog = validated_data['blog']
+        blog.total_comment = F('total_comment') + 1
+        blog.save()
+        reply_to = validated_data['reply_to']
+        if reply_to:
+            to_user = reply_to.user
+        else:
+            to_user = request.user
+        instance = Comment(user=request.user, to_user=to_user, **validated_data)
+        instance.save()
+        return instance
+        
 class LikeListSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -144,4 +164,3 @@ class MyLikeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ('id', 'blog', 'create_at')
-

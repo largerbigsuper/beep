@@ -17,6 +17,7 @@ from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_C
 from .filters import CommentFilter, LikeFilter, BlogFilter
 
 
+
 class TopicViewSet(viewsets.ReadOnlyModelViewSet):
     """话题
     """
@@ -99,7 +100,6 @@ class BlogViewSet(viewsets.ModelViewSet):
 
         return Response()
 
-
 class AtMessageViewSet(mixins.RetrieveModelMixin,
                        mixins.UpdateModelMixin,
                        mixins.DestroyModelMixin,
@@ -143,6 +143,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = mm_Comment.all().select_related(
             'user', 'blog', 'blog__user', 'to_user', 'reply_to')
+
         if self.action in ('mine'):
             queryset = queryset.filter(user=self.request.user)
         elif self.action in ('received'):

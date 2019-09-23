@@ -7,3 +7,4 @@ class IsOwerPermission(IsAuthenticated):
             return request.user == obj.user
         if hasattr(obj, 'user'):
             return request.user == obj.user
+
