@@ -280,18 +280,26 @@ MINI_PROGRAM_APP_SECRET = '648a7ae2cbf66aa7e48992d76f46e621'
 MINI_PROGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=userization_code&js_code='.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
 
 
-QINIU_ACCESS_KEY = 'YU8-GbpmWJ_8UEdBc7VTv4n_eku3zlgoHuUI2l9D'
-QINIU_SECRET_KEY = 'Mkms7UphbEH4sWdkWoEnqk0PCjD3V84rIZ3EuL_H'
+QINIU_ACCESS_KEY = 'r9Wn86UUlqWqRbt1E4Mvl8lPXPcZpSSH1t2n0MR6'
+QINIU_SECRET_KEY = 'OdRXdCnUSpDdkY5n4-PUQT3psAm2zJMiHvgNfU_S'
 QINIU_BUCKET_NAME_DICT = {
-    'image': 'img3-workspace',
-    'video': 'img-workspace'
+    'image': 'images-beepcrypto',
+    'video': 'videos-beepcrypto'
 }
 QINIU_BUCKET_DOMAIN_DICT = {
-    'image': 'http://lhxq.top/',
-    'video': 'http://video.lhxq.top/'
+    'image': 'http://pyc81u1xn.bkt.clouddn.com/',
+    'video': 'http://pyc8hxlh6.bkt.clouddn.com/'
 }
 
 ALIYUN_SMS_ACCESS_KEY_ID = "LTAIg1VpIb5ah7aK"
 ALIYUN_SMS_ACCESS_KEY_SECRET = "avnP9AWfnoZ0eWvXQku7cwUPagTtNt"
 ALIYUN_SMS_TEMPLATE_NAME = '浙江建筑宝典'
 ALIYUN_SMS_TEMPLATE_ID = 'SMS_168875146'
+
+
+TENCENT_SMS_APP_NAME = 'beep'
+TENCENT_SMS_APP_ID = '1400257398'
+TENCENT_SMS_APP_KEY = '539997d686b988efbe69c5478666670f'
+TENCENT_SMS_TEMPLATE_ID = '427500'
+TENCENT_SMS_TEMPLATE_NAME = 'beep'
+TENCENT_SMS_TEMPLATE_CONTENT = '{1}为您的登录验证码，请于{2}分钟内填写。如非本人操作，请忽略本短信。'
