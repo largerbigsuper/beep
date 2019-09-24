@@ -31,6 +31,15 @@ class Topic(models.Model):
         default=TopicManager.STATUS_NORMAL,
         verbose_name='状态屏蔽|正常|热门')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    total_view = models.PositiveIntegerField(default=0, verbose_name='查看人数')
+    total_comment = models.PositiveIntegerField(default=0, verbose_name='评论次数')
+    cover = models.ImageField(blank=True, null=True, verbose_name='封面图')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
+                             related_name='topics',
+                             blank=True,
+                             null=True,
+                             verbose_name='创建人')
 
     objects = TopicManager()
 
@@ -48,8 +57,8 @@ class Blog(models.Model):
     """博客"""
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                               on_delete=models.CASCADE,
-                               verbose_name='作者')
+                             on_delete=models.CASCADE,
+                             verbose_name='作者')
     topic = models.ForeignKey(Topic,
                               on_delete=models.DO_NOTHING,
                               related_name='blogs',
@@ -79,7 +88,6 @@ class Blog(models.Model):
     total_view = models.PositiveIntegerField(default=0, verbose_name='查看次数')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
-
 
     objects = BlogManager()
 
@@ -130,11 +138,12 @@ class BlogShare(models.Model):
             ['user', 'blog']
         ]
 
+
 class CommentManager(ModelManager):
 
     def valid(self):
         return self.filter(is_del=False)
-    
+
     def my_commnets(self, user_id):
         return self.valid().filter(user_id=user_id)
 

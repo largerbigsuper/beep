@@ -9,10 +9,19 @@ from .models import (Topic, mm_Topic, Blog, AtMessage, mm_AtMessage,
 
 class TopicSerializer(serializers.ModelSerializer):
 
+    user = UserBaseSerializer(read_only=True)
     class Meta:
         model = Topic
-        fields = ('id', 'name', 'status', 'create_at')
-        read_only_fields = ['status']
+        fields = ('id', 'name', 'status', 'create_at',
+                  'cover', 'total_view', 'total_comment', 'user')
+        read_only_fields = ['status', 'total_view', 'total_comment', 'user']
+    
+    def create(self, validated_data):
+        request = self.context['request']
+        if request.user.is_staff:
+            instance = self.Meta.model(user=request.user, **validated_data)
+            instance.save()
+            return instance
 
 
 class BaseBlogSerializer(serializers.ModelSerializer):
@@ -103,6 +112,8 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         blog = validated_data['blog']
         blog.total_comment = F('total_comment') + 1
         blog.save()
+        blog.topic.total_comment = F('total_comment') + 1
+        blog.topic.save()
         reply_to = validated_data['reply_to']
         if reply_to:
             to_user = reply_to.user

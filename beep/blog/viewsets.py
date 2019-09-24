@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.db.models import F
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -18,13 +18,19 @@ from .filters import CommentFilter, LikeFilter, BlogFilter
 
 
 
-class TopicViewSet(viewsets.ReadOnlyModelViewSet):
-    """话题
+class TopicViewSet(viewsets.ModelViewSet):
+    """话题/专题
+    list -- 专题榜
     """
 
-    permission_classes = []
     serializer_class = TopicSerializer
-    queryset = mm_Topic.allowed_topics()
+    queryset = mm_Topic.allowed_topics().select_related('user')
+
+    def get_permissions(self):
+        permissions = []
+        if self.action in ['create', 'update', 'destory']:
+            permissions = [IsAuthenticated, IsAdminUser]
+        return [permission() for permission in permissions]
 
 
 class BlogViewSet(viewsets.ModelViewSet):
@@ -72,6 +78,8 @@ class BlogViewSet(viewsets.ModelViewSet):
         blog = self.get_object()
         blog.total_view = F('total_view') + 1
         blog.save()
+        blog.topic.total_view = F('total_view') + 1
+        blog.topic.save()
         return response
 
     @action(detail=False, methods=['get'])
