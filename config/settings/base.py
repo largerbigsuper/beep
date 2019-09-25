@@ -304,3 +304,12 @@ TENCENT_SMS_APP_KEY = '539997d686b988efbe69c5478666670f'
 TENCENT_SMS_TEMPLATE_ID = '427500'
 TENCENT_SMS_TEMPLATE_NAME = 'beep'
 TENCENT_SMS_TEMPLATE_CONTENT = '{1}为您的登录验证码，请于{2}分钟内填写。如非本人操作，请忽略本短信。'
+
+# jieba分词
+import jieba
+JIEBA = jieba
+JIEBA.initialize()
+JIEBA_WORD_PATH = ROOT_DIR.path('config/jieba.txt')
+with open(JIEBA_WORD_PATH) as f:
+    for word in f.readlines():
+        JIEBA.add_word(word)

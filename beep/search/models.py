@@ -12,8 +12,9 @@ class SearchHistoryManager(ModelManager):
         """增加记录
         """
         history = self.create(user_id=user_id, content=content)
-        #TODO 进行分词提取搜索关键字
-        #  
+        # 进行分词提取搜索关键字
+        mm_SearchKeyWord.process_search(content)
+
         return history
 
 
@@ -39,6 +40,15 @@ class SearchKeyWordManager(ModelManager):
         if not created:
             obj.frequency = F('frequency') + 1
             obj.save()
+
+    def process_search(self, content):
+        if not content:
+            return
+        seg_list = settings.JIEBA.cut(content)
+        keyword_list = [word for word in seg_list if len(word) > 1]
+        for keyword in keyword_list:
+            self.add_keyword(keyword)
+        
 
 
 class SearchKeyWord(models.Model):

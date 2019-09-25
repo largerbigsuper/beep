@@ -15,6 +15,7 @@ from .serializers import (TopicSerializer,
                           LikeCreateSerializer, LikeListSerializer, MyLikeListSerializer)
 from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment
 from .filters import CommentFilter, LikeFilter, BlogFilter
+from beep.search.models import mm_SearchHistory
 
 
 
@@ -69,6 +70,16 @@ class BlogViewSet(viewsets.ModelViewSet):
             queryset = queryset.select_related('topic')
         else:
             queryset = queryset.select_related('user', 'topic')
+        # 处理搜索记录
+        if self.action == 'list':
+            content = self.request.query_params.get('content__icontains', '')
+            if content:
+                user_id = None
+                if self.request.user:
+                    user_id = self.request.user.id
+                mm_SearchHistory.add_history(content=content, user_id=user_id)
+
+
         return queryset
 
     def retrieve(self, request, *args, **kwargs):
