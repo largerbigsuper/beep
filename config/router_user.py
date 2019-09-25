@@ -5,6 +5,7 @@ from beep.common import viewsets as common_viewsets
 from beep.activity import viewsets as activity_viewsets
 from beep.blog import viewsets as blog_viewsets
 from beep.news import viewsets as news_viewsets
+from beep.search import viewsets as search_viewsets
 
 router_user = routers.DefaultRouter()
 
@@ -20,3 +21,5 @@ router_user.register('atmsg', blog_viewsets.AtMessageViewSet, base_name='user-at
 router_user.register('like', blog_viewsets.LikeViewSet, base_name='user-like')
 router_user.register('comment', blog_viewsets.CommentViewSet, base_name='user-comment')
 router_user.register('news', news_viewsets.NewsViewSet, base_name='user-news')
+router_user.register('search', search_viewsets.SearchKeyWordViewSet, base_name='user-search')
+router_user.register('search-history', search_viewsets.SearchHistoryViewSet, base_name='user-search-history')
