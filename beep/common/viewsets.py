@@ -2,6 +2,7 @@ from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from utils.pagination import ReturnAllPagination
 from .serializers import AreaSerializer
 from .models import mm_Area
 
@@ -11,6 +12,13 @@ class AreaViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = []
     serializer_class = AreaSerializer
     queryset = mm_Area.all().order_by('parent_id')
+    pagination_class = ReturnAllPagination
+
+    def get_queryset(self):
+        if self.action in ['list', 'province']:
+            return mm_Area.province()
+        else:
+            return mm_Area.all().order_by('parent_id')
 
     @action(detail=False)
     def province(self, request):

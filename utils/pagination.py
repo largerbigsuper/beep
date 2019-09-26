@@ -1,3 +1,4 @@
+import sys
 from collections import OrderedDict
 
 from rest_framework import pagination
@@ -14,3 +15,7 @@ class CustomPagination(pagination.PageNumberPagination):
             ('results', data)
         ]))
 
+
+class ReturnAllPagination(CustomPagination):
+
+    page_size = sys.maxsize
