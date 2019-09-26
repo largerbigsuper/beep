@@ -19,4 +19,4 @@ class SearchKeyWordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SearchKeyWord
-        fields = ('keyword')
+        fields = ['keyword']
