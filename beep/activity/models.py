@@ -33,6 +33,7 @@ class Activity(models.Model):
     total_view = models.PositiveIntegerField(default=0, verbose_name='查看人数')
     total_registration = models.PositiveIntegerField(default=0, verbose_name='报名个数')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    content = models.TextField(blank=True, verbose_name='活动详情')
     
     
     objects = ActivityManager()

@@ -15,9 +15,10 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
                   'start_at', 'end_at', 'ticket_price',
                   'area', 'address', 'live_plateform',
                   'live_address', 'total_user', 'contact_name',
-                  'contact_info', 'total_view', 'create_at'
+                  'contact_info', 'total_view', 'total_registration', 
+                  'create_at', 'content'
                   )
-        read_only_fields = ('user', 'total_view')
+        read_only_fields = ('user', 'total_view', 'total_registration')
 
 class ActivityListSerializer(serializers.ModelSerializer):
 
