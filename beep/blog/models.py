@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import F
 from django.conf import settings
 
 from django_extensions.db.fields.json import JSONField
@@ -51,6 +52,12 @@ class BlogManager(ModelManager):
 
     def my_blogs(self, user_id):
         return self.filter(user_id=user_id)
+
+    def update_data(self, pk, field_name, amount=1):
+        updates = {
+            field_name: F(field_name) + amount
+        }
+        self.filter(pk=pk).update(**updates)
 
 
 class Blog(models.Model):
@@ -154,12 +161,14 @@ class Comment(models.Model):
                              on_delete=models.CASCADE, db_index=False, verbose_name='评论人')
     to_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='my_replys',
                                 on_delete=models.CASCADE, db_index=False, verbose_name='被回复的人')
-    reply_to = models.ForeignKey('self', null=True, blank=True,
+    reply_to = models.ForeignKey('self', null=True, blank=True, related_name='reply_real',
                                  on_delete=models.DO_NOTHING, db_index=False, verbose_name='回复消息id')
     text = models.CharField(max_length=200, null=True,
                             blank=True, verbose_name='评论正文')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     is_del = models.BooleanField(default=False, verbose_name='删除')
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='reply_group',
+                                 on_delete=models.DO_NOTHING, db_index=False, verbose_name='回复消息的一级id')
 
     objects = CommentManager()
 

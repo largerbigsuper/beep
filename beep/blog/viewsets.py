@@ -1,5 +1,7 @@
+from collections import defaultdict
+
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Count
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import viewsets, mixins
@@ -85,13 +87,18 @@ class BlogViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """博客详情
         """
-        response = super().retrieve(request, *args, **kwargs)
         blog = self.get_object()
-        blog.total_view = F('total_view') + 1
-        blog.save()
-        blog.topic.total_view = F('total_view') + 1
-        blog.topic.save()
-        return response
+        # blog.total_view = F('total_view') + 1
+        # blog.save()
+        # mm_Blog.filter(pk=blog.id).update(total_view=F('total_view') + 1)
+        mm_Blog.update_data(blog.id, 'total_view')
+        if blog.topic:
+            # blog.topic.total_view = F('total_view') + 1
+            # blog.topic.save()
+            mm_Topic.filter(pk=blog.topic.id).update(total_view=F('total_view') + 1)
+        serializer = self.get_serializer(blog)
+
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def mine(self, request):
@@ -109,8 +116,10 @@ class BlogViewSet(viewsets.ModelViewSet):
             _, created = mm_Like.update_or_create(
                 user=request.user, blog=blog)
             if created:
-                blog.total_like = F('total_like') + 1
-                blog.save()
+                # blog.total_like = F('total_like') + 1
+                # blog.save()
+                # mm_Blog.filter(pk=blog.id).update(total_like=F('total_like') + 1)
+                mm_Blog.update_data(blog.id, 'total_like')
 
         return Response()
 
@@ -123,8 +132,10 @@ class BlogViewSet(viewsets.ModelViewSet):
             _, created = mm_BlogShare.update_or_create(
                 user=request.user, blog=blog)
             if created:
-                blog.total_share = F('total_share') + 1
-                blog.save()
+                # blog.total_share = F('total_share') + 1
+                # blog.save()
+                # mm_Blog.filter(pk=blog.id).update(total_share=F('total_share') + 1)
+                mm_Blog.update_data(blog.id, 'total_share')
 
         return Response()
 
@@ -176,6 +187,8 @@ class CommentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(user=self.request.user)
         elif self.action in ('received'):
             queryset = queryset.filter(to_user=self.request.user)
+        elif self.action in ('all'):
+            queryset = queryset.filter(parent=None)
         return queryset
 
     @action(detail=False, methods=['get'])
@@ -191,6 +204,25 @@ class CommentViewSet(viewsets.ModelViewSet):
         """
 
         return super().list(request)
+
+    @action(detail=False, methods=['get'])
+    def all(self, request):
+        """评论列表
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        serializer = self.get_serializer(page, many=True)
+        data = serializer.data
+        reply_dict = defaultdict(int)
+        comments = [c.id for c in page]
+        count_dict = mm_Comment.filter(parent_id__in=comments).values('parent_id').annotate(total_reply=Count('pk')).order_by('parent_id')
+        for d in count_dict:
+            reply_dict[d['parent_id']] = d['total_reply']
+
+        for c in data:
+            c['total_reply'] = reply_dict[c['id']]
+        return self.get_paginated_response(data)
 
 
 class LikeViewSet(mixins.CreateModelMixin,

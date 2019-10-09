@@ -112,11 +112,16 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         blog = validated_data['blog']
         blog.total_comment = F('total_comment') + 1
         blog.save()
-        blog.topic.total_comment = F('total_comment') + 1
-        blog.topic.save()
+        if blog.topic:
+            blog.topic.total_comment = F('total_comment') + 1
+            blog.topic.save()
         reply_to = validated_data['reply_to']
         if reply_to:
             to_user = reply_to.user
+            if reply_to.parent_id:
+                validated_data['parent_id'] = reply_to.parent_id
+            else:
+                validated_data['parent_id'] = reply_to.id
         else:
             to_user = request.user
         instance = Comment(user=request.user,
@@ -134,7 +139,7 @@ class CommentListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at')
+        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent')
 
 
 class LikeCreateSerializer(serializers.ModelSerializer):
@@ -149,29 +154,6 @@ class LikeCreateSerializer(serializers.ModelSerializer):
         blog.save()
         instance = self.Meta.model(
             user=self.context['request'].user, **validated_data)
-        instance.save()
-        return instance
-
-
-class MyCommentCreateSerilizer(serializers.ModelSerializer):
-    """创建评论
-    """
-    class Meta:
-        model = Comment
-        fields = ('id', 'blog', 'reply_to', 'text')
-
-    def create(self, validated_data):
-        request = self.context['request']
-        blog = validated_data['blog']
-        blog.total_comment = F('total_comment') + 1
-        blog.save()
-        reply_to = validated_data['reply_to']
-        if reply_to:
-            to_user = reply_to.user
-        else:
-            to_user = request.user
-        instance = Comment(user=request.user,
-                           to_user=to_user, **validated_data)
         instance.save()
         return instance
 
