@@ -4,7 +4,7 @@ from rest_framework import serializers
 from beep.users.serializers import UserBaseSerializer
 
 from .models import (Topic, mm_Topic, Blog, AtMessage, mm_AtMessage,
-                     Comment, mm_Comment, Like, BlogShare)
+                     Comment, mm_Comment, Like, mm_Like, BlogShare)
 
 
 class TopicSerializer(serializers.ModelSerializer):
@@ -73,13 +73,23 @@ class BlogListSerialzier(BaseBlogSerializer):
     """
 
     user = UserBaseSerializer()
+    is_like = serializers.SerializerMethodField()
+
+    def get_is_like(self, obj):
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return 0
+        if not hasattr(self, '_likes'):
+            self._likes = mm_Like.filter(user=user).values_list('blog_id', flat=True)
+        return 1 if obj.id in self._likes else 0
+
 
     class Meta:
         model = Blog
         fields = ('id', 'user', 'topic', 'is_anonymous',
                   'content', 'img_list', 'at_list',
                   'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at')
+                  'update_at', 'is_like')
         read_only_fields = ('total_share', 'total_like',
                             'total_comment', 'total_view')
 

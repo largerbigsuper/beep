@@ -81,8 +81,19 @@ class BlogViewSet(viewsets.ModelViewSet):
                     user_id = self.request.user.id
                 mm_SearchHistory.add_history(content=content, user_id=user_id)
 
-
         return queryset
+
+    # def paginate_queryset(self, queryset):
+    #     page = super().paginate_queryset(queryset)
+    #     blog_ids = [blog.id for blog in page]
+    #     likes = []
+    #     if self.request.user:
+    #         likes = mm_Like.filter(user=self.request.user, blog_id__in=blog_ids).values_list('blog_id', flat=True)
+    #     for blog in page:
+    #         blog.is_like = blog.id in likes
+        
+    #     return page
+
 
     def retrieve(self, request, *args, **kwargs):
         """博客详情
