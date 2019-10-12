@@ -1,10 +1,17 @@
 from django.db import models
+from django.db.models import F
 from django.conf import settings
 
 from utils.modelmanager import ModelManager
 
 class ActivityManager(ModelManager):
-    pass
+    
+    def update_data(self, pk, field_name, amount=1):
+        updates = {
+            field_name: F(field_name) + amount
+        }
+        self.filter(pk=pk).update(**updates)
+
 
 
 class Activity(models.Model):

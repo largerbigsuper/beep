@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from .serializers import ActivityCreateSerializer, ActivityListSerializer
 from .models import mm_Activity
@@ -22,6 +23,12 @@ class ActivityViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        mm_Activity.update_data(instance.id, 'total_view')
+        serializer = self.get_serializer(instance)
+
+        return Response(serializer.data)
 
 
         
