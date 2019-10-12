@@ -13,7 +13,7 @@ from .filters import ActivityFilter
 class ActivityViewSet(viewsets.ModelViewSet):
 
     permission_classes = [IsAuthenticated]
-    queryset = mm_Activity.all()
+    queryset = mm_Activity.all().select_related('user', 'area')
     filter_class = ActivityFilter
 
     def get_serializer_class(self):
