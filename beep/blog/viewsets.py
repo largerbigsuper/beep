@@ -44,6 +44,7 @@ class BlogViewSet(viewsets.ModelViewSet):
     add_like -- 添加收藏
     add_share -- 分享
     mine -- 我的博文列表
+    following -- 我关注的博文列表
     """
 
     filter_class = BlogFilter
@@ -68,44 +69,31 @@ class BlogViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = mm_Blog.all()
-        if self.action in ['mine']:
-            queryset = queryset.select_related('topic')
-        else:
-            queryset = queryset.select_related('user', 'topic')
-        # 处理搜索记录
-        if self.action == 'list':
+        if self.action in ['list']:
+            queryset = queryset.select_related('user', 'topic').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score')
+            # 处理搜索记录
             content = self.request.query_params.get('content__icontains', '')
             if content:
                 user_id = None
                 if self.request.user:
                     user_id = self.request.user.id
                 mm_SearchHistory.add_history(content=content, user_id=user_id)
+        elif self.action in ['mine']:
+            queryset = queryset.select_related('topic')
+        elif self.action in ['following']:
+            following_ids = self.request.user.following_set.values_list('following_id', flat=True)
+            queryset = queryset.filter(user_id__in=following_ids).select_related('user', 'topic')
+        else:
+            queryset = queryset.select_related('user', 'topic')
 
         return queryset
-
-    # def paginate_queryset(self, queryset):
-    #     page = super().paginate_queryset(queryset)
-    #     blog_ids = [blog.id for blog in page]
-    #     likes = []
-    #     if self.request.user:
-    #         likes = mm_Like.filter(user=self.request.user, blog_id__in=blog_ids).values_list('blog_id', flat=True)
-    #     for blog in page:
-    #         blog.is_like = blog.id in likes
-        
-    #     return page
-
 
     def retrieve(self, request, *args, **kwargs):
         """博客详情
         """
         blog = self.get_object()
-        # blog.total_view = F('total_view') + 1
-        # blog.save()
-        # mm_Blog.filter(pk=blog.id).update(total_view=F('total_view') + 1)
         mm_Blog.update_data(blog.id, 'total_view')
         if blog.topic:
-            # blog.topic.total_view = F('total_view') + 1
-            # blog.topic.save()
             mm_Topic.filter(pk=blog.topic.id).update(total_view=F('total_view') + 1)
         serializer = self.get_serializer(blog)
 
@@ -127,9 +115,6 @@ class BlogViewSet(viewsets.ModelViewSet):
             _, created = mm_Like.update_or_create(
                 user=request.user, blog=blog)
             if created:
-                # blog.total_like = F('total_like') + 1
-                # blog.save()
-                # mm_Blog.filter(pk=blog.id).update(total_like=F('total_like') + 1)
                 mm_Blog.update_data(blog.id, 'total_like')
 
         return Response()
@@ -149,6 +134,11 @@ class BlogViewSet(viewsets.ModelViewSet):
                 mm_Blog.update_data(blog.id, 'total_share')
 
         return Response()
+
+    @action(detail=False, )
+    def following(self, request):
+        return super().list(request)
+
 
 class AtMessageViewSet(mixins.RetrieveModelMixin,
                        mixins.UpdateModelMixin,

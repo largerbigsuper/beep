@@ -21,7 +21,8 @@ django-admin startapp --template ../templates/app_template appname
 - [x] 活动报名增加到行程表中
 - [ ] 活动收藏
 - [ ] 评论点赞
-- [ ] 博文热门接口
-- [ ] 博文关注列表
+- [x] 博文热门接口
+- [x] 博文关注列表
 - [x] 博文增加用户关系是否关注
 - [x] 用户增加简介字段
+- [ ] 活动详情中显示是否已经报名

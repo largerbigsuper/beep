@@ -1,4 +1,5 @@
 from django_filters import rest_framework as filters
+from django_filters.rest_framework import OrderingFilter
 
 from .models import Comment, Like, Blog
 
@@ -22,6 +23,11 @@ class LikeFilter(filters.FilterSet):
 
 class BlogFilter(filters.FilterSet):
 
+    # o = OrderingFilter(
+    #     fields={
+    #         'score': 'score',
+    #     },
+    # )
     class Meta:
         model = Blog
         fields = {
@@ -30,4 +36,4 @@ class BlogFilter(filters.FilterSet):
             'topic__name': ['icontains'],
             'content': ['icontains']
         }
-
+    
