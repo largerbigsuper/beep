@@ -95,7 +95,7 @@ class BlogListSerialzier(BaseBlogSerializer):
             return 0
         if not hasattr(self, '_relations'):
             self._relations = mm_RelationShip.filter(user=user).values_list('following_id', flat=True)
-        return 1 if obj.id in self._relations else 0
+        return 1 if obj.user_id in self._relations else 0
 
     class Meta:
         model = Blog
