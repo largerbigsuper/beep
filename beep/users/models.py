@@ -49,6 +49,7 @@ class User(AbstractUser):
     avatar_url = models.CharField(max_length=300, blank=True, verbose_name='头像')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
+    desc = models.CharField(max_length=500, blank=True, null=True, verbose_name='个人简介')
 
     objects = UserManager()
 

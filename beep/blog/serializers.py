@@ -2,9 +2,10 @@ from django.db.models import F
 from rest_framework import serializers
 
 from beep.users.serializers import UserBaseSerializer
-
+from beep.users.models import mm_RelationShip
 from .models import (Topic, mm_Topic, Blog, AtMessage, mm_AtMessage,
                      Comment, mm_Comment, Like, mm_Like, BlogShare)
+
 
 
 class TopicSerializer(serializers.ModelSerializer):
@@ -74,8 +75,11 @@ class BlogListSerialzier(BaseBlogSerializer):
 
     user = UserBaseSerializer()
     is_like = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
 
     def get_is_like(self, obj):
+        """是否点赞
+        """
         user = self.context['request'].user
         if not user.is_authenticated:
             return 0
@@ -83,13 +87,22 @@ class BlogListSerialzier(BaseBlogSerializer):
             self._likes = mm_Like.filter(user=user).values_list('blog_id', flat=True)
         return 1 if obj.id in self._likes else 0
 
+    def get_is_following(self, obj):
+        """用户关系
+        """
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return 0
+        if not hasattr(self, '_relations'):
+            self._relations = mm_RelationShip.filter(user=user).values_list('following_id', flat=True)
+        return 1 if obj.id in self._relations else 0
 
     class Meta:
         model = Blog
         fields = ('id', 'user', 'topic', 'is_anonymous',
                   'content', 'img_list', 'at_list',
                   'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at', 'is_like')
+                  'update_at', 'is_like', 'is_following')
         read_only_fields = ('total_share', 'total_like',
                             'total_comment', 'total_view')
 
