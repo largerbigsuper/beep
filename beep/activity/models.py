@@ -7,8 +7,12 @@ from utils.modelmanager import ModelManager
 class ActivityManager(ModelManager):
     
     def update_data(self, pk, field_name, amount=1):
+        if amount > 0: 
+            value = F(field_name) + amount
+        else:
+            value = F(field_name) - abs(amount)
         updates = {
-            field_name: F(field_name) + amount
+            field_name: value
         }
         self.filter(pk=pk).update(**updates)
 
@@ -78,6 +82,7 @@ class Registration(models.Model):
         unique_together = [
             ['user', 'activity'],
             ]
+        ordering = ['-create_at']
 
 mm_Activity = Activity.objects
 mm_Registration = Registration.objects

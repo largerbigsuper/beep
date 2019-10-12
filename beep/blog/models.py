@@ -54,8 +54,12 @@ class BlogManager(ModelManager):
         return self.filter(user_id=user_id)
 
     def update_data(self, pk, field_name, amount=1):
+        if amount > 0: 
+            value = F(field_name) + amount
+        else:
+            value = F(field_name) - abs(amount)
         updates = {
-            field_name: F(field_name) + amount
+            field_name: value
         }
         self.filter(pk=pk).update(**updates)
 
