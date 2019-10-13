@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from .models import Activity
+from .models import Activity, Collect
 
 class ActivityFilter(filters.FilterSet):
 
@@ -17,3 +17,14 @@ class ActivityFilter(filters.FilterSet):
             'start_at': ['iexact', 'gte', 'lte'],
             'create_at': ['iexact', 'gte', 'lte'],
         }
+
+class CollectFilter(filters.FilterSet):
+
+    class Meta:
+        model = Collect
+
+        fields = {
+            'activity_id': ['exact'],
+        }
+
+

@@ -45,6 +45,7 @@ class Activity(models.Model):
     total_registration = models.PositiveIntegerField(default=0, verbose_name='报名个数')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     content = models.TextField(blank=True, verbose_name='活动详情')
+    total_collect = models.PositiveIntegerField(default=0, verbose_name='收藏数量')
     
     
     objects = ActivityManager()
@@ -84,5 +85,30 @@ class Registration(models.Model):
             ]
         ordering = ['-create_at']
 
+
+class CollectManager(ModelManager):
+    pass
+
+
+class Collect(models.Model):
+    """收藏记录
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE, verbose_name='用户')
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, verbose_name='博客')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+    objects = CollectManager()
+
+    class Meta:
+        db_table = 'activity_collect'
+        unique_together = [
+            ['user', 'activity']
+        ]
+        ordering = ['-create_at']
+
+
 mm_Activity = Activity.objects
 mm_Registration = Registration.objects
+mm_Collect = Collect.objects

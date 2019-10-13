@@ -13,13 +13,13 @@ django-admin startapp --template ../templates/app_template appname
 
 ## TODO LIST
 
-- [ ] 评论分级列表
+- [x] 评论分级列表
 - [ ] es搜索功能
 - [ ] 微信信息回调
 - [ ] 聊天服务器搭建
 - [x] 活动查看详情增加浏览次数
 - [x] 活动报名增加到行程表中
-- [ ] 活动收藏
+- [x] 活动收藏
 - [ ] 评论点赞
 - [x] 博文热门接口
 - [x] 博文关注列表
@@ -29,4 +29,5 @@ django-admin startapp --template ../templates/app_template appname
 - [x] 用户支持查询
 - [x] 粉丝列表增加是否关注
 - [x] 评论列表增加博文详情
-- [x] 二级评论列表 
+- [x] 二级评论列表
+- [x] 用户博文个数，粉丝数量，关注数量 

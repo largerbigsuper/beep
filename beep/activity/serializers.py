@@ -4,7 +4,8 @@ from django.db.models import F
 from beep.users.serializers import UserBaseSerializer
 from beep.common.serializers import AreaSerializer
 from .models import (Activity, mm_Activity,
-                     Registration, mm_Registration)
+                     Registration, mm_Registration,
+                     Collect, mm_Collect)
 
 
 class ActivityCreateSerializer(serializers.ModelSerializer):
@@ -18,9 +19,9 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
                   'area', 'address', 'live_plateform',
                   'live_address', 'total_user', 'contact_name',
                   'contact_info', 'total_view', 'total_registration',
-                  'create_at', 'content'
+                  'create_at', 'content', 'total_collect'
                   )
-        read_only_fields = ('user', 'total_view', 'total_registration')
+        read_only_fields = ('user', 'total_view', 'total_registration', 'total_collect')
 
 
 class ActivityListSerializer(ActivityCreateSerializer):
@@ -43,7 +44,7 @@ class ActivityListSerializer(ActivityCreateSerializer):
                   'area', 'address', 'live_plateform',
                   'live_address', 'total_user', 'contact_name',
                   'contact_info', 'total_view', 'total_registration',
-                  'create_at', 'content', 'is_registrated'
+                  'create_at', 'content', 'is_registrated', 'total_collect'
                   )
 
 
@@ -56,7 +57,7 @@ class ActivitySimpleSerializer(ActivityCreateSerializer):
                   'area', 'address', 'live_plateform',
                   'live_address', 'total_user',
                   'total_view', 'total_registration',
-                  'create_at', 'content'
+                  'create_at', 'content', 'total_collect'
                   )
 
 
@@ -74,3 +75,26 @@ class RegistrationListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
         fields = ['id', 'activity', 'status', 'create_at']
+
+
+
+class CollectCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Collect
+        fields = ('id', 'activity', 'create_at')
+
+class CollectListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Collect
+        fields = ('id', 'user', 'create_at')
+
+
+class MyCollectListSerializer(serializers.ModelSerializer):
+
+    activity = ActivitySimpleSerializer()
+
+    class Meta:
+        model = Collect
+        fields = ('id', 'activity', 'create_at')

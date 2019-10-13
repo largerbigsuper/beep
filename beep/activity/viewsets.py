@@ -5,9 +5,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
-                          RegistrationCreateSerializer, RegistrationListSerializer)
-from .models import mm_Activity, mm_Registration
-from .filters import ActivityFilter
+                          RegistrationCreateSerializer, RegistrationListSerializer,
+                          CollectCreateSerializer, CollectListSerializer, MyCollectListSerializer
+                          )
+from .models import mm_Activity, mm_Registration, mm_Collect
+from .filters import ActivityFilter, CollectFilter
+from utils.permissions import IsOwerPermission
 
 
 class ActivityViewSet(viewsets.ModelViewSet):
@@ -63,3 +66,61 @@ class RegistrationViewSet(mixins.ListModelMixin,
     def perform_destroy(self, instance):
         mm_Activity.update_data(instance.activity_id, 'total_registration', -1)
         return super().perform_destroy(instance)
+
+
+class CollectViewSet(mixins.CreateModelMixin,
+                     mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.DestroyModelMixin,
+                     viewsets.GenericViewSet
+                     ):
+    """活动收藏
+    create -- 添加活动收藏
+    destory -- 删除收藏
+    list -- 收藏人列表
+    mine -- 我的收藏列表
+    """
+
+    filter_class = CollectFilter
+
+    def get_permissions(self):
+        permissions = []
+        if self.action in ['create', 'destory', 'mine']:
+            permissions.append(IsAuthenticated())
+        if self.action in ['destory']:
+            permissions.append(IsOwerPermission())
+        return permissions
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CollectCreateSerializer
+        elif self.action == 'mine':
+            return MyCollectListSerializer
+        else:
+            return CollectListSerializer
+
+    def get_queryset(self):
+        queryset = mm_Collect.all()
+        if self.action in ('mine'):
+            queryset = queryset.filter(
+                user=self.request.user).select_related('activity', 'activity__user')
+        else:
+            queryset = queryset.select_related('user', 'activity')
+        return queryset
+
+    def perform_create(self, serializer):
+        instance = serializer.save(user=self.request.user)
+        # 更新收藏统计
+        mm_Activity.update_data(instance.activity_id, 'total_collect')
+    
+    def perform_destroy(self, instance):
+        # 更新收藏统计
+        mm_Activity.update_data(instance.activity_id, 'total_collect', -1)
+        instance.delete()
+
+    @action(detail=False, methods=['get'])
+    def mine(self, request):
+        """我的收藏列表
+        """
+
+        return super().list(request)
