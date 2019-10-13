@@ -99,7 +99,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         process_logout(request)
         return Response()
 
-    @action(detail=False, methods=['get', 'post'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get', 'post'], permission_classes=[IsAuthenticated], serializer_class=MyUserProfileSerializer)
     def profile(self, request):
         """个人信息获取／修改"""
 
