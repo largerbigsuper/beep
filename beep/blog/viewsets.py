@@ -18,6 +18,7 @@ from .serializers import (TopicSerializer,
 from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment
 from .filters import CommentFilter, LikeFilter, BlogFilter
 from beep.search.models import mm_SearchHistory
+from beep.users.models import mm_User
 
 
 
@@ -41,7 +42,7 @@ class BlogViewSet(viewsets.ModelViewSet):
     list -- 博客列表
     update -- 修改博客
     destory -- 删除
-    add_like -- 添加收藏
+    add_like -- 添加点赞
     add_share -- 分享
     mine -- 我的博文列表
     following -- 我关注的博文列表
@@ -87,6 +88,11 @@ class BlogViewSet(viewsets.ModelViewSet):
             queryset = queryset.select_related('user', 'topic')
 
         return queryset
+
+    def perform_destroy(self, instance):
+        # 更新我的博客个数
+        mm_User.update_data(instance.user.id, 'total_blog', -1)
+        return super().perform_destroy(instance)
 
     def retrieve(self, request, *args, **kwargs):
         """博客详情
@@ -234,11 +240,11 @@ class LikeViewSet(mixins.CreateModelMixin,
                       mixins.DestroyModelMixin,
                       viewsets.GenericViewSet
                       ):
-    """博文收藏
-    create -- 添加收藏
-    destory -- 删除收藏
-    list -- 收藏人列表
-    mine -- 我的收藏列表
+    """博文点赞
+    create -- 添加点赞
+    destory -- 删除点赞
+    list -- 点赞人列表
+    mine -- 我的点赞列表
     """
 
     filter_class = LikeFilter
@@ -270,7 +276,7 @@ class LikeViewSet(mixins.CreateModelMixin,
 
     @action(detail=False, methods=['get'])
     def mine(self, request):
-        """我的收藏
+        """我的点赞
         """
 
         return super().list(request)

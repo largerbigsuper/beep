@@ -22,6 +22,11 @@ base_user_fields = ['id',
                     'update_at',
                     'desc',
                     ]
+user_data_fields = [
+    'total_blog',
+    'total_following',
+    'total_followers'
+]
 
 
 class NoneSerializer(serializers.Serializer):
@@ -61,7 +66,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = base_user_fields + ['is_following']
+        fields = base_user_fields + ['is_following'] + user_data_fields
+        read_only_fields = user_data_fields
 
 
 class MyUserProfileSerializer(serializers.ModelSerializer):

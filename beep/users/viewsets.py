@@ -152,6 +152,12 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
             following = self.get_object()
             relation = mm_RelationShip.add_relation(self.request.user, following)
             msg = "添加关注成功"
+            # 更新统计
+            # 更新我的关注个数
+            mm_User.update_data(self.request.user.id, 'total_following')
+            # 更新我的粉丝个数
+            mm_User.update_data(following.id, 'total_followers')
+
         except IntegrityError as e:
             msg = "已经关注了"
         return Response(data={'msg': msg})
@@ -163,6 +169,9 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         # mm_RelationShip.remove_relation(self.request.session['uid'], pk)
         following = self.get_object()
         mm_RelationShip.remove_relation(self.request.user, following)
+        # 更新统计
+        mm_User.update_data(self.request.user.id, 'total_following', -1)
+        mm_User.update_data(following.id, 'total_followers', -1)
         return Response()
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])

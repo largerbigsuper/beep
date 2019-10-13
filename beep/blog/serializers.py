@@ -2,7 +2,7 @@ from django.db.models import F
 from rest_framework import serializers
 
 from beep.users.serializers import UserBaseSerializer
-from beep.users.models import mm_RelationShip
+from beep.users.models import mm_RelationShip, mm_User
 from .models import (Topic, mm_Topic, Blog, AtMessage, mm_AtMessage,
                      Comment, mm_Comment, Like, mm_Like, BlogShare)
 
@@ -46,6 +46,7 @@ class BlogCreateSerializer(BaseBlogSerializer):
                             'total_comment', 'total_view')
 
     def create(self, validated_data):
+        user = self.context['request'].user
         # deal topic
         topic_str = validated_data.pop('topic_str')
         topic = None
@@ -56,8 +57,7 @@ class BlogCreateSerializer(BaseBlogSerializer):
             topic, _ = mm_Topic.get_or_create(**topic_data)
 
         at_list = validated_data['at_list']
-        instance = self.Meta.model(
-            user=self.context['request'].user, **validated_data)
+        instance = self.Meta.model(user=user, **validated_data)
         instance.topic = topic
         instance.save()
         # deal at message
@@ -66,6 +66,7 @@ class BlogCreateSerializer(BaseBlogSerializer):
             msg = AtMessage(blog=instance, user_id=user_info['id'])
             at_message_list.append(msg)
         mm_AtMessage.bulk_create(at_message_list)
+        mm_User.update_data(user.id, 'total_blog')
 
         return instance
 

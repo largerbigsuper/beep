@@ -4,6 +4,7 @@ from datetime import date
 from django.db import models
 from django.db import transaction
 from django.db import IntegrityError, DataError
+from django.db.models import F
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager as AuthUserManager
@@ -29,7 +30,16 @@ class UserManager(AuthUserManager, ModelManager):
             user.set_password(password)
             user.save()
 
-
+    def update_data(self, pk, field_name, amount=1):
+        if amount > 0: 
+            value = F(field_name) + amount
+        else:
+            value = F(field_name) - abs(amount)
+        updates = {
+            field_name: value
+        }
+        self.filter(pk=pk).update(**updates)
+        
 
 class User(AbstractUser):
     GENDER_UNSET = 0
@@ -50,6 +60,9 @@ class User(AbstractUser):
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
     desc = models.CharField(max_length=500, blank=True, null=True, verbose_name='个人简介')
+    total_blog = models.PositiveIntegerField(default=0, verbose_name='博文数量')
+    total_following = models.PositiveIntegerField(default=0, verbose_name='关注数量')
+    total_followers = models.PositiveIntegerField(default=0, verbose_name='粉丝数量')
 
     objects = UserManager()
 
