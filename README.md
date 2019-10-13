@@ -25,4 +25,8 @@ django-admin startapp --template ../templates/app_template appname
 - [x] 博文关注列表
 - [x] 博文增加用户关系是否关注
 - [x] 用户增加简介字段
-- [ ] 活动详情中显示是否已经报名
+- [x] 活动详情中显示是否已经报名
+- [x] 用户支持查询
+- [x] 粉丝列表增加是否关注
+- [x] 评论列表增加博文详情
+- [x] 二级评论列表 

@@ -9,6 +9,7 @@ class CommentFilter(filters.FilterSet):
         model = Comment
         fields = {
             'blog_id': ['exact'],
+            'parent_id': ['exact'],
         }
 
 class LikeFilter(filters.FilterSet):
