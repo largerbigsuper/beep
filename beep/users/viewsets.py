@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer,
                           MiniprogramLoginSerializer, MyUserProfileSerializer, ResetPasswordSerializer,
+                          UserBaseSerializer,
                           ScheduleSerializer,
                           CheckInSerializer,
                           PointSerializer,
@@ -20,6 +21,7 @@ from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer,
 from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
 from .models import mm_User, mm_Schedule, mm_CheckIn, mm_Point, mm_RelationShip
+from .filters import UserFilter
 
 
 class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
@@ -28,6 +30,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     permission_classes = []
     serializer_class = UserSerializer
     queryset = mm_User.all()
+    filter_class = UserFilter
 
     @action(detail=False, methods=['post'], serializer_class=RegisterSerializer)
     def enroll(self, request):
@@ -162,20 +165,21 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         mm_RelationShip.remove_relation(self.request.user, following)
         return Response()
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], serializer_class=MyFollowingSerializer)
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def following(self, request):
         """我的关注的用户列表
         """
-        self.queryset = request.user.following_set.select_related('following').all()
+        user_ids = request.user.following_set.values_list('following_id', flat=True)
+        self.queryset = mm_User.filter(pk__in=user_ids)
         return super().list(request)
 
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], serializer_class=MyFollowersSerializer)
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def followers(self, request):
         """我的粉丝列表
         """
-
-        self.queryset = request.user.followers_set.select_related('user').all()
+        user_ids = request.user.followers_set.values_list('user_id', flat=True)
+        self.queryset = mm_User.filter(pk__in=user_ids)
         return super().list(request)
 
 

@@ -2,9 +2,31 @@ from rest_framework import serializers
 
 from .models import User, Schedule, CheckIn, Point, RelationShip
 
+base_user_fields = ['id',
+                    'last_login',
+                    'is_superuser',
+                    'username',
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'is_staff',
+                    'is_active',
+                    'date_joined',
+                    'account',
+                    'mini_openid',
+                    'name',
+                    'age',
+                    'gender',
+                    'avatar_url',
+                    'create_at',
+                    'update_at',
+                    'desc',
+                    ]
+
 
 class NoneSerializer(serializers.Serializer):
     pass
+
 
 class RegisterSerializer(serializers.Serializer):
 
@@ -26,9 +48,20 @@ class MiniprogramLoginSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
+    is_following = serializers.SerializerMethodField(read_only=True)
+
+    def get_is_following(self, obj):
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return 0
+        if not hasattr(user, '_following'):
+            user._following = user.following_set.values_list(
+                'following_id', flat=True)
+        return 1 if obj.id in user._following else 0
+
     class Meta:
         model = User
-        fields = '__all__'
+        fields = base_user_fields + ['is_following']
 
 
 class MyUserProfileSerializer(serializers.ModelSerializer):
@@ -67,17 +100,32 @@ class CheckInSerializer(serializers.ModelSerializer):
 
 # ========= Point Serializers  ==========
 
+
 class PointSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Point
-        fields = ['id', 'in_or_out', 'amount', 'total_left', 'action', 'desc', 'create_at']
+        fields = ['id', 'in_or_out', 'amount',
+                  'total_left', 'action', 'desc', 'create_at']
 
 
 class UserBaseSerializer(serializers.ModelSerializer):
+
+    is_following = serializers.SerializerMethodField()
+
+    def get_is_following(self, obj):
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return 0
+        if not hasattr(user, '_following'):
+            user._following = user.following_set.values_list(
+                'following_id', flat=True)
+        return 1 if obj.id in user._following else 0
+
     class Meta:
         model = User
-        fields = ['id', 'name', 'age', 'gender', 'avatar_url']
+        fields = ['id', 'name', 'age', 'gender', 'avatar_url', 'is_following']
+
 
 class MyFollowingSerializer(serializers.ModelSerializer):
 

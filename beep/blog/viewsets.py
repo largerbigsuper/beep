@@ -13,7 +13,7 @@ from utils.permissions import IsOwerPermission
 from .serializers import (TopicSerializer,
                           BlogCreateSerializer, BlogListSerialzier,
                           AtMessageSerializer,
-                          CommentCreateSerializer, CommentListSerializer,
+                          CommentCreateSerializer, CommentListSerializer, CommentDetailSerializer,
                           LikeCreateSerializer, LikeListSerializer, MyLikeListSerializer)
 from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment
 from .filters import CommentFilter, LikeFilter, BlogFilter
@@ -177,6 +177,8 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'update']:
             return CommentCreateSerializer
+        elif self.action in ['mine', 'received']:
+            return CommentDetailSerializer
         else:
             return CommentListSerializer
 

@@ -31,6 +31,7 @@ class BaseBlogSerializer(serializers.ModelSerializer):
     topic_str = serializers.CharField(write_only=True, allow_blank=True)
     img_list = serializers.ListField()
     at_list = serializers.ListField()
+    user = UserBaseSerializer(read_only=True)
 
 
 class BlogCreateSerializer(BaseBlogSerializer):
@@ -107,6 +108,14 @@ class BlogListSerialzier(BaseBlogSerializer):
                             'total_comment', 'total_view')
 
 
+class BlogSimpleSerializer(BaseBlogSerializer):
+    class Meta:
+        model = Blog
+        fields = ('id', 'user', 'topic', 'is_anonymous',
+                  'content', 'img_list', 'at_list',
+                  'total_share', 'total_like', 'total_comment', 'total_view',
+                  'update_at',)
+
 class AtMessageSerializer(serializers.ModelSerializer):
 
     blog = BlogListSerialzier()
@@ -163,6 +172,14 @@ class CommentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent')
+
+class CommentDetailSerializer(CommentListSerializer):
+
+    blog = BlogSimpleSerializer()
+    
+    class Meta:
+        model = Comment
+        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'blog')
 
 
 class LikeCreateSerializer(serializers.ModelSerializer):
