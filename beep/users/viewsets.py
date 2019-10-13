@@ -169,7 +169,8 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     def following(self, request):
         """我的关注的用户列表
         """
-        user_ids = request.user.following_set.values_list('following_id', flat=True)
+        user_id = request.query_params.get('user_id', request.user.id)
+        user_ids = mm_RelationShip.filter(user_id=user_id).values_list('following_id', flat=True)
         self.queryset = mm_User.filter(pk__in=user_ids)
         return super().list(request)
 
@@ -178,7 +179,8 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     def followers(self, request):
         """我的粉丝列表
         """
-        user_ids = request.user.followers_set.values_list('user_id', flat=True)
+        user_id = request.query_params.get('user_id', request.user.id)
+        user_ids = mm_RelationShip.filter(following_id=user_id).values_list('user_id', flat=True)
         self.queryset = mm_User.filter(pk__in=user_ids)
         return super().list(request)
 
