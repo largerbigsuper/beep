@@ -14,7 +14,8 @@ from .serializers import (TopicSerializer,
                           BlogCreateSerializer, BlogListSerialzier,
                           AtMessageSerializer,
                           CommentCreateSerializer, CommentListSerializer, CommentDetailSerializer,
-                          LikeCreateSerializer, LikeListSerializer, MyLikeListSerializer)
+                          LikeCreateSerializer, LikeListSerializer, MyLikeListSerializer,
+                          CommentLikeCreateSerializer)
 from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment
 from .filters import CommentFilter, LikeFilter, BlogFilter
 from beep.search.models import mm_SearchHistory
@@ -262,13 +263,15 @@ class LikeViewSet(mixins.CreateModelMixin,
             return LikeCreateSerializer
         elif self.action == 'mine':
             return MyLikeListSerializer
+        elif self.action == 'to_comment':
+            return CommentLikeCreateSerializer
         else:
             return LikeListSerializer
 
     def get_queryset(self):
         queryset = mm_Like.all()
         if self.action in ('mine'):
-            queryset = queryset.filter(
+            queryset = queryset.exclude(comment_id__isnull=True).filter(
                 user=self.request.user).select_related('blog', 'blog__topic', 'blog__user')
         else:
             queryset = queryset.select_related('user')
@@ -280,3 +283,19 @@ class LikeViewSet(mixins.CreateModelMixin,
         """
 
         return super().list(request)
+
+    @action(detail=False, methods=['post'], serializer_class=CommentLikeCreateSerializer)
+    def to_comment(self, request):
+        """评论点赞
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def perform_destroy(self, instance):
+        if instance.comment:
+            mm_Comment.update_data(instance.comment_id, 'total_like', -1)
+        else:
+            mm_Blog.update_data(instance.blog_id, 'total_like', -1)
+        return Response()

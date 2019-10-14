@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from beep.users.serializers import UserBaseSerializer
 from beep.users.models import mm_RelationShip, mm_User
-from .models import (Topic, mm_Topic, Blog, AtMessage, mm_AtMessage,
+from .models import (Topic, mm_Topic, Blog, mm_Blog, AtMessage, mm_AtMessage,
                      Comment, mm_Comment, Like, mm_Like, BlogShare)
 
 
@@ -172,7 +172,7 @@ class CommentListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent')
+        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'total_like')
 
 class CommentDetailSerializer(CommentListSerializer):
 
@@ -180,7 +180,7 @@ class CommentDetailSerializer(CommentListSerializer):
     
     class Meta:
         model = Comment
-        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'blog')
+        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'blog', 'total_like')
 
 
 class LikeCreateSerializer(serializers.ModelSerializer):
@@ -191,8 +191,23 @@ class LikeCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         blog = validated_data['blog']
-        blog.total_like = F('total_like') + 1
-        blog.save()
+        mm_Blog.update_data(blog.id, 'total_like')
+        instance = self.Meta.model(
+            user=self.context['request'].user, **validated_data)
+        instance.save()
+        return instance
+
+class CommentLikeCreateSerializer(serializers.ModelSerializer):
+    """评论点赞
+    """
+    class Meta:
+        model = Like
+        fields = ('id', 'comment', 'create_at')
+
+    def create(self, validated_data):
+        commet = validated_data['comment']
+        validated_data['blog'] = commet.blog
+        mm_Blog.update_data(commet.id, 'total_like')
         instance = self.Meta.model(
             user=self.context['request'].user, **validated_data)
         instance.save()

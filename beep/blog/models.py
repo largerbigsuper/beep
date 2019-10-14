@@ -117,6 +117,7 @@ class Like(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE, verbose_name='用户')
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, verbose_name='博客')
+    comment = models.ForeignKey('blog.Comment', on_delete=models.CASCADE, null=True, blank=True, verbose_name='评论')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     objects = LikeManager()
@@ -124,7 +125,7 @@ class Like(models.Model):
     class Meta:
         db_table = 'user_blog_like'
         unique_together = [
-            ['user', 'blog']
+            ['user', 'blog', 'comment']
         ]
         ordering = ['-create_at']
 
@@ -158,6 +159,15 @@ class CommentManager(ModelManager):
     def my_commnets(self, user_id):
         return self.valid().filter(user_id=user_id)
 
+    def update_data(self, pk, field_name, amount=1):
+        if amount > 0: 
+            value = F(field_name) + amount
+        else:
+            value = F(field_name) - abs(amount)
+        updates = {
+            field_name: value
+        }
+        self.filter(pk=pk).update(**updates)
 
 class Comment(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, db_index=False)
@@ -173,6 +183,7 @@ class Comment(models.Model):
     is_del = models.BooleanField(default=False, verbose_name='删除')
     parent = models.ForeignKey('self', null=True, blank=True, related_name='reply_group',
                                  on_delete=models.DO_NOTHING, db_index=False, verbose_name='回复消息的一级id')
+    total_like = models.PositiveIntegerField(default=0, verbose_name='点赞数量')
 
     objects = CommentManager()
 
