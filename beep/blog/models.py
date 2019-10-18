@@ -99,6 +99,9 @@ class Blog(models.Model):
     total_view = models.PositiveIntegerField(default=0, verbose_name='查看次数')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
+    forward_blog = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='forward_blogs', null=True, blank=True, verbose_name='转发blog_id')
+    origin_blog = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='origin_blogs', null=True, blank=True, verbose_name='转发原始blog_id')
+    total_forward = models.PositiveIntegerField(default=0, verbose_name='转发次数')
 
     objects = BlogManager()
 
@@ -193,7 +196,7 @@ class Comment(models.Model):
     objects = CommentManager()
 
     class Meta:
-        db_table = 'lv_comments'
+        db_table = 'comments'
         index_together = [
             ('blog', 'user', 'reply_to', 'to_user')
         ]

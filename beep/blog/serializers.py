@@ -34,6 +34,14 @@ class BaseBlogSerializer(serializers.ModelSerializer):
     user = UserBaseSerializer(read_only=True)
 
 
+class BlogSimpleSerializer(BaseBlogSerializer):
+    class Meta:
+        model = Blog
+        fields = ('id', 'user', 'topic', 'is_anonymous',
+                  'content', 'img_list', 'at_list',
+                  'total_share', 'total_like', 'total_comment', 'total_view',
+                  'update_at',)
+
 class BlogCreateSerializer(BaseBlogSerializer):
 
     class Meta:
@@ -41,9 +49,9 @@ class BlogCreateSerializer(BaseBlogSerializer):
         fields = ('id', 'topic', 'topic_str', 'is_anonymous',
                   'content', 'img_list', 'at_list',
                   'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at')
+                  'update_at', 'forward_blog', 'total_forward')
         read_only_fields = ('total_share', 'total_like',
-                            'total_comment', 'total_view')
+                            'total_comment', 'total_view', 'total_forward')
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -57,6 +65,14 @@ class BlogCreateSerializer(BaseBlogSerializer):
             topic, _ = mm_Topic.get_or_create(**topic_data)
 
         at_list = validated_data['at_list']
+        forward_blog = validated_data.get('forward_blog')
+        if forward_blog:
+            if forward_blog.origin_blog_id:
+                origin_blog_id = forward_blog.origin_blog_id
+            else:
+                origin_blog_id = forward_blog.id
+            validated_data['forward_blog_id'] = forward_blog.id
+            validated_data['origin_blog_id'] = origin_blog_id
         instance = self.Meta.model(user=user, **validated_data)
         instance.topic = topic
         instance.save()
@@ -67,6 +83,10 @@ class BlogCreateSerializer(BaseBlogSerializer):
             at_message_list.append(msg)
         mm_AtMessage.bulk_create(at_message_list)
         mm_User.update_data(user.id, 'total_blog')
+        # 更新转发
+        if forward_blog:
+            mm_Blog.update_data(forward_blog.id, 'total_forward')
+
 
         return instance
 
@@ -78,6 +98,7 @@ class BlogListSerialzier(BaseBlogSerializer):
     user = UserBaseSerializer()
     is_like = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
+    origin_blog = BlogSimpleSerializer()
 
     def get_is_like(self, obj):
         """是否点赞
@@ -104,18 +125,11 @@ class BlogListSerialzier(BaseBlogSerializer):
         fields = ('id', 'user', 'topic', 'is_anonymous',
                   'content', 'img_list', 'at_list',
                   'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at', 'is_like', 'is_following')
+                  'update_at', 'is_like', 'is_following', 'origin_blog', 'total_forward')
         read_only_fields = ('total_share', 'total_like',
                             'total_comment', 'total_view')
 
 
-class BlogSimpleSerializer(BaseBlogSerializer):
-    class Meta:
-        model = Blog
-        fields = ('id', 'user', 'topic', 'is_anonymous',
-                  'content', 'img_list', 'at_list',
-                  'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at',)
 
 class AtMessageSerializer(serializers.ModelSerializer):
 

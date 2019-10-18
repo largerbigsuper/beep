@@ -44,6 +44,7 @@ class BlogViewSet(viewsets.ModelViewSet):
     update -- 修改博客
     destory -- 删除
     add_like -- 添加点赞
+    remove_like -- 删除点赞
     add_share -- 分享
     mine -- 我的博文列表
     following -- 我关注的博文列表
@@ -93,6 +94,9 @@ class BlogViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         # 更新我的博客个数
         mm_User.update_data(instance.user.id, 'total_blog', -1)
+        # 跟新博文转发个数
+        if instance.forward_blog:
+            mm_Blog.update_data(instance.forward_blog.id, 'total_forward', -1)
         return super().perform_destroy(instance)
 
     def retrieve(self, request, *args, **kwargs):
