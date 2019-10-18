@@ -20,7 +20,7 @@ django-admin startapp --template ../templates/app_template appname
 - [x] 活动查看详情增加浏览次数
 - [x] 活动报名增加到行程表中
 - [x] 活动收藏
-- [ ] 评论点赞
+- [x] 评论点赞
 - [x] 博文热门接口
 - [x] 博文关注列表
 - [x] 博文增加用户关系是否关注
@@ -31,3 +31,10 @@ django-admin startapp --template ../templates/app_template appname
 - [x] 评论列表增加博文详情
 - [x] 二级评论列表
 - [x] 用户博文个数，粉丝数量，关注数量 
+
+## 2019-10-18
+
+- [x] 发短信接口[登陆| 注册| 找回密码]
+- [x] 短信登陆
+- [x] 短信注册
+

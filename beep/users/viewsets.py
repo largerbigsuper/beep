@@ -9,19 +9,26 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 
 
-from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer,
-                          MiniprogramLoginSerializer, MyUserProfileSerializer, ResetPasswordSerializer,
+from .serializers import (UserSerializer,
+                          RegisterSerializer,
+                          LoginSerializer,
+                          MiniprogramLoginSerializer,
+                          MyUserProfileSerializer,
+                          ResetPasswordSerializer,
                           UserBaseSerializer,
                           ScheduleSerializer,
                           CheckInSerializer,
                           PointSerializer,
                           NoneSerializer,
+                          SendCodeSerializer,
                           MyFollowingSerializer, MyFollowersSerializer
                           )
 from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
+from utils.sms import smsserver
 from .models import mm_User, mm_Schedule, mm_CheckIn, mm_Point, mm_RelationShip
 from .filters import UserFilter
+
 
 
 class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
@@ -40,8 +47,15 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         serializer.is_valid(raise_exception=True)
         account = serializer.validated_data['account']
         password = serializer.validated_data['password']
-        # code = serializer.validated_data['code']
+        code = serializer.validated_data['code']
+        _code = mm_User.cache.get(account)
+        if not code or _code != code:
+            data = {
+                'detail': '验证码不存在或错误'
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         user = mm_User.add(account=account, password=password)
+        mm_User.cache.delete(account)
         return Response(data={'account': account})
 
     @action(detail=False, methods=['post'], serializer_class=MiniprogramLoginSerializer, permission_classes=[], authentication_classes=[])
@@ -76,10 +90,24 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         account = serializer.validated_data['account']
-        password = serializer.validated_data['password']
+        password = serializer.validated_data.get('password')
+        code = serializer.validated_data.get('code')
+        code_login = False
+        if code:
+            code_login = True
+            _code = mm_User.cache.get(account)
+            if code != _code:
+                data = {
+                    'detail': '验证码不存在或错误'
+                }
+                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         user = mm_User.filter(account=account).first()
         if user:
-            user = authenticate(request, username=account, password=password)
+            if code_login:
+
+                user = authenticate(request, username=account)
+            else:
+                user = authenticate(request, username=account, password=password)
             if user:
                 process_login(request, user)
                 serailizer = MyUserProfileSerializer(user)
@@ -125,14 +153,13 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         password = serializer.validated_data['password']
         code = serializer.validated_data['code']
         _code = mm_User.cache.get(account)
-        if _code == code:
-            mm_User.reset_password(account, password)
-            return Response()
-        else:
+        if not code or _code != code:
             data = {
-                'detail': '验证码错误'
+                'detail': '验证码不存在或错误'
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        mm_User.reset_password(account, password)
+        return Response()
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, ])
     def qiniutoken(self, request):
@@ -150,7 +177,8 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         """
         try:
             following = self.get_object()
-            relation = mm_RelationShip.add_relation(self.request.user, following)
+            relation = mm_RelationShip.add_relation(
+                self.request.user, following)
             msg = "添加关注成功"
             # 更新统计
             # 更新我的关注个数
@@ -179,20 +207,37 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         """我的关注的用户列表
         """
         user_id = request.query_params.get('user_id', request.user.id)
-        user_ids = mm_RelationShip.filter(user_id=user_id).values_list('following_id', flat=True)
+        user_ids = mm_RelationShip.filter(
+            user_id=user_id).values_list('following_id', flat=True)
         self.queryset = mm_User.filter(pk__in=user_ids)
         return super().list(request)
-
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def followers(self, request):
         """我的粉丝列表
         """
         user_id = request.query_params.get('user_id', request.user.id)
-        user_ids = mm_RelationShip.filter(following_id=user_id).values_list('user_id', flat=True)
+        user_ids = mm_RelationShip.filter(
+            following_id=user_id).values_list('user_id', flat=True)
         self.queryset = mm_User.filter(pk__in=user_ids)
         return super().list(request)
 
+    @action(detail=False, methods=['post'], permission_classes=[],
+            authentication_classes=[], serializer_class=SendCodeSerializer)
+    def send_code(self, request):
+        """发送验证码"""
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        account = serializer.validated_data['account']
+        code_type = serializer.validated_data['code_type']
+        cache_key = account
+        if code_type in ['enroll', 'password']:
+            code = smsserver.send_enroll_or_password(account)
+        else:
+            code = smsserver.send_login(account)
+        mm_User.cache.set(cache_key, code, 60 * 3)
+        return Response()
 
 
 class ScheduleViewSet(viewsets.ModelViewSet):

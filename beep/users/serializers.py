@@ -43,7 +43,8 @@ class RegisterSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
 
     account = serializers.CharField()
-    password = serializers.CharField()
+    password = serializers.CharField(required=False)
+    code = serializers.CharField(max_length=4, required=False)
 
 
 class MiniprogramLoginSerializer(serializers.Serializer):
@@ -86,6 +87,16 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
         model = User
         fields = ['account', 'password', 'code']
 
+
+class SendCodeSerializer(serializers.Serializer):
+
+    code_type_choices = (
+        ('enroll', '注册'),
+        ('password', '重置密码'),
+        ('login', '登陆'),
+    )
+    account = serializers.CharField(max_length=11)
+    code_type = serializers.ChoiceField(choices=code_type_choices, default='enroll')
 
 # ========= Schedule Serializers  ==========
 
