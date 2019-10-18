@@ -23,3 +23,4 @@ qiniu==7.2.6
 django-mptt==0.10.0
 elasticsearch-dsl==7.0.0
 jieba==0.39
+qcloudsms-py==0.1.3
