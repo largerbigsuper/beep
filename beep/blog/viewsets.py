@@ -119,11 +119,21 @@ class BlogViewSet(viewsets.ModelViewSet):
         """
         blog = self.get_object()
         with transaction.atomic():
-            _, created = mm_Like.update_or_create(
+            _, created = mm_Like.blogs().update_or_create(
                 user=request.user, blog=blog)
             if created:
                 mm_Blog.update_data(blog.id, 'total_like')
 
+        return Response()
+
+    @action(detail=True, methods=['delete'])
+    def remove_like(self, request, pk=None):
+        """取消点赞
+        """
+        blog = self.get_object()
+        with transaction.atomic():
+            mm_Blog.update_data(blog.id, 'total_like', -1)
+            mm_Like.blogs().filter(user=request.user, blog=blog).delete()
         return Response()
 
     @action(detail=True, methods=['post'])
@@ -135,9 +145,6 @@ class BlogViewSet(viewsets.ModelViewSet):
             _, created = mm_BlogShare.update_or_create(
                 user=request.user, blog=blog)
             if created:
-                # blog.total_share = F('total_share') + 1
-                # blog.save()
-                # mm_Blog.filter(pk=blog.id).update(total_share=F('total_share') + 1)
                 mm_Blog.update_data(blog.id, 'total_share')
 
         return Response()

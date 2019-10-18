@@ -86,7 +86,7 @@ class BlogListSerialzier(BaseBlogSerializer):
         if not user.is_authenticated:
             return 0
         if not hasattr(self, '_likes'):
-            self._likes = mm_Like.filter(user=user).values_list('blog_id', flat=True)
+            self._likes = mm_Like.blogs().filter(user=user).values_list('blog_id', flat=True)
         return 1 if obj.id in self._likes else 0
 
     def get_is_following(self, obj):

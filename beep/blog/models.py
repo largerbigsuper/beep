@@ -108,7 +108,12 @@ class Blog(models.Model):
 
 
 class LikeManager(ModelManager):
-    pass
+    
+    def blogs(self):
+        return self.filter(comment=None)
+
+    def comments(self):
+        return self.exculde(comment=None)
 
 
 class Like(models.Model):
