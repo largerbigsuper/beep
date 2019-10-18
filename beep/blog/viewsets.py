@@ -298,4 +298,5 @@ class LikeViewSet(mixins.CreateModelMixin,
             mm_Comment.update_data(instance.comment_id, 'total_like', -1)
         else:
             mm_Blog.update_data(instance.blog_id, 'total_like', -1)
+        instance.delete()
         return Response()
