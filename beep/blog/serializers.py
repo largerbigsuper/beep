@@ -1,3 +1,5 @@
+import re
+
 from django.db.models import F
 from rest_framework import serializers
 
@@ -54,6 +56,9 @@ class BlogCreateSerializer(BaseBlogSerializer):
                             'total_comment', 'total_view', 'total_forward')
 
     def create(self, validated_data):
+        """
+        发微博 @功能 格式：@xxx 文本信息
+        """
         user = self.context['request'].user
         # deal topic
         topic_str = validated_data.pop('topic_str')
@@ -64,7 +69,6 @@ class BlogCreateSerializer(BaseBlogSerializer):
             }
             topic, _ = mm_Topic.get_or_create(**topic_data)
 
-        at_list = validated_data['at_list']
         forward_blog = validated_data.get('forward_blog')
         if forward_blog:
             if forward_blog.origin_blog_id:
@@ -73,6 +77,12 @@ class BlogCreateSerializer(BaseBlogSerializer):
                 origin_blog_id = forward_blog.id
             validated_data['forward_blog_id'] = forward_blog.id
             validated_data['origin_blog_id'] = origin_blog_id
+        # 处理@功能
+        # 若是转发功能，以 `//` 符号区分
+        content = validated_data['content'].split('//')[0]
+        names = re.findall(r"@(\S+)", content)
+        at_list = mm_User.get_users(names)
+        validated_data['at_list'] = at_list
         instance = self.Meta.model(user=user, **validated_data)
         instance.topic = topic
         instance.save()

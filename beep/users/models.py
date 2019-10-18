@@ -19,6 +19,25 @@ class UserManager(AuthUserManager, ModelManager):
         extra_fields.setdefault('account', account)
         return self.create_user(username=account, email=None, password=password, **extra_fields)
 
+    def get_user_by_name(self, name):
+        users = self.filter(name=name).values('id', 'name')
+        if users:
+            return users[0]
+        else:
+            return None
+
+    def get_users(self, names_list=None):
+        """通过name查找用户信息
+        """
+        users_list = []
+        for name in names_list:
+            info = self.get_user_by_name(name)
+            if info:
+                users_list.append(info)
+        return users_list
+
+
+
 
     def reset_password(self, account, password):
         """重置密码
