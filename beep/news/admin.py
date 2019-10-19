@@ -6,5 +6,5 @@ class NewsAdmin(admin.ModelAdmin):
     pass
 
 
-admin.register(News, NewsAdmin)
+admin.site.register(News, NewsAdmin)
 
