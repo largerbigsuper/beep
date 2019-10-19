@@ -1,6 +1,8 @@
 from django.db import models
+import datetime
 
 from utils.modelmanager import ModelManager
+from utils.post.gen_post import Post
 
 
 class NewsManager(ModelManager):
@@ -31,11 +33,18 @@ class News(models.Model):
     published_at = models.DateTimeField(blank=True, null=True, verbose_name='发布时间')
     status = models.PositiveSmallIntegerField(choices=NewsManager.STATUS_CHOICES,
                                               default=NewsManager.STATUS_EDITING, verbose_name='编辑状态')
+    post = models.ImageField(blank=True, null=True, verbose_name='海报')
 
     objects = NewsManager()
 
     class Meta:
         db_table = 'news'
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        """保存快讯时生成海报
+        """
+        post_date = self.published_at if self.published_at else datetime.datetime.now()
+        self.post = Post().generate_post(self.title, post_date, self.content)
+        return super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 mm_News = News.objects

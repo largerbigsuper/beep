@@ -9,6 +9,8 @@ import uuid
 
 from PIL import Image, ImageDraw, ImageFont
 
+from ..qiniucloud import QiniuService
+
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 class Post:
@@ -177,9 +179,12 @@ class Post:
             box = (0, current_height)
             post_image.paste(im, box=box)
             current_height += im.height
-        post_image.show()
+        # post_image.show()
         post_image.save(self.save_path)
-        return self.save_path
+        return self._upload()
+
+    def _upload(self):
+        return QiniuService.upload_local_image(self.save_path)
 
 if __name__ == "__main__":
     p = Post()

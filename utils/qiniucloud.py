@@ -1,9 +1,10 @@
+import os
 import datetime
 import uuid
 
 from django.core.files.storage import Storage
 from django.conf import settings
-from qiniu import Auth, put_data
+from qiniu import Auth, put_data, put_file
 
 
 class QiniuService:
@@ -42,6 +43,28 @@ class QiniuService:
         #3600为token过期时间，秒为单位。3600等于一小时
         token = cls.qiniuAuth.upload_token(bucket_name, None, 3600, policy)
         return token
+    
+    @classmethod
+    def upload_local_image(cls, image_path):
+        """上传本地图片
+        """
+        name = os.path.basename(image_path)
+        # 构建鉴权对象
+        token = cls.gen_app_upload_token(QiniuService.get_bucket_name('image'))
+        ret, info = put_file(token, cls._new_name(name), image_path)
+        if info.status_code == 200:
+            base_url = '%s%s' % (QiniuService.bucket_domain_dict['image'], ret.get("key"))
+            # 表示上传成功, 返回文件名
+            return base_url
+        else:
+            # 上传失败
+            raise Exception("上传七牛失败")
+
+    @staticmethod
+    def _new_name(name):
+        new_name = "file/{0}/{1}.{2}".format(datetime.datetime.now().strftime("%Y/%m/%d"), str(uuid.uuid4()).replace('-', ''),
+                                             name.split(".").pop())
+        return new_name
 
 
 class StorageObject(Storage):
