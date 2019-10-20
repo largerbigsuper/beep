@@ -116,6 +116,7 @@ class Blog(models.Model):
     forward_blog = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='forward_blogs', null=True, blank=True, verbose_name='转发blog_id')
     origin_blog = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='origin_blogs', null=True, blank=True, verbose_name='转发原始blog_id')
     total_forward = models.PositiveIntegerField(default=0, verbose_name='转发次数')
+    video = models.CharField(max_length=200, blank=True, null=True, verbose_name='视频地址')
 
     objects = BlogManager()
 
