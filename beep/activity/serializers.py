@@ -28,6 +28,7 @@ class ActivityListSerializer(ActivityCreateSerializer):
 
     area = AreaSerializer()
     is_registrated = serializers.SerializerMethodField()
+    is_collected = serializers.SerializerMethodField()
 
     def get_is_registrated(self, obj):
         user = self.context['request'].user
@@ -37,6 +38,14 @@ class ActivityListSerializer(ActivityCreateSerializer):
             user._activitys = mm_Registration.filter(user=user).values_list('activity_id', flat=True)
         return 1 if obj.id in user._activitys else 0
 
+    def get_is_collected(self, obj):
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return 0
+        if not hasattr(user, '_collected_activitys'):
+            user._collected_activitys = mm_Collect.filter(user=user).values_list('activity_id', flat=True)
+        return 1 if obj.id in user._activitys else 0
+
     class Meta:
         model = Activity
         fields = ('id', 'user', 'title', 'cover', 'activity_type',
@@ -44,7 +53,7 @@ class ActivityListSerializer(ActivityCreateSerializer):
                   'area', 'address', 'live_plateform',
                   'live_address', 'total_user', 'contact_name',
                   'contact_info', 'total_view', 'total_registration',
-                  'create_at', 'content', 'is_registrated', 'total_collect'
+                  'create_at', 'content', 'is_registrated', 'total_collect', 'is_collected'
                   )
 
 
