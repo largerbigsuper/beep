@@ -44,7 +44,7 @@ class ActivityListSerializer(ActivityCreateSerializer):
             return 0
         if not hasattr(user, '_collected_activitys'):
             user._collected_activitys = mm_Collect.filter(user=user).values_list('activity_id', flat=True)
-        return 1 if obj.id in user._activitys else 0
+        return 1 if obj.id in user._collected_activitys else 0
 
     class Meta:
         model = Activity
