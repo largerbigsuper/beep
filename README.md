@@ -11,6 +11,12 @@ django-admin startapp --template ../templates/app_template appname
 
 ```
 
+**管理命令**
+
+```
+docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
+```
+
 ## TODO LIST
 
 - [x] 评论分级列表
@@ -38,21 +44,23 @@ django-admin startapp --template ../templates/app_template appname
 - [x] 短信登陆
 - [x] 短信注册
 
-- [ ] 博文搜索
-- [ ] 小程序授权登陆
 
-
-- [ ] 微信服务号 直播推送
-- [ ] 群直播接入
 
 - [x] 快讯分享图片动态生成
-- [ ] 图片加水印
 
-- [ ] 红V蓝V身份设置
 - [x] 博文转发功能
-- [ ] 博文话题 拓展新人榜，专题榜
+- [x] 博文话题 拓展新人榜，专题榜
 
 - [x] 我的粉丝/关注列表搜索报错
 
 
+## 2019-10-20
+
+- [ ] 博文搜索
+- [ ] 微信服务号 直播推送
+- [ ] 群直播接入
+- [ ] 小程序授权登陆
+- [ ] 红V蓝V身份设置
+- [ ] 图片加水印
+- [x] 站点支持https
 
