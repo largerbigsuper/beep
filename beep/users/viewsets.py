@@ -66,6 +66,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         code = serializer.validated_data['code']
+        avatar_url = serializer.validated_data['avatar_url']
         wx_res = requests.get(settings.MINI_PRAGRAM_LOGIN_URL + code)
         ret_json = wx_res.json()
         if 'openid' not in ret_json:
@@ -73,7 +74,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         openid = ret_json['openid']
         # session_key = ret_json['session_key']
         # unionid = ret_json.get('session_key')
-        user = mm_User.get_customer_by_miniprogram(openid)
+        user = mm_User.get_customer_by_miniprogram(openid, avatar_url)
         process_login(request, user)
         respone_serailizer = MyUserProfileSerializer(user)
         data = respone_serailizer.data

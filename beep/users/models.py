@@ -40,19 +40,19 @@ class UserManager(AuthUserManager, ModelManager):
                 users_list.append(info)
         return users_list
 
-    def _create_miniprogram_account(self, mini_openid):
+    def _create_miniprogram_account(self, mini_openid, avatar_url):
         account = 'wx_' + ''.join([random.choice(string.ascii_lowercase) for _ in range(8)])
         password = self.Default_Password
-        customer = self.add(account, password, mini_openid=mini_openid)
+        customer = self.add(account, password, mini_openid=mini_openid, avatar_url=avatar_url)
         return customer
 
-    def get_customer_by_miniprogram(self, mini_openid):
+    def get_customer_by_miniprogram(self, mini_openid, avatar_url):
         """通过小程序获取customer"""
         user = self.filter(mini_openid=mini_openid).first()
         if user:
             return user
         else:
-            user = self._create_miniprogram_account(mini_openid)
+            user = self._create_miniprogram_account(mini_openid, avatar_url)
             if user:
                 return user
             else:
@@ -283,3 +283,4 @@ class RelationShip(models.Model):
 
 
 mm_RelationShip = RelationShip.objects
+
