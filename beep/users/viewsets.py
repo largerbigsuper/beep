@@ -75,8 +75,8 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         # unionid = ret_json.get('session_key')
         user = mm_User.get_customer_by_miniprogram(openid)
         process_login(request, user)
-        serailizer = MyUserProfileSerializer(user)
-        data = serializer.data
+        respone_serailizer = MyUserProfileSerializer(user)
+        data = respone_serailizer.data
         # token, _ = Token.objects.get_or_create(user=user)
         # data = {
         #     'id': user.id,
