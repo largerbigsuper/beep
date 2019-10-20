@@ -1,5 +1,16 @@
 # beep project
 
+## 初始化项目
+
+```
+# 创建超级管理员
+docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
+
+# 初始化地区
+docker-compose -f dev.yml run --rm  django python manage.py runscript init_area
+
+```
+
 ## 常用命令
 
 
@@ -63,4 +74,5 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 - [ ] 红V蓝V身份设置
 - [ ] 图片加水印
 - [x] 站点支持https
+- [ ] 活动增加审核状态
 
