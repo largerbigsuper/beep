@@ -66,7 +66,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         code = serializer.validated_data['code']
-        wx_res = requests.get(settings.MinprogramSettings.LOGIN_URL + code)
+        wx_res = requests.get(settings.MINI_PRAGRAM_LOGIN_URL + code)
         ret_json = wx_res.json()
         if 'openid' not in ret_json:
             return Response(data=ret_json, status=status.HTTP_400_BAD_REQUEST)
@@ -75,12 +75,14 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         # unionid = ret_json.get('session_key')
         user = mm_User.get_customer_by_miniprogram(openid)
         process_login(request, user)
-        token, _ = Token.objects.get_or_create(user=user)
-        data = {
-            'id': user.id,
-            'name': user.name,
-            'token': token.key,
-        }
+        serailizer = MyUserProfileSerializer(user)
+        data = serializer.data
+        # token, _ = Token.objects.get_or_create(user=user)
+        # data = {
+        #     'id': user.id,
+        #     'name': user.name,
+            # 'token': token.key,
+        # }
         return Response(data=data)
 
     @action(detail=False, methods=['post'], serializer_class=LoginSerializer, permission_classes=[], authentication_classes=[])

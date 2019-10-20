@@ -1,3 +1,5 @@
+import random
+import string
 import traceback
 from datetime import date
 
@@ -14,6 +16,8 @@ from django.contrib.auth.models import UserManager as AuthUserManager
 from utils.modelmanager import ModelManager
 
 class UserManager(AuthUserManager, ModelManager):
+
+    Default_Password = '888888'
 
     def add(self, account, password, **extra_fields):
         extra_fields.setdefault('account', account)
@@ -36,8 +40,23 @@ class UserManager(AuthUserManager, ModelManager):
                 users_list.append(info)
         return users_list
 
+    def _create_miniprogram_account(self, mini_openid):
+        account = 'wx_' + ''.join([random.choice(string.ascii_lowercase) for _ in range(8)])
+        password = self.Default_Password
+        customer = self.add(account, password, mini_openid=mini_openid)
+        return customer
 
-
+    def get_customer_by_miniprogram(self, mini_openid):
+        """通过小程序获取customer"""
+        user = self.filter(mini_openid=mini_openid).first()
+        if user:
+            return user
+        else:
+            user = self._create_miniprogram_account(mini_openid)
+            if user:
+                return user
+            else:
+                raise IntegrityError('注册用户失败')
 
     def reset_password(self, account, password):
         """重置密码
