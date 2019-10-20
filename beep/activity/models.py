@@ -34,7 +34,7 @@ class Activity(models.Model):
     start_at = models.DateTimeField(null=True, blank=True, verbose_name='开始时间')
     end_at = models.DateTimeField(null=True, blank=True, verbose_name='结束时间')
     ticket_price = models.FloatField(default=0, verbose_name='费用（元）')
-    area = models.ForeignKey('common.Area', on_delete=models.DO_NOTHING, verbose_name='区域')
+    area = models.ForeignKey('common.Area', null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name='区域')
     address = models.CharField(max_length=120, verbose_name='具体位置信息')
     live_plateform = models.CharField(max_length=120, blank=True, verbose_name='直播平台')
     live_address = models.CharField(max_length=20, blank=True, verbose_name='直播地址|微信群名')
