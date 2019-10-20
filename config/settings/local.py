@@ -96,3 +96,8 @@ LOGGING = {
 }
 
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+# 小程序
+MINI_PRAGRAM_APP_ID = 'wx300f2f1d32b30613'
+MINI_PRAGRAM_APP_SECRET = '2d6b9fef49827381af8dd26b4b66f5e5'
+MINI_PRAGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=authorization_code&js_code='.format(MINI_PRAGRAM_APP_ID, MINI_PRAGRAM_APP_SECRET)

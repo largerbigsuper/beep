@@ -193,6 +193,7 @@ CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = ['servicewechat.com', 'lhxq.top', 'beep.lhxq.top', '127.0.0.1']
 
 
-MINI_PRAGRAM_APP_ID = 'wxdcbd25406b60939d'
-MINI_PRAGRAM_APP_SECRET = 'wxdcbd25406b60939d'
+# 小程序
+MINI_PRAGRAM_APP_ID = 'wx300f2f1d32b30613'
+MINI_PRAGRAM_APP_SECRET = '2d6b9fef49827381af8dd26b4b66f5e5'
 MINI_PRAGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=authorization_code&js_code='.format(MINI_PRAGRAM_APP_ID, MINI_PRAGRAM_APP_SECRET)
