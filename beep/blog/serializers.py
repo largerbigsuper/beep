@@ -16,7 +16,7 @@ class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
         fields = ('id', 'name', 'status', 'create_at',
-                  'cover', 'total_view', 'total_comment', 'user')
+                  'cover', 'total_view', 'total_comment', 'user', 'topic_type', 'detail')
         read_only_fields = ['status', 'total_view', 'total_comment', 'user']
     
     def create(self, validated_data):

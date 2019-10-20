@@ -19,12 +19,23 @@ class TopicManager(ModelManager):
         (STATUS_HOT, '热门话题'),
     )
 
+    TYPE_TOPIC = 0
+    TYPE_ZhuanTiBang = 1
+    TYPE_XinRenBang = 2
+
+    TOPIC_TYPE = (
+        (TYPE_TOPIC, '话题'),
+        (TYPE_ZhuanTiBang, '专题榜'),
+        (TYPE_XinRenBang, '新人榜')
+    )
+
     def allowed_topics(self):
         return self.exclude(status=self.STATUS_BLOCKED)
 
 
 class Topic(models.Model):
     """话题"""
+
 
     name = models.CharField(max_length=40, verbose_name='话题')
     status = models.PositiveSmallIntegerField(
@@ -41,6 +52,8 @@ class Topic(models.Model):
                              blank=True,
                              null=True,
                              verbose_name='创建人')
+    topic_type= models.PositiveSmallIntegerField(choices=TopicManager.TOPIC_TYPE, default=TopicManager.TYPE_TOPIC, verbose_name='话题|专题榜|新人榜')
+    detail = models.TextField(blank=True, verbose_name='详情')
 
     objects = TopicManager()
 

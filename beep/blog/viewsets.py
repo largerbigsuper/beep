@@ -17,7 +17,7 @@ from .serializers import (TopicSerializer,
                           LikeCreateSerializer, LikeListSerializer, MyLikeListSerializer,
                           CommentLikeCreateSerializer)
 from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment
-from .filters import CommentFilter, LikeFilter, BlogFilter
+from .filters import CommentFilter, LikeFilter, BlogFilter, TopicFilter
 from beep.search.models import mm_SearchHistory
 from beep.users.models import mm_User
 
@@ -30,6 +30,7 @@ class TopicViewSet(viewsets.ModelViewSet):
 
     serializer_class = TopicSerializer
     queryset = mm_Topic.allowed_topics().select_related('user')
+    filter_class = TopicFilter
 
     def get_permissions(self):
         permissions = []
