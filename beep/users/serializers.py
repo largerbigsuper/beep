@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import User, Schedule, CheckIn, Point, RelationShip
+from .models import User, Schedule, CheckIn, Point, RelationShip, LableApply
 
 base_user_fields = ['id',
                     'last_login',
@@ -21,6 +21,7 @@ base_user_fields = ['id',
                     'create_at',
                     'update_at',
                     'desc',
+                    'label_type',
                     ]
 user_data_fields = [
     'total_blog',
@@ -158,6 +159,19 @@ class MyFollowersSerializer(serializers.ModelSerializer):
     class Meta:
         model = RelationShip
         fields = ['id', 'user', 'create_at']
+
+
+class LabelApplySerializer(serializers.ModelSerializer):
+
+    # DEFAULT_DATA = '{"total_view": 0, "total_followers": 0, "total_blog": 0}'
+    
+    # data_dict = serializers.JSONField(default=DEFAULT_DATA)
+    
+    class Meta:
+        model = LableApply
+        fields = ['id', 'lebel_type', 'image', 'desc', 'data_dict', 'status', 'create_at']
+        read_only_fields = ['status']
+
 
 
 # =======================================

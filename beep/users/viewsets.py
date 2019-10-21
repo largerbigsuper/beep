@@ -1,5 +1,6 @@
 import requests
 from django.db import IntegrityError, transaction
+from django.db.models import Sum
 from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework import viewsets, status, mixins
@@ -21,12 +22,14 @@ from .serializers import (UserSerializer,
                           PointSerializer,
                           NoneSerializer,
                           SendCodeSerializer,
-                          MyFollowingSerializer, MyFollowersSerializer
+                          MyFollowingSerializer,
+                          MyFollowersSerializer,
+                          LabelApplySerializer,
                           )
 from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
 from utils.sms import smsserver
-from .models import mm_User, mm_Schedule, mm_CheckIn, mm_Point, mm_RelationShip
+from .models import mm_User, mm_Schedule, mm_CheckIn, mm_Point, mm_RelationShip, mm_LableApply
 from .filters import UserFilter
 
 
@@ -294,3 +297,39 @@ class PointViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return mm_Point.filter(user=self.request.user)
+
+
+class LabelApplyViewSet(viewsets.ModelViewSet):
+    """用户身份认证
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = LabelApplySerializer
+
+    def get_queryset(self):
+        return mm_LableApply.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=False, serializer_class=NoneSerializer)
+    def get_data(self, request):
+        """获取加V条件审核
+        1. 一个月内阅读量
+        2. 粉丝数量
+        3. 博文个数
+        """
+        total_view = request.user.blog_set.aggregate(total_view=Sum('total_view')).get('total_view', 0)
+        total_followers = request.user.followers_set.count()
+        total_blog = request.user.blog_set.count()
+
+        data = {
+            'total_view': total_view,
+            'total_followers': total_followers,
+            'total_blog': total_blog,
+            'can_apply': total_blog >= 50
+        }
+
+        return Response(data=data)
+
+

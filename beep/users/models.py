@@ -10,14 +10,25 @@ from django.db.models import F
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager as AuthUserManager
+from django_extensions.db.fields.json import JSONField
 
 
 
 from utils.modelmanager import ModelManager
 
+
 class UserManager(AuthUserManager, ModelManager):
 
     Default_Password = '888888'
+    
+    LABEL_DEFAULT= 0
+    LABEL_RED = 1
+    LABEL_BLUE = 2
+    LABEL_TYPE = (
+        (LABEL_DEFAULT, '普通用户'),
+        (LABEL_RED, '红V'),
+        (LABEL_BLUE, '蓝V'),
+    )
 
     def add(self, account, password, **extra_fields):
         extra_fields.setdefault('account', account)
@@ -77,7 +88,7 @@ class UserManager(AuthUserManager, ModelManager):
             field_name: value
         }
         self.filter(pk=pk).update(**updates)
-        
+
 
 class User(AbstractUser):
     GENDER_UNSET = 0
@@ -101,6 +112,7 @@ class User(AbstractUser):
     total_blog = models.PositiveIntegerField(default=0, verbose_name='博文数量')
     total_following = models.PositiveIntegerField(default=0, verbose_name='关注数量')
     total_followers = models.PositiveIntegerField(default=0, verbose_name='粉丝数量')
+    label_type = models.PositiveIntegerField(choices=UserManager.LABEL_TYPE, default=UserManager.LABEL_DEFAULT, verbose_name='普通用户|红V|蓝V')
 
     objects = UserManager()
 
@@ -230,9 +242,10 @@ mm_Point = Point.objects
 
 
 class CheckInManager(ModelManager):
-    
+
     def is_check_in(self, user_id):
         return self.filter(user_id=user_id, create_at__gt=date.today()).exists()
+
 
 class CheckIn(models.Model):
     """用户签到表
@@ -250,8 +263,9 @@ class CheckIn(models.Model):
 
 mm_CheckIn = CheckIn.objects
 
+
 class RelationShipManager(ModelManager):
-    
+
     def add_relation(self, user, following):
         """添加关注
         """
@@ -263,11 +277,14 @@ class RelationShipManager(ModelManager):
         """
         self.filter(user=user, following=following).delete()
 
+
 class RelationShip(models.Model):
     """用户关系"""
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='following_set', verbose_name='我')
-    following = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='followers_set', verbose_name='关注的人')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name='following_set', verbose_name='我')
+    following = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                  related_name='followers_set', verbose_name='关注的人')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     objects = RelationShipManager()
@@ -283,4 +300,42 @@ class RelationShip(models.Model):
 
 
 mm_RelationShip = RelationShip.objects
+
+
+class LableApplyManager(ModelManager):
+    
+    STATUS_SUBMITED = 0
+    STATUS_PASSED = 1
+    STATUS_FAILED = 2
+    STATUS_CHOICE = (
+        (STATUS_SUBMITED, '已提交'),
+        (STATUS_PASSED, '审核通过'),
+        (STATUS_FAILED, '审核失败'),
+    )
+    
+    DEFAULT_DATA = '{"total_view": 0, "total_followers": 0, "total_blog": 0}'
+
+class LableApply(models.Model):
+    """标签申请记录"""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             verbose_name='用户')
+    lebel_type = models.PositiveSmallIntegerField(choices=UserManager.LABEL_TYPE,
+                                                  default=UserManager.LABEL_RED,
+                                                  verbose_name='红V|蓝V')
+    image = models.ImageField(blank=True, null=True, verbose_name='证件照')
+    desc = models.CharField(max_length=500, blank=True, null=True, verbose_name='描述')
+    data_dict = JSONField(default=LableApplyManager.DEFAULT_DATA, verbose_name='数据信息')
+    status = models.PositiveSmallIntegerField(choices=LableApplyManager.STATUS_CHOICE,
+                                                  default=LableApplyManager.STATUS_SUBMITED,
+                                                  verbose_name='审核状态')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+    objects = LableApplyManager()
+
+    class Meta:
+        db_table = 'label_apply'
+        ordering = ['-create_at']
+
+mm_LableApply = LableApply.objects
 
