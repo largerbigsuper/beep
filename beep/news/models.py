@@ -39,6 +39,7 @@ class News(models.Model):
 
     class Meta:
         db_table = 'news'
+        verbose_name = verbose_name_plural = '快讯'
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """保存快讯时生成海报

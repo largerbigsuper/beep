@@ -53,6 +53,7 @@ class Activity(models.Model):
     class Meta:
         db_table = 'activity'
         ordering = ['-id']
+        verbose_name = verbose_name_plural = '活动'
 
 
 class RegistrationManager(ModelManager):
@@ -84,6 +85,7 @@ class Registration(models.Model):
             ['user', 'activity'],
             ]
         ordering = ['-create_at']
+        verbose_name = verbose_name_plural = '活动报名'
 
 
 class CollectManager(ModelManager):

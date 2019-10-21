@@ -59,7 +59,7 @@ class Topic(models.Model):
 
     class Meta:
         db_table = 'topics'
-
+        verbose_name = verbose_name_plural = '话题|专题|新人榜'
 
 class BlogManager(ModelManager):
 
@@ -123,6 +123,7 @@ class Blog(models.Model):
     class Meta:
         db_table = 'blogs'
         ordering = ['-update_at']
+        verbose_name = verbose_name_plural = '博文'
 
 
 class LikeManager(ModelManager):
