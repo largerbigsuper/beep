@@ -61,6 +61,9 @@ class Topic(models.Model):
         db_table = 'topics'
         verbose_name = verbose_name_plural = '话题|专题|新人榜'
 
+    def __str__(self):
+        return '[{}]'.format(self.get_topic_type_display()) + self.name
+
 class BlogManager(ModelManager):
 
     def my_blogs(self, user_id):
