@@ -52,6 +52,7 @@ class MiniprogramLoginSerializer(serializers.Serializer):
 
     code = serializers.CharField()
     avatar_url = serializers.CharField()
+    name = serializers.CharField()
 
 
 class UserSerializer(serializers.ModelSerializer):

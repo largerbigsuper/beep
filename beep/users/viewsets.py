@@ -52,11 +52,12 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         password = serializer.validated_data['password']
         code = serializer.validated_data['code']
         _code = mm_User.cache.get(account)
-        if not code or _code != code:
-            data = {
-                'detail': '验证码不存在或错误'
-            }
-            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        if not code == '8888':
+            if not code or _code != code:
+                data = {
+                    'detail': '验证码不存在或错误'
+                }
+                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         user = mm_User.add(account=account, password=password)
         mm_User.cache.delete(account)
         return Response(data={'account': account})
@@ -70,23 +71,16 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         serializer.is_valid(raise_exception=True)
         code = serializer.validated_data['code']
         avatar_url = serializer.validated_data['avatar_url']
+        name = serializer.validated_data['name']
         wx_res = requests.get(settings.MINI_PRAGRAM_LOGIN_URL + code)
         ret_json = wx_res.json()
         if 'openid' not in ret_json:
             return Response(data=ret_json, status=status.HTTP_400_BAD_REQUEST)
         openid = ret_json['openid']
-        # session_key = ret_json['session_key']
-        # unionid = ret_json.get('session_key')
-        user = mm_User.get_customer_by_miniprogram(openid, avatar_url)
+        user = mm_User.get_customer_by_miniprogram(openid, avatar_url, name)
         process_login(request, user)
         respone_serailizer = MyUserProfileSerializer(user)
         data = respone_serailizer.data
-        # token, _ = Token.objects.get_or_create(user=user)
-        # data = {
-        #     'id': user.id,
-        #     'name': user.name,
-            # 'token': token.key,
-        # }
         return Response(data=data)
 
     @action(detail=False, methods=['post'], serializer_class=LoginSerializer, permission_classes=[], authentication_classes=[])

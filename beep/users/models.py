@@ -32,6 +32,7 @@ class UserManager(AuthUserManager, ModelManager):
 
     def add(self, account, password, **extra_fields):
         extra_fields.setdefault('account', account)
+        extra_fields.setdefault('name', account)
         return self.create_user(username=account, email=None, password=password, **extra_fields)
 
     def get_user_by_name(self, name):
@@ -51,19 +52,20 @@ class UserManager(AuthUserManager, ModelManager):
                 users_list.append(info)
         return users_list
 
-    def _create_miniprogram_account(self, mini_openid, avatar_url):
+    def _create_miniprogram_account(self, mini_openid, avatar_url, name):
         account = 'wx_' + ''.join([random.choice(string.ascii_lowercase) for _ in range(8)])
         password = self.Default_Password
-        customer = self.add(account, password, mini_openid=mini_openid, avatar_url=avatar_url)
+        name = 'wx' + account[-2:] + '_' + name
+        customer = self.add(account, password, mini_openid=mini_openid, avatar_url=avatar_url, name=name)
         return customer
 
-    def get_customer_by_miniprogram(self, mini_openid, avatar_url):
+    def get_customer_by_miniprogram(self, mini_openid, avatar_url, name):
         """通过小程序获取customer"""
         user = self.filter(mini_openid=mini_openid).first()
         if user:
             return user
         else:
-            user = self._create_miniprogram_account(mini_openid, avatar_url)
+            user = self._create_miniprogram_account(mini_openid, avatar_url, name)
             if user:
                 return user
             else:
@@ -102,7 +104,7 @@ class User(AbstractUser):
 
     account = models.CharField(max_length=40, unique=True, verbose_name='账号')
     mini_openid = models.CharField(max_length=40, unique=True, null=True, blank=True, verbose_name='小程序账号')
-    name = models.CharField(max_length=30, blank=True, verbose_name='昵称')
+    name = models.CharField(max_length=30, blank=True, unique=True, verbose_name='昵称')
     age = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='年龄')
     gender = models.IntegerField(choices=GENDER_CHOICE, default=0, verbose_name='性别')
     avatar_url = models.CharField(max_length=300, blank=True, verbose_name='头像')
