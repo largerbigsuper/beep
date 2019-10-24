@@ -36,7 +36,9 @@ class ActivityViewSet(viewsets.ModelViewSet):
                 'title': '发布了活动：' + activity.title,
                 'activity': activity
             }
-            mm_Blog.create(**params)
+            blog = mm_Blog.create(**params)
+            activity.blog_id = blog.id
+            activity.save()
 
 
     def retrieve(self, request, *args, **kwargs):

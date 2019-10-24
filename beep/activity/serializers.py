@@ -22,9 +22,9 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
                   'create_at', 'content', 'total_collect',
                   'province_code', 'province_name',
                   'city_code', 'city_name',
-                  'district_code', 'district_name'
+                  'district_code', 'district_name', 'blog_id'
                   )
-        read_only_fields = ('user', 'total_view', 'total_registration', 'total_collect')
+        read_only_fields = ('user', 'total_view', 'total_registration', 'total_collect', 'blog_id')
 
 
 class ActivityListSerializer(ActivityCreateSerializer):
@@ -58,7 +58,7 @@ class ActivityListSerializer(ActivityCreateSerializer):
                   'create_at', 'content', 'is_registrated', 'total_collect', 'is_collected',
                   'province_code', 'province_name',
                   'city_code', 'city_name',
-                  'district_code', 'district_name'
+                  'district_code', 'district_name', 'blog_id'
                   )
 
 
@@ -74,7 +74,7 @@ class ActivitySimpleSerializer(ActivityCreateSerializer):
                   'create_at', 'content', 'total_collect',
                   'province_code', 'province_name',
                   'city_code', 'city_name',
-                  'district_code', 'district_name'
+                  'district_code', 'district_name', 'blog_id'
                   )
 
 

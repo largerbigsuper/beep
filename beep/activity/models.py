@@ -51,6 +51,7 @@ class Activity(models.Model):
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     content = models.TextField(blank=True, verbose_name='活动详情')
     total_collect = models.PositiveIntegerField(default=0, verbose_name='收藏数量')
+    blog_id = models.IntegerField(null=True, blank=True, verbose_name='博文id')
     
     
     objects = ActivityManager()
