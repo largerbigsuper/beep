@@ -51,7 +51,7 @@ class BlogCreateSerializer(BaseBlogSerializer):
 
     class Meta:
         model = Blog
-        fields = blog_base_fields
+        fields = blog_base_fields + ['topic_str']
         read_only_fields = blog_readonly_fields
 
     def create(self, validated_data):

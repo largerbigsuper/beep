@@ -6,14 +6,15 @@ from beep.common.models import mm_Area
 
 class ActivityFilter(filters.FilterSet):
 
-    province_code = filters.CharFilter(field_name='province_code', method='province_code_filter', label='province_code')
+    city_code = filters.CharFilter(field_name='city_code', method='city_code_filter', label='city_code')
 
-    def province_code_filter(self, queryset, name, value):
-        if name == 'province_code':
+    def city_code_filter(self, queryset, name, value):
+        if name == 'city_code':
             if value == '-1': # 海外或全国地区筛选
-                return queryset
+                qita = ['3301', '3101', '1101', '5101', '5001']
+                return queryset.exclude(city_code__in=qita)
             else:
-                return queryset.filter(province_code=value)
+                return queryset.filter(city_code=value)
 
     class Meta:
         model = Activity
