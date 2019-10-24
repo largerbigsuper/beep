@@ -36,24 +36,23 @@ class BaseBlogSerializer(serializers.ModelSerializer):
     user = UserBaseSerializer(read_only=True)
 
 
+blog_base_fields = ['id', 'topic', 'is_anonymous', 'content', 'img_list', 'at_list', 
+                    'total_share', 'total_like', 'total_comment', 'total_view', 'total_forward',
+                    'update_at', 'video', 'is_top', 'title', 'cover']
+
+blog_readonly_fields = ['total_share', 'total_like', 'total_comment', 'total_view', 'total_forward']
+
 class BlogSimpleSerializer(BaseBlogSerializer):
     class Meta:
         model = Blog
-        fields = ('id', 'user', 'topic', 'is_anonymous',
-                  'content', 'img_list', 'at_list',
-                  'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at', 'video', 'is_top', 'title')
+        fields = blog_base_fields + ['user']
 
 class BlogCreateSerializer(BaseBlogSerializer):
 
     class Meta:
         model = Blog
-        fields = ('id', 'topic', 'topic_str', 'is_anonymous',
-                  'content', 'img_list', 'at_list',
-                  'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at', 'forward_blog', 'total_forward', 'video', 'is_top', 'title')
-        read_only_fields = ('total_share', 'total_like',
-                            'total_comment', 'total_view', 'total_forward')
+        fields = blog_base_fields
+        read_only_fields = blog_readonly_fields
 
     def create(self, validated_data):
         """
@@ -97,7 +96,6 @@ class BlogCreateSerializer(BaseBlogSerializer):
         if forward_blog:
             mm_Blog.update_data(forward_blog.id, 'total_forward')
 
-
         return instance
 
 
@@ -132,12 +130,8 @@ class BlogListSerialzier(BaseBlogSerializer):
 
     class Meta:
         model = Blog
-        fields = ('id', 'user', 'topic', 'is_anonymous',
-                  'content', 'img_list', 'at_list',
-                  'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at', 'is_like', 'is_following', 'origin_blog', 'total_forward', 'video', 'is_top', 'title')
-        read_only_fields = ('total_share', 'total_like',
-                            'total_comment', 'total_view')
+        fields = blog_base_fields + ['user', 'is_like', 'is_following', 'origin_blog']
+        read_only_fields = blog_readonly_fields
 
 
 

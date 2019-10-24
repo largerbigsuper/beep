@@ -29,7 +29,7 @@ class Activity(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='发起人')
     title = models.CharField(max_length=120, verbose_name='标题')
-    cover = models.ImageField(blank=True, null=True, verbose_name='封面图')
+    cover = models.CharField(max_length=200, blank=True, null=True, verbose_name='封面图')
     activity_type = models.PositiveSmallIntegerField(choices=ACTIVITY_TYPE_CHOICES, default=ON_LINE, verbose_name='活动类型')
     start_at = models.DateTimeField(null=True, blank=True, verbose_name='开始时间')
     end_at = models.DateTimeField(null=True, blank=True, verbose_name='结束时间')

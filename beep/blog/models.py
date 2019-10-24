@@ -122,6 +122,9 @@ class Blog(models.Model):
     video = models.CharField(max_length=200, blank=True, null=True, verbose_name='视频地址')
     is_top = models.BooleanField(default=False, verbose_name='是否置顶')
     title = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章标题')
+    cover = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章封面图')
+    # activity = models.ForeignKey('activity.Activity', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name='活动')
+
 
     objects = BlogManager()
 
