@@ -73,7 +73,7 @@ class BlogViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = mm_Blog.all()
-        if self.action in ['list']:
+        if self.action in ['index']:
             queryset = queryset.select_related('user', 'topic').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score')
             # 处理搜索记录
             content = self.request.query_params.get('content__icontains', '')
@@ -109,6 +109,18 @@ class BlogViewSet(viewsets.ModelViewSet):
             mm_Topic.filter(pk=blog.topic.id).update(total_view=F('total_view') + 1)
         serializer = self.get_serializer(blog)
 
+        return Response(serializer.data)
+
+    @action(detail=False)
+    def index(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
@@ -157,6 +169,7 @@ class BlogViewSet(viewsets.ModelViewSet):
     @action(detail=False, )
     def following(self, request):
         return super().list(request)
+
 
 
 class AtMessageViewSet(mixins.RetrieveModelMixin,

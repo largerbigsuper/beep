@@ -125,7 +125,7 @@ class Blog(models.Model):
 
     class Meta:
         db_table = 'blogs'
-        ordering = ['-update_at']
+        ordering = ['-id']
         verbose_name = verbose_name_plural = '博文'
 
 
