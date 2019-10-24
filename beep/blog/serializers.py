@@ -38,7 +38,7 @@ class BaseBlogSerializer(serializers.ModelSerializer):
 
 blog_base_fields = ['id', 'topic', 'is_anonymous', 'content', 'img_list', 'at_list', 
                     'total_share', 'total_like', 'total_comment', 'total_view', 'total_forward',
-                    'update_at', 'video', 'is_top', 'title', 'cover']
+                    'update_at', 'video', 'is_top', 'title', 'cover', 'activity']
 
 blog_readonly_fields = ['total_share', 'total_like', 'total_comment', 'total_view', 'total_forward']
 

@@ -3,6 +3,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db import transaction
 
 from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           RegistrationCreateSerializer, RegistrationListSerializer,
@@ -10,6 +11,7 @@ from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           )
 from .models import mm_Activity, mm_Registration, mm_Collect
 from .filters import ActivityFilter, CollectFilter
+from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission
 
 
@@ -26,7 +28,16 @@ class ActivityViewSet(viewsets.ModelViewSet):
             return ActivityCreateSerializer
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        with transaction.atomic():
+            activity = serializer.save(user=self.request.user)
+            params = {
+                'user': self.request.user,
+                'cover': activity.cover,
+                'title': '发布了活动：' + activity.title,
+                'activity': activity
+            }
+            mm_Blog.create(**params)
+
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
