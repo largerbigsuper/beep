@@ -72,8 +72,9 @@ class BlogViewSet(viewsets.ModelViewSet):
             return BlogListSerialzier
 
     def get_queryset(self):
-        queryset = mm_Blog.all()
+        queryset = mm_Blog.all().order_by('-is_top', '-id')
         if self.action in ['index']:
+            queryset = mm_Blog.all()
             queryset = queryset.select_related('user', 'topic').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score')
             # 处理搜索记录
             content = self.request.query_params.get('content__icontains', '')

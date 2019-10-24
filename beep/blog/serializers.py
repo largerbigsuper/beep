@@ -42,7 +42,7 @@ class BlogSimpleSerializer(BaseBlogSerializer):
         fields = ('id', 'user', 'topic', 'is_anonymous',
                   'content', 'img_list', 'at_list',
                   'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at', 'video')
+                  'update_at', 'video', 'is_top')
 
 class BlogCreateSerializer(BaseBlogSerializer):
 
@@ -51,7 +51,7 @@ class BlogCreateSerializer(BaseBlogSerializer):
         fields = ('id', 'topic', 'topic_str', 'is_anonymous',
                   'content', 'img_list', 'at_list',
                   'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at', 'forward_blog', 'total_forward', 'video')
+                  'update_at', 'forward_blog', 'total_forward', 'video', 'is_top')
         read_only_fields = ('total_share', 'total_like',
                             'total_comment', 'total_view', 'total_forward')
 
@@ -135,7 +135,7 @@ class BlogListSerialzier(BaseBlogSerializer):
         fields = ('id', 'user', 'topic', 'is_anonymous',
                   'content', 'img_list', 'at_list',
                   'total_share', 'total_like', 'total_comment', 'total_view',
-                  'update_at', 'is_like', 'is_following', 'origin_blog', 'total_forward', 'video')
+                  'update_at', 'is_like', 'is_following', 'origin_blog', 'total_forward', 'video', 'is_top')
         read_only_fields = ('total_share', 'total_like',
                             'total_comment', 'total_view')
 

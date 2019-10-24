@@ -95,7 +95,7 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 
 - [x] 七牛云域名临时更换为 `imgbeepcrypto.lhxq.top`
 - [x] 活动区域选择 变更为 xxx省， 海外[全国]
-- [ ] 我的博文，我的关注博文排序
-- [ ] 我的博文增加置顶功能， 限制1个
+- [x] 我的博文，我的关注博文排序
+- [x] 我的博文增加置顶功能， 限制1个
 - [ ] 发布活动关联一个博文
 
