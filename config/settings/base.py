@@ -288,7 +288,7 @@ QINIU_BUCKET_NAME_DICT = {
     'video': 'videos-beepcrypto'
 }
 QINIU_BUCKET_DOMAIN_DICT = {
-    'image': 'http://pyc81u1xn.bkt.clouddn.com/',
+    'image': 'http://imgbeepcrypto.lhxq.top/',
     'video': 'http://pyc8hxlh6.bkt.clouddn.com/'
 }
 
