@@ -16,17 +16,19 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
         model = Activity
         fields = ('id', 'user', 'title', 'cover', 'activity_type',
                   'start_at', 'end_at', 'ticket_price',
-                  'area', 'address', 'live_plateform',
+                  'address', 'live_plateform',
                   'live_address', 'total_user', 'contact_name',
                   'contact_info', 'total_view', 'total_registration',
-                  'create_at', 'content', 'total_collect'
+                  'create_at', 'content', 'total_collect',
+                  'province_code', 'province_name',
+                  'city_code', 'city_name',
+                  'district_code', 'district_name'
                   )
         read_only_fields = ('user', 'total_view', 'total_registration', 'total_collect')
 
 
 class ActivityListSerializer(ActivityCreateSerializer):
 
-    area = AreaSerializer()
     is_registrated = serializers.SerializerMethodField()
     is_collected = serializers.SerializerMethodField()
 
@@ -50,10 +52,13 @@ class ActivityListSerializer(ActivityCreateSerializer):
         model = Activity
         fields = ('id', 'user', 'title', 'cover', 'activity_type',
                   'start_at', 'end_at', 'ticket_price',
-                  'area', 'address', 'live_plateform',
+                  'address', 'live_plateform',
                   'live_address', 'total_user', 'contact_name',
                   'contact_info', 'total_view', 'total_registration',
-                  'create_at', 'content', 'is_registrated', 'total_collect', 'is_collected'
+                  'create_at', 'content', 'is_registrated', 'total_collect', 'is_collected',
+                  'province_code', 'province_name',
+                  'city_code', 'city_name',
+                  'district_code', 'district_name'
                   )
 
 
@@ -63,10 +68,13 @@ class ActivitySimpleSerializer(ActivityCreateSerializer):
         model = Activity
         fields = ('id', 'title', 'cover', 'activity_type',
                   'start_at', 'end_at', 'ticket_price',
-                  'area', 'address', 'live_plateform',
+                  'address', 'live_plateform',
                   'live_address', 'total_user',
                   'total_view', 'total_registration',
-                  'create_at', 'content', 'total_collect'
+                  'create_at', 'content', 'total_collect',
+                  'province_code', 'province_name',
+                  'city_code', 'city_name',
+                  'district_code', 'district_name'
                   )
 
 

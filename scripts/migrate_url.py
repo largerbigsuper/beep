@@ -33,7 +33,9 @@ def process_topic():
 
 def process_activity():
     for obj in mm_Activity.all():
-        obj.cover = obj.cover.replace(DOMAIN, NEW_DOMAIN)
+        if not obj.cover:
+            continue
+        obj.cover = obj.cover.url.replace(DOMAIN, NEW_DOMAIN)
         obj.save()
 
 def process_user():
