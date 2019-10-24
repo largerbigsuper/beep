@@ -121,6 +121,7 @@ class Blog(models.Model):
     total_forward = models.PositiveIntegerField(default=0, verbose_name='转发次数')
     video = models.CharField(max_length=200, blank=True, null=True, verbose_name='视频地址')
     is_top = models.BooleanField(default=False, verbose_name='是否置顶')
+    title = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章标题')
 
     objects = BlogManager()
 
