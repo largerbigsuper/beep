@@ -12,6 +12,43 @@ class EchoConsumer(SyncConsumer):
     logger = logging.getLogger("wehub")
 
     def websocket_connect(self, event):
+        """[summary]
+        {'scope': {
+            'type': 'websocket', 
+            'path': '/ws/wehub/', 
+            'headers': [(b'host', b'127.0.0.1:8000'), 
+            (b'connection', b'Upgrade'), 
+            (b'pragma', b'no-cache'), 
+            (b'cache-control', b'no-cache'), 
+            (b'user-agent', b'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'), 
+            (b'upgrade', b'websocket'), 
+            (b'origin', b'https://www.easyswoole.com'), 
+            (b'sec-websocket-version', b'13'), 
+            (b'accept-encoding', b'gzip, deflate, br'), 
+            (b'accept-language', b'zh-CN,zh;q=0.9,en;q=0.8'), 
+            (b'cookie', b'isRemembered=true; session=eyJfZmxhc2hlcyI6W3siIHQiOlsibWVzc2FnZSIsIlx1NzY3Ylx1NWY1NVx1NjIxMFx1NTI5ZiJdfV0sInVzZXJuYW1lIjoicm9vdCJ9.XOLCSA.iKwA9s4d8WR_4_HWh0c1zN3-4KY; tabstyle=html-tab'), 
+            (b'sec-websocket-key', b'G9mkKFZj49Q7xep9SQ3GcA=='), 
+            (b'sec-websocket-extensions', b'permessage-deflate; client_max_window_bits')], 
+            'query_string': b'', 
+            'client': ['127.0.0.1', 64859], 
+            'server': ['127.0.0.1', 8000], 
+            'subprotocols': [], 
+            'cookies': {
+                'isRemembered': 'true', 
+                'session': 'eyJfZmxhc2hlcyI6W3siIHQiOlsibWVzc2FnZSIsIlx1NzY3Ylx1NWY1NVx1NjIxMFx1NTI5ZiJdfV0sInVzZXJuYW1lIjoicm9vdCJ9.XOLCSA.iKwA9s4d8WR_4_HWh0c1zN3-4KY', 
+                'tabstyle': 'html-tab'
+                }, 
+            'session': <django.utils.functional.LazyObject object at 0x1159e9358>,
+            'user': <channels.auth.UserLazyObject object at 0x1159e99e8>, 
+            'path_remaining': '', 
+            'url_route': {'args': (), 'kwargs': {}}},
+            'channel_layer': <channels_redis.core.RedisChannelLayer object at 0x115918f60>, 
+            'channel_name': 'specific.hRdVLCQc!olPaJmWQwXCF', 
+            'channel_receive': functools.partial(<bound method RedisChannelLayer.receive of <channels_redis.core.RedisChannelLayer object at 0x115918f60>>, 'specific.hRdVLCQc!olPaJmWQwXCF'), 
+            'base_send': <asgiref.sync.AsyncToSync object at 0x1159ec898>}
+        """
+        # print(self.__dict__)
+        self.logger.info('{} connected'.format(self.scope['client'][0]))
         self.send({
             "type": "websocket.accept",
         })
@@ -30,7 +67,7 @@ class EchoConsumer(SyncConsumer):
                 self.logger.info("received a message =%s" % (request_dict))
                 self.process_commond(request_dict)
         except Exception as e:
-            self.logger.error("exception occur:", e, traceback.format_exc())
+            self.logger.error("exception occur: {}".format(traceback.format_exc()))
             return
 
     def process_commond(self, request_dict):
