@@ -392,8 +392,9 @@ LOGGING = {
             'propagate': False,
         },
         'wehub': {
-            'handlers': ['wehub_file', 'console'],
+            'handlers': ['wehub_file'],
             'level': 'INFO',
+            'propagate': False,
         },
     }
 }

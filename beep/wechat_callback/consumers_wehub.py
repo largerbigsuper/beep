@@ -9,8 +9,7 @@ from . import const
 
 class EchoConsumer(SyncConsumer):
 
-    logger = logging.getLogger("wechat")
-    logger.setLevel(logging.INFO)
+    logger = logging.getLogger("wehub")
 
     def websocket_connect(self, event):
         self.send({
@@ -24,13 +23,14 @@ class EchoConsumer(SyncConsumer):
         #     "text": json.dumps(event),
         # })
         message = event['text']
+        self.logger.info('raw data: {}'.format(message))
         try:
             if message:
                 request_dict = json.loads(str(message), strict=False)
                 self.logger.info("received a message =%s" % (request_dict))
                 self.process_commond(request_dict)
         except Exception as e:
-            self.logger.info("exception occur:", e, traceback.format_exc())
+            self.logger.error("exception occur:", e, traceback.format_exc())
             return
 
     def process_commond(self, request_dict):
