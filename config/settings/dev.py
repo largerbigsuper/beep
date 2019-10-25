@@ -87,25 +87,15 @@ INSTALLED_APPS += ["django_extensions"]  # noqa F405
 # ------------------------------------------------------------------------------
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['servicewechat.com', 'lhxq.top', 'beep.lhxq.top', '127.0.0.1', '127.0.0.1:8080']
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['servicewechat.com', 'lhxq.top', 'beep.lhxq.top', '127.0.0.1', '127.0.0.1:8080', '127.0.0.1:7788']
 
 # 小程序
 MINI_PRAGRAM_APP_ID = 'wx300f2f1d32b30613'
 MINI_PRAGRAM_APP_SECRET = '2d6b9fef49827381af8dd26b4b66f5e5'
 MINI_PRAGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=authorization_code&js_code='.format(MINI_PRAGRAM_APP_ID, MINI_PRAGRAM_APP_SECRET)
-
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": ["redis://:password@127.0.0.1:6379/0"],
-#             "symmetric_encryption_keys": [SECRET_KEY],
-#         },
-#     },
-# }
 
 CHANNEL_LAYERS = {
     'default': {
@@ -116,5 +106,4 @@ CHANNEL_LAYERS = {
     },
 }
 
-import channels
 
