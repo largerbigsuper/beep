@@ -57,6 +57,7 @@ THIRD_PARTY_APPS = [
     "crispy_forms",
     "django_filters",
     "drf_yasg",
+    "channels",
 ]
 
 LOCAL_APPS = [
@@ -66,6 +67,7 @@ LOCAL_APPS = [
     "beep.blog",
     "beep.news",
     "beep.search",
+    "beep.wechat_callback",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
