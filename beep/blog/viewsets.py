@@ -176,12 +176,22 @@ class BlogViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def set_top(self, request, pk=None):
         """设置置顶
+            
+            只保留一个置顶
         """
+        request.user.blog_set.filter(is_top=True).update(is_top=False)
         blog = self.get_object()
         blog.is_top = True
         blog.save()
         return Response()
 
+    @action(detail=True, methods=['delete'])
+    def remove_top(self, request, pk=None):
+        """取消置顶
+ 
+        """
+        request.user.blog_set.filter(is_top=True).update(is_top=False)
+        return Response()
 
 class AtMessageViewSet(mixins.RetrieveModelMixin,
                        mixins.UpdateModelMixin,
