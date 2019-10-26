@@ -140,7 +140,7 @@ class LikeManager(ModelManager):
         return self.filter(comment=None)
 
     def comments(self):
-        return self.exculde(comment=None)
+        return self.exclude(comment=None)
 
 
 class Like(models.Model):

@@ -88,7 +88,7 @@ class BlogViewSet(viewsets.ModelViewSet):
             queryset = queryset.select_related('topic')
         elif self.action in ['following']:
             following_ids = self.request.user.following_set.values_list('following_id', flat=True)
-            queryset = queryset.exculde(is_anonymous=True).filter(user_id__in=following_ids).select_related('user', 'topic')
+            queryset = queryset.exclude(is_anonymous=True).filter(user_id__in=following_ids).select_related('user', 'topic')
         else:
             queryset = queryset.select_related('user', 'topic')
 
