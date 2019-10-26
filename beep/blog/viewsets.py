@@ -100,7 +100,8 @@ class BlogViewSet(viewsets.ModelViewSet):
         # 跟新博文转发个数
         if instance.forward_blog:
             mm_Blog.update_data(instance.forward_blog.id, 'total_forward', -1)
-        return super().perform_destroy(instance)
+        instance.is_delete = True
+        instance.save()
 
     def retrieve(self, request, *args, **kwargs):
         """博客详情
