@@ -79,6 +79,11 @@ class BlogManager(ModelManager):
         }
         self.filter(pk=pk).update(**updates)
 
+class UserBlogManager(ModelManager):
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(is_delete=True)
+
 
 class Blog(models.Model):
     """博客"""
@@ -124,9 +129,11 @@ class Blog(models.Model):
     title = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章标题')
     cover = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章封面图')
     activity = models.ForeignKey('activity.Activity', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name='活动')
+    is_delete = models.BooleanField(default=False, verbose_name='是否删除')
 
 
     objects = BlogManager()
+    user_objects = UserBlogManager()
 
     class Meta:
         db_table = 'blogs'
@@ -265,6 +272,7 @@ class AtMessage(models.Model):
 
 mm_Topic = Topic.objects
 mm_Blog = Blog.objects
+mm_user_Blog = Blog.user_objects
 mm_Like = Like.objects
 mm_BlogShare = BlogShare.objects
 mm_Comment = Comment.objects

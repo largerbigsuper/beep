@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from django.db import transaction
-from django.db.models import F, Count
+from django.db.models import F, Count, Q
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import viewsets, mixins
@@ -16,7 +16,7 @@ from .serializers import (TopicSerializer,
                           CommentCreateSerializer, CommentListSerializer, CommentDetailSerializer,
                           LikeCreateSerializer, LikeListSerializer, MyLikeListSerializer,
                           CommentLikeCreateSerializer)
-from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment
+from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment, mm_user_Blog
 from .filters import CommentFilter, LikeFilter, BlogFilter, TopicFilter
 from beep.search.models import mm_SearchHistory
 from beep.users.models import mm_User
@@ -73,10 +73,10 @@ class BlogViewSet(viewsets.ModelViewSet):
             return BlogListSerialzier
 
     def get_queryset(self):
-        queryset = mm_Blog.all().order_by('-is_top', '-id')
+        queryset = mm_user_Blog.all().order_by('-is_top', '-id')
         if self.action in ['index']:
-            queryset = mm_Blog.all()
-            queryset = queryset.select_related('user', 'topic').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score')
+            queryset = mm_user_Blog.all()
+            queryset = queryset.exclude(origin_blog__is_delete=True).select_related('user', 'topic').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score')
             # 处理搜索记录
             content = self.request.query_params.get('content__icontains', '')
             if content:

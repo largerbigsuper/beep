@@ -325,7 +325,7 @@ class LableApply(models.Model):
     lebel_type = models.PositiveSmallIntegerField(choices=UserManager.LABEL_TYPE,
                                                   default=UserManager.LABEL_RED,
                                                   verbose_name='红V|蓝V')
-    image = models.ImageField(blank=True, null=True, verbose_name='证件照')
+    image = models.CharField(max_length=200, blank=True, null=True, verbose_name='证件照')
     desc = models.CharField(max_length=500, blank=True, null=True, verbose_name='描述')
     data_dict = JSONField(default=LableApplyManager.DEFAULT_DATA, verbose_name='数据信息')
     status = models.PositiveSmallIntegerField(choices=LableApplyManager.STATUS_CHOICE,
