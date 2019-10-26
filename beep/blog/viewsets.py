@@ -40,6 +40,7 @@ class TopicViewSet(viewsets.ModelViewSet):
 
 
 class BlogViewSet(viewsets.ModelViewSet):
+
     """博客
     list -- 博客列表
     update -- 修改博客
@@ -83,11 +84,11 @@ class BlogViewSet(viewsets.ModelViewSet):
                 if self.request.user:
                     user_id = self.request.user.id
                 mm_SearchHistory.add_history(content=content, user_id=user_id)
-        elif self.action in ['mine']:
+        elif self.action in ['mine', 'set_top']:
             queryset = queryset.select_related('topic')
         elif self.action in ['following']:
             following_ids = self.request.user.following_set.values_list('following_id', flat=True)
-            queryset = queryset.filter(user_id__in=following_ids).select_related('user', 'topic')
+            queryset = queryset.exculde(is_anonymous=True).filter(user_id__in=following_ids).select_related('user', 'topic')
         else:
             queryset = queryset.select_related('user', 'topic')
 
@@ -171,6 +172,15 @@ class BlogViewSet(viewsets.ModelViewSet):
     def following(self, request):
         return super().list(request)
 
+    
+    @action(detail=True, methods=['post'])
+    def set_top(self, request, pk=None):
+        """设置置顶
+        """
+        blog = self.get_object()
+        blog.is_top = True
+        blog.save()
+        return Response()
 
 
 class AtMessageViewSet(mixins.RetrieveModelMixin,
