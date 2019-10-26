@@ -185,7 +185,7 @@ class BlogViewSet(viewsets.ModelViewSet):
         blog.save()
         return Response()
 
-    @action(detail=True, methods=['delete'])
+    @action(detail=True, methods=['post'])
     def remove_top(self, request, pk=None):
         """取消置顶
  
