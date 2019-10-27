@@ -2,75 +2,58 @@ import json
 import traceback
 import logging
 
-from channels.consumer import SyncConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
+from django.core.cache import cache
 
 from . import const
 
-
-class EchoConsumer(SyncConsumer):
+class WehubConsumer(AsyncWebsocketConsumer):
 
     logger = logging.getLogger("wehub")
 
-    def websocket_connect(self, event):
-        """[summary]
-        {'scope': {
-            'type': 'websocket', 
-            'path': '/ws/wehub/', 
-            'headers': [(b'host', b'127.0.0.1:8000'), 
-            (b'connection', b'Upgrade'), 
-            (b'pragma', b'no-cache'), 
-            (b'cache-control', b'no-cache'), 
-            (b'user-agent', b'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'), 
-            (b'upgrade', b'websocket'), 
-            (b'origin', b'https://www.easyswoole.com'), 
-            (b'sec-websocket-version', b'13'), 
-            (b'accept-encoding', b'gzip, deflate, br'), 
-            (b'accept-language', b'zh-CN,zh;q=0.9,en;q=0.8'), 
-            (b'cookie', b'isRemembered=true; session=eyJfZmxhc2hlcyI6W3siIHQiOlsibWVzc2FnZSIsIlx1NzY3Ylx1NWY1NVx1NjIxMFx1NTI5ZiJdfV0sInVzZXJuYW1lIjoicm9vdCJ9.XOLCSA.iKwA9s4d8WR_4_HWh0c1zN3-4KY; tabstyle=html-tab'), 
-            (b'sec-websocket-key', b'G9mkKFZj49Q7xep9SQ3GcA=='), 
-            (b'sec-websocket-extensions', b'permessage-deflate; client_max_window_bits')], 
-            'query_string': b'', 
-            'client': ['127.0.0.1', 64859], 
-            'server': ['127.0.0.1', 8000], 
-            'subprotocols': [], 
-            'cookies': {
-                'isRemembered': 'true', 
-                'session': 'eyJfZmxhc2hlcyI6W3siIHQiOlsibWVzc2FnZSIsIlx1NzY3Ylx1NWY1NVx1NjIxMFx1NTI5ZiJdfV0sInVzZXJuYW1lIjoicm9vdCJ9.XOLCSA.iKwA9s4d8WR_4_HWh0c1zN3-4KY', 
-                'tabstyle': 'html-tab'
-                }, 
-            'session': <django.utils.functional.LazyObject object at 0x1159e9358>,
-            'user': <channels.auth.UserLazyObject object at 0x1159e99e8>, 
-            'path_remaining': '', 
-            'url_route': {'args': (), 'kwargs': {}}},
-            'channel_layer': <channels_redis.core.RedisChannelLayer object at 0x115918f60>, 
-            'channel_name': 'specific.hRdVLCQc!olPaJmWQwXCF', 
-            'channel_receive': functools.partial(<bound method RedisChannelLayer.receive of <channels_redis.core.RedisChannelLayer object at 0x115918f60>>, 'specific.hRdVLCQc!olPaJmWQwXCF'), 
-            'base_send': <asgiref.sync.AsyncToSync object at 0x1159ec898>}
-        """
-        # print(self.__dict__)
-        self.logger.info('{} connected'.format(self.scope['client'][0]))
-        self.send({
-            "type": "websocket.accept",
-        })
+    async def connect(self):
+        # self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_name = 'wehub'
+        self.room_group_name = 'live_%s' % self.room_name
 
-    def websocket_receive(self, event):
+        # Join room group
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
 
-        # self.send({
-        #     "type": "websocket.send",
-        #     "text": json.dumps(event),
-        # })
-        message = event['text']
+    async def disconnect(self, close_code):
+        # Leave room group
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    # Receive message from WebSocket
+    async def receive(self, text_data):
+        message = text_data
         self.logger.info('raw data: {}'.format(message))
         try:
             if message:
                 request_dict = json.loads(str(message), strict=False)
                 self.logger.info("received a message =%s" % (request_dict))
-                self.process_commond(request_dict)
+                await self.process_commond(request_dict)
+
         except Exception as e:
-            self.logger.error("exception occur: {}".format(traceback.format_exc()))
+            self.logger.error(
+                "exception occur: {}".format(traceback.format_exc()))
             return
 
-    def process_commond(self, request_dict):
+    async def wehub_message(self, event):
+        message = event['message']
+
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': message
+        }))
+
+    async def process_commond(self, request_dict):
         # 处理wehub客户端程序发过来的消息
         appid = request_dict.get('appid', None)
         action = request_dict.get('action', None)
@@ -85,7 +68,14 @@ class EchoConsumer(SyncConsumer):
             wxid, action, req_data_dict)
         ack_dict = {'error_code': error_code, 'error_reason': error_reason,
                     'ack_type': str(ack_type), 'data': ack_data}
-        self.send(json.dumps(ack_dict))
+
+        await self.channel_layer.group_send(
+            "live_888",
+            {
+                'type': 'wehub_message',
+                'message': json.dumps(ack_dict)
+            }
+        )
 
     def process_browse_command(self, message):
         # 处理浏览器发过来的命令(必须是json能解析的格式)
@@ -95,7 +85,6 @@ class EchoConsumer(SyncConsumer):
             print(e)
             return "json解析失败:(%s)" % e
 
-        self.send(json.dumps(command_data))
         return "消息提交成功: %s" % message
 
     def main_req_process(self, wxid, action, request_data_dict):

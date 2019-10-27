@@ -70,8 +70,8 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 - [ ] 博文搜索
 - [ ] 微信服务号 直播推送
 - [ ] 群直播接入
-- [ ] 小程序授权登陆
-- [ ] 红V蓝V身份设置
+- [x] 小程序授权登陆
+- [x] 红V蓝V身份设置
 - [ ] 图片加水印
 - [x] 站点支持https
 - [ ] 活动增加审核状态
@@ -79,8 +79,8 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 
 ## 2019-10-23 为题汇总
 
-- [ ] 我的博文/我的关注 博文排序按照时间倒叙排 
-- [ ] 我的博文增加置顶功能
+- [x] 我的博文/我的关注 博文排序按照时间倒叙排 
+- [x] 我的博文增加置顶功能
 
 
 ### 前端问题
@@ -98,9 +98,13 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 - [x] 我的博文，我的关注博文排序
 - [x] 我的博文增加置顶功能， 限制1个
 - [x] 发布活动关联一个博文
-- [ ] 我的关注不显示匿名博文
+- [x] 我的关注不显示匿名博文
 
 ## 2019-10-25 任务
 
 - [ ] wehub回调服务
 - [ ] 群直播功能
+
+## 2019-10-26 任务
+
+- [ ] 我的微博列表中没有转发微博信息

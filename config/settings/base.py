@@ -299,9 +299,6 @@ ALIYUN_SMS_ACCESS_KEY_SECRET = "avnP9AWfnoZ0eWvXQku7cwUPagTtNt"
 ALIYUN_SMS_TEMPLATE_NAME = '浙江建筑宝典'
 ALIYUN_SMS_TEMPLATE_ID = 'SMS_168875146'
 
-
-
-
 # jieba分词
 import jieba
 JIEBA = jieba
