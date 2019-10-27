@@ -12,7 +12,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
     logger = logging.getLogger("wehub")
 
     async def connect(self):
-        # self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_name = 'wehub'
         self.room_group_name = 'live_%s' % self.room_name
 
@@ -37,7 +36,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
         try:
             if message:
                 request_dict = json.loads(str(message), strict=False)
-                self.logger.info("received a message =%s" % (request_dict))
                 await self.process_commond(request_dict)
 
         except Exception as e:
@@ -45,13 +43,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 "exception occur: {}".format(traceback.format_exc()))
             return
 
-    async def wehub_message(self, event):
-        message = event['message']
-
-        # Send message to WebSocket
-        self.send(text_data=json.dumps({
-            'message': message
-        }))
 
     async def process_commond(self, request_dict):
         # 处理wehub客户端程序发过来的消息
@@ -64,16 +55,20 @@ class WehubConsumer(AsyncWebsocketConsumer):
             self.logger.info("invalid param")
             return
 
-        error_code, error_reason, ack_data, ack_type = self.main_req_process(
-            wxid, action, req_data_dict)
-        ack_dict = {'error_code': error_code, 'error_reason': error_reason,
-                    'ack_type': str(ack_type), 'data': ack_data}
+        error_code, error_reason, ack_data, ack_type = self.main_req_process(wxid, action, req_data_dict)
+        ack_dict = {
+            'error_code': error_code, 
+            'error_reason': error_reason,
+            'data': ack_data,
+            'ack_type': str(ack_type)
+            }
+        await self.send(json.dumps(ack_dict))
 
         await self.channel_layer.group_send(
             "live_888",
             {
                 'type': 'wehub_message',
-                'message': json.dumps(ack_dict)
+                'message': json.dumps(req_data_dict)
             }
         )
 
@@ -88,8 +83,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         return "消息提交成功: %s" % message
 
     def main_req_process(self, wxid, action, request_data_dict):
-        self.logger.info("action = {0},data = {1}".format(
-            action, request_data_dict))
+        self.logger.info("action = {0},data = {1}".format(action, request_data_dict))
         ack_type = 'common_ack'
         if action in const.FIX_REQUEST_TYPES:
             ack_type = str(action)+'_ack'
@@ -144,8 +138,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
                     msg = msg_unit.get("msg", "")
                     room_wxid = msg_unit.get("room_wxid", "")
                     wxid_from = msg_unit.get("wxid_from", "")
-                    self.logger.info(
-                        "recv chatmsg:{0},from:{1}".format(msg, wxid_from))
+                    self.logger.info("recv chatmsg:{0},from:{1}".format(msg, wxid_from))
 
                     # 测试代码
                     if wxid_from == const.TEST_WXID and msg == str('fqtest'):
