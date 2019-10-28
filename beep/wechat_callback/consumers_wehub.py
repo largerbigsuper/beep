@@ -6,6 +6,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.cache import cache
 
 from . import const
+from .models import mm_WxUser, mm_WxGroup, mm_WxBot
 
 class WehubConsumer(AsyncWebsocketConsumer):
 
@@ -55,32 +56,25 @@ class WehubConsumer(AsyncWebsocketConsumer):
             self.logger.info("invalid param")
             return
 
-        error_code, error_reason, ack_data, ack_type = self.main_req_process(wxid, action, req_data_dict)
+        error_code, error_reason, ack_data, ack_type = self.main_process(wxid, action, req_data_dict)
         ack_dict = {
             'error_code': error_code, 
             'error_reason': error_reason,
             'data': ack_data,
             'ack_type': str(ack_type)
             }
+        # 回调wehub
         await self.send(json.dumps(ack_dict))
 
-        await self.channel_layer.group_send(
-            "live_888",
-            {
-                'type': 'wehub_message',
-                'message': json.dumps(req_data_dict)
-            }
-        )
-
-    def process_browse_command(self, message):
-        # 处理浏览器发过来的命令(必须是json能解析的格式)
-        try:
-            command_data = json.loads(str(message), strict=False)
-        except Exception as e:
-            print(e)
-            return "json解析失败:(%s)" % e
-
-        return "消息提交成功: %s" % message
+        # 讲消息转发到对应的群
+        if ack_type == 'report_new_msg_ack':
+            await self.channel_layer.group_send(
+                "live_888",
+                {
+                    'type': 'wehub_message',
+                    'message': json.dumps(req_data_dict)
+                }
+            )
 
     def main_req_process(self, wxid, action, request_data_dict):
         self.logger.info("action = {0},data = {1}".format(action, request_data_dict))
@@ -92,6 +86,12 @@ class WehubConsumer(AsyncWebsocketConsumer):
             return 1, '参数错误', {}, ack_type
         if action == 'login':
             return 0, "no error", {}, ack_type
+        # 更新群成员信息
+        # 1. 获取账号的群列表
+        # 2. 获取群成员信息
+
+        # 处理获取消息  
+        # 根据后台指定的直播群信息进行推送的不同的频道     
         if action == 'report_friend_add_request':
             task_data = {
                 'task_type': const.TASK_TYPE_PASS_FRIEND_VERIFY,
@@ -196,5 +196,86 @@ class WehubConsumer(AsyncWebsocketConsumer):
                         ack_data_dict = {
                             'reply_task_list': reply_task_list}
                         return 0, '', ack_data_dict, ack_type
+
+        return 0, 'no error', {}, ack_type
+
+    def process_login(self, wxid, data_dict):
+        """微信机器人
+        """
+
+        mm_WxBot.update_bot(wxid=wxid, data=data_dict)
+
+    def process_room(self, bot_wxid, data_dict):
+        """处理我的群
+        """
+        group_list = data_dict['group_list']
+        my_groups = [group for group in group_list]
+        self.room_wxid_list = [group['wxid'] for group in my_groups]
+        for group in my_groups:
+            mm_WxGroup.update_group(bot_wxid, group)
+        return self.room_wxid_list
+
+    def process_room_member_info(self, room_wxid):
+        """处理群成员信息
+        """
+        pass
+
+    def process_room_message(self, data_dict):
+        """处理消息记录
+        """
+        
+
+    def main_process(self, wxid, action, request_data_dict):
+        self.logger.info("action = {0},data = {1}".format(action, request_data_dict))
+        ack_type = 'common_ack'
+        if action in const.FIX_REQUEST_TYPES:
+            ack_type = str(action)+'_ack'
+
+        if wxid is None or action is None:
+            return 1, '参数错误', {}, ack_type
+        # 处理微信机器人
+        if action == 'login':
+            self.process_login(wxid, request_data_dict)
+
+        # 更新群成员信息
+        # 1. 获取账号的群列表
+        # 2. 获取群成员信息
+
+        if action == 'report_contact':
+            # 处理群信息
+            room_wxid_list = self.process_room(wxid, request_data_dict)
+            # 发送上传群成员信息任务
+            # room_wxid_list = []
+            reply_task_list = []
+            task = {
+                'task_type': const.TASK_TYPE_REPORT_ROOMMEMBER,
+                'task_dict': {
+                    'room_wxid_list': room_wxid_list[:5]
+                }
+            }
+            reply_task_list.append(task)
+            ack_data = {
+                'reply_task_list': reply_task_list
+            }
+            return 0, "no error", ack_data, ack_type
+        
+        # 新建群 
+        if action == 'report_new_room':
+            pass
+        if action == 'report_contact_update':
+            # 需要发送上传群成员信息任务
+            return 0, "no error", {}, ack_type
+
+        if action == 'report_room_member_change':
+            pass
+        if action == 'report_new_msg':
+            # 如果是系统消息，则更新群信息
+            if 'msg_type' == const.MSG_TYPE_SYSTEM:
+                pass
+
+
+        # 处理获取消息  
+        # 根据后台指定的直播群信息进行推送的不同的频道     
+
 
         return 0, 'no error', {}, ack_type
