@@ -48,7 +48,7 @@ class WxUserManager(ModelManager):
     
     def update_user(self, bot_wxid, userinfo_dict):
         wxid = userinfo_dict.pop('wxid')
-        self.create_or_update(bot_wxid=bot_wxid, wxid=wxid, defaults=userinfo_dict)
+        self.update_or_create(bot_wxid=bot_wxid, wxid=wxid, defaults=userinfo_dict)
 
 
 class WxUser(models.Model):
@@ -106,7 +106,10 @@ class WxGroupManager(ModelManager):
     
     def update_group(self, bot_wxid, groupinfo_dict):
         
-        wxid = groupinfo_dict.pop('wxid')
+        if 'room_wxid' in groupinfo_dict:
+            wxid = groupinfo_dict['room_wxid']
+        else:
+            wxid = groupinfo_dict.pop('wxid')
         self.update_or_create(bot_wxid=bot_wxid, wxid=wxid, defaults=groupinfo_dict)
 
 
@@ -143,6 +146,7 @@ class WxGroup(models.Model):
     room_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='群wxid')
     wxid = models.CharField(max_length=200, verbose_name='wxid')
     bot_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='bot_wxid')
+    memberInfo_list = JSONField(default='[]', verbose_name='当前群的成员信息列表')
 
     objects = WxGroupManager()
 

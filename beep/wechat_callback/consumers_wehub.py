@@ -205,25 +205,63 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         mm_WxBot.update_bot(wxid=wxid, data=data_dict)
 
-    def process_room(self, bot_wxid, data_dict):
-        """处理我的群
+    def process_report_contact(self, bot_wxid, data_dict):
+        """上报好友与群列表
         """
+        # 1. 更新好友列表
+        friend_list = data_dict['friend_list']
+        for friend in friend_list:
+            mm_WxUser.update_user(bot_wxid, friend)
+        
+        # 2. 更新群列表
         group_list = data_dict['group_list']
         my_groups = [group for group in group_list]
         self.room_wxid_list = [group['wxid'] for group in my_groups]
         for group in my_groups:
             mm_WxGroup.update_group(bot_wxid, group)
+
+        # 3. 返回需要上传群信息的群wxid列表
         return self.room_wxid_list
 
-    def process_room_member_info(self, room_wxid):
-        """处理群成员信息
+    def process_report_contact_update(self, bot_wxid, data_dict):
+        """群成员变化
+        https://github.com/tuibao/wehub-callback/blob/master/WeHub%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3.md#report_contact_update%E4%B8%8A%E6%8A%A5%E6%88%90%E5%91%98%E4%BF%A1%E6%81%AF%E5%8F%98%E5%8C%96
+        """
+        update_list = data_dict['update_list']
+        userinfo_list = []
+        groupinfo_list = []
+        for info in update_list:
+            if 'owner_wxid' not in info:
+                userinfo_list.append(info)
+            else:
+                groupinfo_list.append(info)
+        for info in userinfo_list:
+            mm_WxUser.update_user(bot_wxid, info)
+        for info in groupinfo_list:
+            mm_WxGroup.update_group(bot_wxid, info)
+
+    def process_report_room_member_info(self, bot_wxid, data_dict):
+        """上报群成员信息
+        """
+        room_data_list = data_dict['room_data_list']
+        for room in room_data_list:
+            mm_WxGroup.update_group(bot_wxid, room)
+
+    def process_report_room_member_change(self, bot_wxid, data_dict):
+        """上报群成员变化
         """
         pass
 
-    def process_room_message(self, data_dict):
-        """处理消息记录
+    def process_report_new_room(self, bot_wxid, data_dict):
+        """上报新群
         """
         
+        mm_WxGroup.update_group(bot_wxid, data_dict)
+
+    def process_report_new_msg(self, bot_wxid, data_dict):
+        """上报新的聊天消息
+        """
+        pass
 
     def main_process(self, wxid, action, request_data_dict):
         self.logger.info("action = {0},data = {1}".format(action, request_data_dict))
@@ -237,13 +275,9 @@ class WehubConsumer(AsyncWebsocketConsumer):
         if action == 'login':
             self.process_login(wxid, request_data_dict)
 
-        # 更新群成员信息
-        # 1. 获取账号的群列表
-        # 2. 获取群成员信息
-
         if action == 'report_contact':
             # 处理群信息
-            room_wxid_list = self.process_room(wxid, request_data_dict)
+            room_wxid_list = self.process_report_contact(wxid, request_data_dict)
             # 发送上传群成员信息任务
             # room_wxid_list = []
             reply_task_list = []
@@ -259,12 +293,16 @@ class WehubConsumer(AsyncWebsocketConsumer):
             }
             return 0, "no error", ack_data, ack_type
         
-        # 新建群 
-        if action == 'report_new_room':
-            pass
         if action == 'report_contact_update':
-            # 需要发送上传群成员信息任务
+            self.process_report_contact_update(wxid, request_data_dict)
             return 0, "no error", {}, ack_type
+        
+        if action == 'report_room_member_info':
+            self.process_report_room_member_info(wxid, request_data_dict)
+            return 0, "no error", {}, ack_type
+
+        if action == 'report_new_room':
+            self.process_report_new_room(wxid, request_data_dict)
 
         if action == 'report_room_member_change':
             pass
@@ -272,10 +310,5 @@ class WehubConsumer(AsyncWebsocketConsumer):
             # 如果是系统消息，则更新群信息
             if 'msg_type' == const.MSG_TYPE_SYSTEM:
                 pass
-
-
-        # 处理获取消息  
-        # 根据后台指定的直播群信息进行推送的不同的频道     
-
 
         return 0, 'no error', {}, ack_type
