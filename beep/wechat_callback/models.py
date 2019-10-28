@@ -160,95 +160,108 @@ class WxGroup(models.Model):
 mm_WxGroup = WxGroup.objects
 
 
-# class WxMessage(models.Model):
-#     """[summary]
-#     - 文本消息
-#     {
-#         "msg_id": "xxxxx"             //消息id(字符串)
-#         "msg_timestamp": xxxxxx,      //消息的时间戳(单位为毫秒)
-#         "msg_type": 1,                      //1 代表文本消息
-#         "room_wxid": "xxxxxxxx@chatroom",   //聊天消息发生在哪个群(如果是私聊则为空)
-#         "wxid_from":  "wxid_xxxxxx",     	//消息发送者的wxid
-#                                             //如果是自己发的消息这里的wxid就是自己的微信号
-#         "wxid_to": 	"wxid_xxxxx",		 //消息的接收者的wxid
-#                                         //如果发往群的消息,这个值就是群的wxid
-#                                         //如果是别人私聊给自己的消息,这里就是自己的微信号
-#         "atUserList": ["xxx","xxx"]        //这条消息@的对象列表                       
-#         "msg": "xxxxxxxx"                //具体的文本内容
-#     //如果A在群里面at了B(群昵称为BN),C(群昵称为CN),则msg的格式为"@BN @CN XXXXXX" (@BN @CN之间有空格)
-#     }
+class WxMessageManager(ModelManager):
+    pass
+
+class WxMessage(models.Model):
+    """[summary]
+    - 文本消息
+    {
+        "msg_id": "xxxxx"             //消息id(字符串)
+        "msg_timestamp": xxxxxx,      //消息的时间戳(单位为毫秒)
+        "msg_type": 1,                      //1 代表文本消息
+        "room_wxid": "xxxxxxxx@chatroom",   //聊天消息发生在哪个群(如果是私聊则为空)
+        "wxid_from":  "wxid_xxxxxx",     	//消息发送者的wxid
+                                            //如果是自己发的消息这里的wxid就是自己的微信号
+        "wxid_to": 	"wxid_xxxxx",		 //消息的接收者的wxid
+                                        //如果发往群的消息,这个值就是群的wxid
+                                        //如果是别人私聊给自己的消息,这里就是自己的微信号
+        "atUserList": ["xxx","xxx"]        //这条消息@的对象列表                       
+        "msg": "xxxxxxxx"                //具体的文本内容
+    //如果A在群里面at了B(群昵称为BN),C(群昵称为CN),则msg的格式为"@BN @CN XXXXXX" (@BN @CN之间有空格)
+    }
       
-#     - 图片消息
-#     {
-#         "msg_id": "xxxxx",            //消息id(字符串)
-#         "msg_timestamp": xxxxxx,      //消息时间戳(单位为毫秒)
-#         "msg_type": 3, 					  //3 代表图片消息
-#         "room_wxid": "xxxxxxxx@chatroom", //同文本消息
-#         "wxid_from": "wxid_xxxxxx", 	//同文本消息
-#         "wxid_to": 	"wxid_xxxxx",		//同文本消息
-#         "file_index":"xxxxxx"   		//图片文件的唯一索引(由wehub生成)
-#         //该字段在wehub上报消息时有效
-#         //如果是自己发/转发的图片,file_index为本地的文件路径
-#     }
-#     - 链接消息(分享某个网页链接)
-#     {
-#         "msg_id": "xxxxx",            
-#         "msg_timestamp": xxxxxx,      
-#         "msg_type":49, 					//49 代表链接消息
-#         "room_wxid": "xxxxxxxx@chatroom", 
-#         "wxid_from": "wxid_xxxxxx", 
-#         "wxid_to": "wxid_xxxxxx", 
-#         "link_title":"标题", 			  //链接标题
-#         "link_desc": "副标题",           //链接描述（副标题）
-#         "link_url":"http://xxxxx", 		//分享链接的url
-#         "link_img_url": "http://xxxxxxx" //链接的缩略图的的Url,jpg或者png格式
-#         "raw_msg": "xxxxxxx"		//微信的原始消息,xml格式,0.3.14版本中新增
-#     }
-#     raw_msg 中的关键字段有"title","des","url","thumburl"(分别与link_title,link_desc,link_url,link_img_url值对应),如果link_url值为空,请自行分析raw_msg中的url.
+    - 图片消息
+    {
+        "msg_id": "xxxxx",            //消息id(字符串)
+        "msg_timestamp": xxxxxx,      //消息时间戳(单位为毫秒)
+        "msg_type": 3, 					  //3 代表图片消息
+        "room_wxid": "xxxxxxxx@chatroom", //同文本消息
+        "wxid_from": "wxid_xxxxxx", 	//同文本消息
+        "wxid_to": 	"wxid_xxxxx",		//同文本消息
+        "file_index":"xxxxxx"   		//图片文件的唯一索引(由wehub生成)
+        //该字段在wehub上报消息时有效
+        //如果是自己发/转发的图片,file_index为本地的文件路径
+    }
+    - 链接消息(分享某个网页链接)
+    {
+        "msg_id": "xxxxx",            
+        "msg_timestamp": xxxxxx,      
+        "msg_type":49, 					//49 代表链接消息
+        "room_wxid": "xxxxxxxx@chatroom", 
+        "wxid_from": "wxid_xxxxxx", 
+        "wxid_to": "wxid_xxxxxx", 
+        "link_title":"标题", 			  //链接标题
+        "link_desc": "副标题",           //链接描述（副标题）
+        "link_url":"http://xxxxx", 		//分享链接的url
+        "link_img_url": "http://xxxxxxx" //链接的缩略图的的Url,jpg或者png格式
+        "raw_msg": "xxxxxxx"		//微信的原始消息,xml格式,0.3.14版本中新增
+    }
+    raw_msg 中的关键字段有"title","des","url","thumburl"(分别与link_title,link_desc,link_url,link_img_url值对应),如果link_url值为空,请自行分析raw_msg中的url.
 
 
-#     - 表情消息
-#     {
-#         "msg_id": "xxxxx",
-#         "msg_timestamp": xxxxxx,
-#         "msg_type":47, 					
-#         "room_wxid": "xxxxxxxx@chatroom", 
-#         "wxid_from": "wxid_xxxxxx", 
-#         "wxid_to": "wxid_xxxxxx", 
-#         "emoji_url": "xxxxxxxxx" //表情的url地址(若有需要,请回调接口自行下载该文件)
-#         "raw_msg": "xxxxxxx"  
-#     }
-#     - 小程序
-#     {
-#         "msg_id": "xxxxx",
-#         "msg_timestamp": xxxxxx,
-#         "msg_type":4901,
-#         "room_wxid": "xxxxxxxx@chatroom", 
-#         "wxid_from": "wxid_xxxxxx", 
-#         "wxid_to": "wxid_xxxxxx", 
-#         "raw_msg": "xxxxxxx"    //微信中的小程序信息的原始数据,xml格式,请自行解析
-#             //username,nickname 为关键字段
-#     }
+    - 表情消息
+    {
+        "msg_id": "xxxxx",
+        "msg_timestamp": xxxxxx,
+        "msg_type":47, 					
+        "room_wxid": "xxxxxxxx@chatroom", 
+        "wxid_from": "wxid_xxxxxx", 
+        "wxid_to": "wxid_xxxxxx", 
+        "emoji_url": "xxxxxxxxx" //表情的url地址(若有需要,请回调接口自行下载该文件)
+        "raw_msg": "xxxxxxx"  
+    }
+    - 小程序
+    {
+        "msg_id": "xxxxx",
+        "msg_timestamp": xxxxxx,
+        "msg_type":4901,
+        "room_wxid": "xxxxxxxx@chatroom", 
+        "wxid_from": "wxid_xxxxxx", 
+        "wxid_to": "wxid_xxxxxx", 
+        "raw_msg": "xxxxxxx"    //微信中的小程序信息的原始数据,xml格式,请自行解析
+            //username,nickname 为关键字段
+    }
 
-#     """
+    """
 
-#     msg_id = models.CharField(max_length=200, verbose_name='msg_id')
-#     msg_timestamp = models.CharField(max_length=200, blank=True, null=True, verbose_name='微信号')
-#     msg_type = models.CharField(max_length=200, blank=True, null=True, verbose_name='微信昵称')
-#     room_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='好友备注')
-#     wxid_from = models.CharField(max_length=200, blank=True, null=True, verbose_name='头像的url地址')
-#     wxid_to = models.PositiveSmallIntegerField(default=1, verbose_name='性别:1男，2女')
-#     atUserList = models.PositiveSmallIntegerField(default=1, verbose_name='性别:1男，2女')
-#     msg = models.CharField(max_length=200, blank=True, null=True, verbose_name='祖国')
-#     raw_msg = models.CharField(max_length=200, blank=True, null=True, verbose_name='祖国')
+    msg_id = models.CharField(max_length=200, verbose_name='id')
+    msg_timestamp = models.CharField(max_length=200, blank=True, null=True, verbose_name='时间戳')
+    msg_type = models.CharField(max_length=200, blank=True, null=True, verbose_name='类型')
+    room_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='群wxid')
+    wxid_from = models.CharField(max_length=200, blank=True, null=True, verbose_name='发送人')
+    wxid_to = models.CharField(max_length=200, blank=True, null=True, verbose_name='接收人')
+    atUserList = JSONField(default='[]', verbose_name='@用户列表')
+    msg = models.CharField(max_length=2000, blank=True, null=True, verbose_name='文本内容')
+    raw_msg = models.CharField(max_length=2000, blank=True, null=True, verbose_name='微信原始消息')
+    
+    file_index = models.CharField(max_length=500, blank=True, null=True, verbose_name='图片文件索引')
+    file_name = models.CharField(max_length=500, blank=True, null=True, verbose_name='图片文件名')
+    file_size = models.FloatField(default=0, verbose_name='文件大小')
+    
+    emoji_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='表情')
 
-#     emoji_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='省份')
-#     link_title = models.CharField(max_length=200, blank=True, null=True, verbose_name='城市')
-#     link_desc = models.CharField(max_length=200, blank=True, null=True, verbose_name='城市')
-#     link_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='城市')
-#     link_img_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='城市')
-#     link_img_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='城市')
-#     link_img_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='城市')
-#     link_img_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='城市')
+    link_title = models.CharField(max_length=200, blank=True, null=True, verbose_name='标题')
+    link_desc = models.CharField(max_length=200, blank=True, null=True, verbose_name='副标题')
+    link_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='链接')
+    link_img_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='链接所列图地址')
+    bot_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='bot_wxid')
 
+
+    objects = WxMessageManager()
+
+    class Meta:
+        db_table = 'wx_message'
+
+mm_WxMessage = WxMessage.objects
 

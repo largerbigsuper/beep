@@ -24,7 +24,7 @@ msg_type
 class LiveConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = 'live_%s' % self.room_name
+        self.room_group_name = self.room_name
 
         # Join room group
         await self.channel_layer.group_add(
@@ -57,17 +57,22 @@ class LiveConsumer(AsyncWebsocketConsumer):
     # Receive message from room group
     async def chat_message(self, event):
         message = event['message']
-
+        user_message = {
+            'msg_type': 'user',
+            'msg': message,
+            'msg_wechat': {},
+            'user': {}
+        }
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
+        await self.send(text_data=json.dumps(user_message))
 
     # Receive message from room group
     async def wehub_message(self, event):
         message = event['message']
-
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
+        text_dict = {
+            'msg_type': 'wechat',
+            'msg': '',
+            'msg_wechat': message,
+            'user': {}
+        }
+        await self.send(json.dumps(text_dict))
