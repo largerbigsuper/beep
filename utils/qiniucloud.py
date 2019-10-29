@@ -105,3 +105,8 @@ class StorageObject(Storage):
     def url(self, name):
         # 上传完之后，已经返回的是全路径了
         return name
+
+def get_filename(filename):
+    new_name = "file/{0}/{1}.{2}".format(datetime.datetime.now().strftime("%Y/%m/%d"), str(uuid.uuid4()).replace('-', ''),
+                                            filename.split(".").pop())
+    return new_name

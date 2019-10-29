@@ -4,6 +4,8 @@ Base settings to build other settings files upon.
 
 import environ
 
+from .settings_ckeditor import *
+
 ROOT_DIR = (
     environ.Path(__file__) - 3
 )  # (beep/config/settings/base.py - 3 = beep/)
@@ -58,6 +60,8 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "drf_yasg",
     "channels",
+    'ckeditor',
+    'ckeditor_uploader',
 ]
 
 LOCAL_APPS = [
