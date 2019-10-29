@@ -95,7 +95,7 @@ class StorageObject(Storage):
         if info.status_code == 200:
             base_url = '%s%s' % (QiniuService.bucket_domain_dict['image'], ret.get("key"))
             # 表示上传成功, 返回文件名
-            _, file_type = base_url.split('.')
+            file_type = base_url.split('.')[-1]
             if file_type in ['mp4']:
                 return base_url
             else: 
