@@ -100,7 +100,7 @@ class Blog(models.Model):
                               verbose_name='话题')
     is_anonymous = models.BooleanField(default=False, verbose_name='是否匿名')
     content = RichTextUploadingField(verbose_name='内容')
-    img_list = JSONField(default='[]', verbose_name='图片列表')
+    img_list = JSONField(default='[]', blank=True, verbose_name='图片列表')
     # [{"id": 1, "name": "9527"}, {"id": 2, "name": "9527"}]
     at_list = JSONField(default='[]', blank=True, verbose_name='at用户列表')
     at_users = models.ManyToManyField(settings.AUTH_USER_MODEL,
