@@ -89,6 +89,8 @@ class BlogViewSet(viewsets.ModelViewSet):
         elif self.action in ['following']:
             following_ids = self.request.user.following_set.values_list('following_id', flat=True)
             queryset = queryset.exclude(is_anonymous=True).filter(user_id__in=following_ids).select_related('user', 'topic')
+        elif self.action in ['lookup']:
+            queryset = queryset.exclude(is_anonymous=True).select_related('user', 'topic')
         else:
             queryset = queryset.select_related('user', 'topic')
 
@@ -129,6 +131,13 @@ class BlogViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def mine(self, request):
         """我的博文列表
+        """
+
+        return super().list(request)
+
+    @action(detail=False, methods=['get'])
+    def lookup(self, request):
+        """某人博文列表
         """
 
         return super().list(request)
