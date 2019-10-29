@@ -5,6 +5,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 
+from beep.blog.models import mm_Blog
 from utils.modelmanager import ModelManager
 
 class ActivityManager(ModelManager):
@@ -67,6 +68,23 @@ class Activity(models.Model):
     
     def __str__(self):
         return self.title
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        """创建活动自动创建博文
+        """
+        if self.pk: 
+            return super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        else:
+            super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+            params = {
+                'user': self.user,
+                'cover': self.cover,
+                'title': '发布了活动：' + self.title,
+                'activity': self
+            }
+            blog = mm_Blog.create(**params)
+            self.blog_id = blog.id
+            self.save()
 
 
 class RegistrationManager(ModelManager):

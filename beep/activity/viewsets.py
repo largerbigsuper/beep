@@ -33,15 +33,15 @@ class ActivityViewSet(viewsets.ModelViewSet):
             cover_url = serializer.validated_data.pop('cover_url', None)
             serializer.validated_data['cover'] = cover_url
             activity = serializer.save(user=self.request.user)
-            params = {
-                'user': self.request.user,
-                'cover': activity.cover,
-                'title': '发布了活动：' + activity.title,
-                'activity': activity
-            }
-            blog = mm_Blog.create(**params)
-            activity.blog_id = blog.id
-            activity.save()
+            # params = {
+            #     'user': self.request.user,
+            #     'cover': activity.cover,
+            #     'title': '发布了活动：' + activity.title,
+            #     'activity': activity
+            # }
+            # blog = mm_Blog.create(**params)
+            # activity.blog_id = blog.id
+            # activity.save()
 
 
     def retrieve(self, request, *args, **kwargs):
