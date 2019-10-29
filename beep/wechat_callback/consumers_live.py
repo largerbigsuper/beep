@@ -59,8 +59,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
         message = event['message']
         user_message = {
             'msg_type': 'user',
-            'msg': message,
-            'msg_wechat': {},
+            'msg_dict': message,
             'user': {}
         }
         # Send message to WebSocket
@@ -71,8 +70,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
         message = event['message']
         text_dict = {
             'msg_type': 'wechat',
-            'msg': '',
-            'msg_wechat': message,
+            'msg_dict': message,
             'user': {}
         }
         await self.send(json.dumps(text_dict))
