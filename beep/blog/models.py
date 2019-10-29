@@ -3,6 +3,7 @@ from django.db.models import F
 from django.conf import settings
 
 from django_extensions.db.fields.json import JSONField
+from ckeditor_uploader.fields import RichTextUploadingField
 
 from utils.modelmanager import ModelManager
 
@@ -98,7 +99,7 @@ class Blog(models.Model):
                               null=True,
                               verbose_name='话题')
     is_anonymous = models.BooleanField(default=False, verbose_name='是否匿名')
-    content = models.TextField(verbose_name='内容')
+    content = RichTextUploadingField(verbose_name='内容')
     img_list = JSONField(default='[]', verbose_name='图片列表')
     # [{"id": 1, "name": "9527"}, {"id": 2, "name": "9527"}]
     at_list = JSONField(default='[]', verbose_name='at用户列表')
@@ -127,7 +128,7 @@ class Blog(models.Model):
     video = models.CharField(max_length=200, blank=True, null=True, verbose_name='视频地址')
     is_top = models.BooleanField(default=False, verbose_name='是否置顶')
     title = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章标题')
-    cover = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章封面图')
+    cover = models.ImageField(max_length=200, blank=True, null=True, verbose_name='文章封面图')
     activity = models.ForeignKey('activity.Activity', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name='活动')
     is_delete = models.BooleanField(default=False, verbose_name='是否删除')
 
@@ -139,6 +140,9 @@ class Blog(models.Model):
         db_table = 'blogs'
         ordering = ['-id']
         verbose_name = verbose_name_plural = '博文'
+
+    def __str__(self):
+        return self.title if self.title else self.content[:50]
 
 
 class LikeManager(ModelManager):

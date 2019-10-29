@@ -64,6 +64,9 @@ class Activity(models.Model):
         db_table = 'activity'
         ordering = ['-id']
         verbose_name = verbose_name_plural = '活动'
+    
+    def __str__(self):
+        return self.title
 
 
 class RegistrationManager(ModelManager):

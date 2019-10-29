@@ -123,6 +123,9 @@ class User(AbstractUser):
         ordering = ['-id']
         verbose_name = verbose_name_plural = '用户信息'
 
+    def __str__(self):
+        return self.account
+
 
 mm_User = User.objects
 

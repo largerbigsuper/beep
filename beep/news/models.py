@@ -47,5 +47,8 @@ class News(models.Model):
         post_date = self.published_at if self.published_at else datetime.datetime.now()
         self.post = Post().generate_post(self.title, post_date, self.content)
         return super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+    
+    def __str__(self):
+        return self.title
 
 mm_News = News.objects
