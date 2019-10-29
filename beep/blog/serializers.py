@@ -37,7 +37,7 @@ class BaseBlogSerializer(serializers.ModelSerializer):
     user = UserBaseSerializer(read_only=True)
 
 
-blog_base_fields = ['id', 'topic', 'is_anonymous', 'content', 'img_list', 'at_list', 
+blog_base_fields = ['id', 'topic', 'is_anonymous', 'content', 'img_list', 'at_list', 'forward_blog',
                     'total_share', 'total_like', 'total_comment', 'total_view', 'total_forward',
                     'update_at', 'video', 'is_top', 'title', 'cover', 'activity']
 

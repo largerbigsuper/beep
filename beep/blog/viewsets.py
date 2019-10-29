@@ -65,7 +65,7 @@ class BlogViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
 
-        if self.action in ['create', 'update', 'mine']:
+        if self.action in ['create', 'update']:
             return BlogCreateSerializer
         elif self.action in ['add_like', 'add_share']:
             return NoneParamsSerializer

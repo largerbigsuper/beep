@@ -62,7 +62,7 @@ class Activity(models.Model):
 
     class Meta:
         db_table = 'activity'
-        ordering = ['-id']
+        ordering = ['-start_at']
         verbose_name = verbose_name_plural = '活动'
     
     def __str__(self):
