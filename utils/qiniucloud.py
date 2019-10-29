@@ -6,6 +6,8 @@ from django.core.files.storage import Storage
 from django.conf import settings
 from qiniu import Auth, put_data, put_file
 
+# 图片样式
+beep_logo_cover = '-beep_logo'
 
 class QiniuService:
     # 构建鉴权对象
@@ -93,7 +95,11 @@ class StorageObject(Storage):
         if info.status_code == 200:
             base_url = '%s%s' % (QiniuService.bucket_domain_dict['image'], ret.get("key"))
             # 表示上传成功, 返回文件名
-            return base_url
+            _, file_type = base_url.split('.')
+            if file_type in ['mp4']:
+                return base_url
+            else: 
+                return base_url + beep_logo_cover
         else:
             # 上传失败
             raise Exception("上传七牛失败")
