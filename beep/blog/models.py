@@ -102,9 +102,10 @@ class Blog(models.Model):
     content = RichTextUploadingField(verbose_name='内容')
     img_list = JSONField(default='[]', verbose_name='图片列表')
     # [{"id": 1, "name": "9527"}, {"id": 2, "name": "9527"}]
-    at_list = JSONField(default='[]', verbose_name='at用户列表')
+    at_list = JSONField(default='[]', blank=True, verbose_name='at用户列表')
     at_users = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                       through='AtMessage',
+                                      blank=True, 
                                       related_name='blog_at_users_set')
     shares = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                     through='BlogShare',
