@@ -30,8 +30,8 @@ class TopicSerializer(serializers.ModelSerializer):
 class BaseBlogSerializer(serializers.ModelSerializer):
 
     topic = TopicSerializer(read_only=True)
-    topic_str = serializers.CharField(write_only=True, allow_blank=True)
-    cover_url = serializers.CharField(write_only=True, allow_blank=True)
+    topic_str = serializers.CharField(write_only=True, allow_blank=True, required=False)
+    cover_url = serializers.CharField(write_only=True, allow_blank=True, required=False)
     img_list = serializers.ListField()
     at_list = serializers.ListField()
     user = UserBaseSerializer(read_only=True)
@@ -61,8 +61,8 @@ class BlogCreateSerializer(BaseBlogSerializer):
         """
         user = self.context['request'].user
         # deal topic
-        cover_url = validated_data.pop('cover_url')
-        topic_str = validated_data.pop('topic_str')
+        cover_url = validated_data.pop('cover_url', None)
+        topic_str = validated_data.pop('topic_str', None)
         topic = None
         if topic_str:
             topic_data = {

@@ -11,7 +11,7 @@ from .models import (Activity, mm_Activity,
 class ActivityCreateSerializer(serializers.ModelSerializer):
 
     user = UserBaseSerializer(read_only=True)
-    cover_url = serializers.CharField(write_only=True, allow_blank=True)
+    cover_url = serializers.CharField(write_only=True, allow_blank=True, required=False)
 
     class Meta:
         model = Activity
