@@ -29,6 +29,9 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         with transaction.atomic():
+            serializer.is_valid(raise_exception=True)
+            cover_url = serializer.validated_data.pop('cover_url')
+            serializer.validated_data['cover'] = cover_url
             activity = serializer.save(user=self.request.user)
             params = {
                 'user': self.request.user,

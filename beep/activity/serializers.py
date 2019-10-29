@@ -11,10 +11,11 @@ from .models import (Activity, mm_Activity,
 class ActivityCreateSerializer(serializers.ModelSerializer):
 
     user = UserBaseSerializer(read_only=True)
+    cover_url = serializers.CharField(write_only=True, allow_blank=True)
 
     class Meta:
         model = Activity
-        fields = ('id', 'user', 'title', 'cover', 'activity_type',
+        fields = ['id', 'user', 'title', 'cover', 'activity_type',
                   'start_at', 'end_at', 'ticket_price',
                   'address', 'live_plateform',
                   'live_address', 'total_user', 'contact_name',
@@ -22,8 +23,7 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
                   'create_at', 'content', 'total_collect',
                   'province_code', 'province_name',
                   'city_code', 'city_name',
-                  'district_code', 'district_name', 'blog_id'
-                  )
+                  'district_code', 'district_name', 'blog_id', 'cover_url']
         read_only_fields = ('user', 'total_view', 'total_registration', 'total_collect', 'blog_id')
 
 
