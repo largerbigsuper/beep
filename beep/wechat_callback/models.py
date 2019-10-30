@@ -56,13 +56,16 @@ class WxUserManager(ModelManager):
         info = self.cache.get(wxid)
         if not info:
             wxuser = self.filter(wxid=wxid).first()
-            info = {
-                'id': wxid,
-                'name': wxuser.nickname,
-                'avatar_url': wxuser.head_img,
-                'user_type': 'wechat'
-            }
-            self.cache.set(wxid, info)
+            if wxuser:
+                info = {
+                    'id': wxid,
+                    'name': wxuser.nickname,
+                    'avatar_url': wxuser.head_img,
+                    'user_type': 'wechat'
+                }
+                self.cache.set(wxid, info)
+            else:
+                info = {}
         return info
 
 
