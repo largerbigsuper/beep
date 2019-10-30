@@ -34,7 +34,7 @@ urlpatterns = [
     path('api-user/', include(router_user.urls)),
     path('api-admin/', include(router_admin.urls)),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('scoket/', socket_test),
+    path('socket/', socket_test),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

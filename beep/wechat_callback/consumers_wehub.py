@@ -171,7 +171,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
             task = {
                 'task_type': const.TASK_TYPE_REPORT_ROOMMEMBER,
                 'task_dict': {
-                    'room_wxid_list': room_wxid_list[:5]
+                    'room_wxid_list': room_wxid_list
                 }
             }
             reply_task_list.append(task)
