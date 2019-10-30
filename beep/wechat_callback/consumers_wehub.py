@@ -8,6 +8,7 @@ from django.core.cache import cache
 from . import const
 from .models import mm_WxUser, mm_WxGroup, mm_WxBot, mm_WxMessage
 
+
 class WehubConsumer(AsyncWebsocketConsumer):
 
     logger = logging.getLogger("wehub")
@@ -44,7 +45,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 "exception occur: {}".format(traceback.format_exc()))
             return
 
-
     async def process_commond(self, request_dict):
         # 处理wehub客户端程序发过来的消息
         appid = request_dict.get('appid', None)
@@ -56,15 +56,18 @@ class WehubConsumer(AsyncWebsocketConsumer):
             self.logger.info("invalid param")
             return
 
-        error_code, error_reason, ack_data, ack_type = self.main_process(wxid, action, req_data_dict)
+        error_code, error_reason, ack_data, ack_type = self.main_process(
+            wxid, action, req_data_dict)
         ack_dict = {
-            'error_code': error_code, 
+            'error_code': error_code,
             'error_reason': error_reason,
             'data': ack_data,
             'ack_type': str(ack_type)
-            }
+        }
         # 回调wehub
-        await self.send(json.dumps(ack_dict))
+        ack_data_text = json.dumps(ack_dict)
+        self.logger.info('===ack_data==: {}'.format(ack_data_text))
+        await self.send(ack_data_text)
 
         # 讲消息转发到对应的群
         if action == 'report_new_msg':
@@ -80,8 +83,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
-
-
     def process_login(self, wxid, data_dict):
         """微信机器人
         """
@@ -95,7 +96,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         friend_list = data_dict['friend_list']
         for friend in friend_list:
             mm_WxUser.update_user(bot_wxid, friend)
-        
+
         # 2. 更新群列表
         group_list = data_dict['group_list']
         my_groups = [group for group in group_list]
@@ -134,7 +135,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 info.pop('room_nickname')
                 mm_WxUser.update_user(bot_wxid, info)
 
-
     def process_report_room_member_change(self, bot_wxid, data_dict):
         """上报群成员变化
         """
@@ -143,7 +143,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
     def process_report_new_room(self, bot_wxid, data_dict):
         """上报新群
         """
-        
+
         mm_WxGroup.update_group(bot_wxid, data_dict)
 
     def process_report_new_msg(self, bot_wxid, data_dict):
@@ -154,7 +154,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
         mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
 
     def main_process(self, wxid, action, request_data_dict):
-        self.logger.info("action = {0},data = {1}".format(action, request_data_dict))
+        self.logger.info("action = {0},data = {1}".format(
+            action, request_data_dict))
         ack_type = 'common_ack'
         if action in const.FIX_REQUEST_TYPES:
             ack_type = str(action)+'_ack'
@@ -167,7 +168,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         if action == 'report_contact':
             # 处理群信息
-            room_wxid_list = self.process_report_contact(wxid, request_data_dict)
+            room_wxid_list = self.process_report_contact(
+                wxid, request_data_dict)
             # 发送上传群成员信息任务
             # room_wxid_list = []
             reply_task_list = []
@@ -182,11 +184,11 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 'reply_task_list': reply_task_list
             }
             return 0, "no error", ack_data, ack_type
-        
+
         if action == 'report_contact_update':
             self.process_report_contact_update(wxid, request_data_dict)
             return 0, "no error", {}, ack_type
-        
+
         if action == 'report_room_member_info':
             self.process_report_room_member_info(wxid, request_data_dict)
             return 0, "no error", {}, ack_type
@@ -217,7 +219,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 return 0, 'no error', ack_data, ack_type
         return 0, 'no error', {}, ack_type
 
-
     async def live_message(self, event):
         """发送消息到wehub
         """
@@ -244,10 +245,10 @@ class WehubConsumer(AsyncWebsocketConsumer):
             'reply_task_list': reply_task_list
         }
         ack_dict = {
-            'error_code': 0, 
+            'error_code': 0,
             'error_reason': "no error",
             'data': ack_data,
             'ack_type': 'common_ack'
-            }
+        }
         # 回调wehub
         await self.send(json.dumps(ack_dict))
