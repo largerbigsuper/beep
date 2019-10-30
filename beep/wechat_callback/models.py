@@ -254,7 +254,7 @@ class WxMessage(models.Model):
     """
 
     msg_id = models.CharField(max_length=200, verbose_name='msg_id')
-    msg_timestamp = models.BigIntegerField(default=0, verbose_name='时间戳')
+    msg_timestamp = models.BigIntegerField(default=0, verbose_name='时间戳(毫秒)')
     msg_type = models.CharField(max_length=200, blank=True, null=True, verbose_name='类型')
     room_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='群wxid')
     wxid_from = models.CharField(max_length=200, blank=True, null=True, verbose_name='发送人')
@@ -282,7 +282,7 @@ class WxMessage(models.Model):
 
     class Meta:
         db_table = 'wx_message'
-        ordering = ['-create_at']
+        ordering = ['-msg_timestamp']
 
 mm_WxMessage = WxMessage.objects
 

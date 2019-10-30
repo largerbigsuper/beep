@@ -73,7 +73,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
             'room_wxid': room_wxid,
             'wxid_from': str(self.user.id),
             'wxid_to': room_wxid,
-            'msg_timestamp': int(time.time())
+            'msg_timestamp': int(round(time.time() * 1000))
         }
         # 记录
         await  database_sync_to_async(mm_WxMessage.create)(**wxmessage_dict)
