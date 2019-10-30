@@ -62,6 +62,28 @@ class QiniuService:
             # 上传失败
             raise Exception("上传七牛失败")
 
+    @classmethod
+    def upload_data(cls, file_data, save_name):
+        """上传内存文件
+        """
+        # 构建鉴权对象
+        token = cls.gen_app_upload_token(QiniuService.get_bucket_name('image'))
+        ret, info = put_data(token, save_name, file_data.read())
+
+        if info.status_code == 200:
+            base_url = '%s%s' % (QiniuService.bucket_domain_dict['image'], ret.get("key"))
+            # 表示上传成功, 返回文件名
+            return base_url
+            # file_type = base_url.split('.')[-1]
+            # if file_type in ['mp4']:
+            #     return base_url
+            # else: 
+            #     return base_url + beep_logo_cover
+        else:
+            # 上传失败
+            raise Exception("上传七牛失败")
+
+
     @staticmethod
     def _new_name(name):
         new_name = "file/{0}/{1}.{2}".format(datetime.datetime.now().strftime("%Y/%m/%d"), str(uuid.uuid4()).replace('-', ''),

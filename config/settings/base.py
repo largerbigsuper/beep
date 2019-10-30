@@ -401,3 +401,5 @@ LOGGING = {
 }
 
 ASGI_APPLICATION = 'config.routing.application'
+# 图片上传限制
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1000

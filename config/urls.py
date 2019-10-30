@@ -23,7 +23,7 @@ schema_view = get_schema_view(
 
 from .router_user import router_user
 from .router_admin import router_admin
-from beep.wechat_callback.views import socket_test
+from beep.wechat_callback import views as wehub_views
 
 urlpatterns = [
     # path('swagger(?P<format>\.json|\.yaml)', schema_view.without_ui(cache_timeout=0), name='schema-json'),
@@ -34,7 +34,9 @@ urlpatterns = [
     path('api-user/', include(router_user.urls)),
     path('api-admin/', include(router_admin.urls)),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('socket/', socket_test),
+    path('socket/', wehub_views.socket_test),
+    path('wehub_api/', wehub_views.wehub_api),
+    path('upload_file/', wehub_views.upload_file),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
