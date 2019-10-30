@@ -80,6 +80,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
+
+
     def process_login(self, wxid, data_dict):
         """微信机器人
         """
@@ -153,7 +155,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
     def main_process(self, wxid, action, request_data_dict):
         self.logger.info("action = {0},data = {1}".format(action, request_data_dict))
-        ack_type = '    `'
+        ack_type = 'common_ack'
         if action in const.FIX_REQUEST_TYPES:
             ack_type = str(action)+'_ack'
 
@@ -197,9 +199,22 @@ class WehubConsumer(AsyncWebsocketConsumer):
         if action == 'report_new_msg':
             # 如果是系统消息，则更新群信息
             self.process_report_new_msg(wxid, request_data_dict)
-            if 'msg_type' == const.MSG_TYPE_SYSTEM:
-                pass
-
+            # 处理文件回调
+            msg_dict = request_data_dict['msg']
+            msg_type = msg_dict['msg_type']
+            if msg_type in [const.MSG_TYPE_IMAGE, const.MSG_TYPE_VOICE]:
+                reply_task_list = []
+                task = {
+                    'task_type': const.TASK_TYPE_UPLOAD_FILE,
+                    'task_dict': {
+                        'file_index': msg_dict['file_index']
+                    }
+                }
+                reply_task_list.append(task)
+                ack_data = {
+                    'reply_task_list': reply_task_list
+                }
+                return 0, 'no error', ack_data, ack_type
         return 0, 'no error', {}, ack_type
 
 
