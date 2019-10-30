@@ -89,6 +89,17 @@ class LiveConsumer(AsyncWebsocketConsumer):
         await  database_sync_to_async(mm_WxMessage.create)(**wxmessage_dict)
         # Send message to WebSocket
         await self.send(text_data=json.dumps(user_message))
+        
+        # 提问需要推送到wehub
+        if message.get('msg_type', 0) != 0:
+            await self.channel_layer.group_send(
+                'wehub',
+                {
+                    'type': 'live_message',
+                    'message': user_message,
+                    'room_wxid': room_wxid
+                }
+            )
 
     # Receive message from room group
     async def wehub_message(self, event):

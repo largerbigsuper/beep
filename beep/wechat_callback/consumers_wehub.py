@@ -14,7 +14,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.room_name = 'wehub'
-        self.room_group_name = 'live_%s' % self.room_name
+        self.room_group_name = self.room_name
 
         # Join room group
         await self.channel_layer.group_add(
@@ -153,7 +153,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
     def main_process(self, wxid, action, request_data_dict):
         self.logger.info("action = {0},data = {1}".format(action, request_data_dict))
-        ack_type = 'common_ack'
+        ack_type = '    `'
         if action in const.FIX_REQUEST_TYPES:
             ack_type = str(action)+'_ack'
 
@@ -201,3 +201,38 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 pass
 
         return 0, 'no error', {}, ack_type
+
+
+    async def live_message(self, event):
+        """发送消息到wehub
+        """
+        user_message = event['message']
+        user = user_message['user']
+        message = user_message['msg_dict']
+        room_wxid = event['room_wxid']
+        reply_task_list = []
+        msg_unit = {
+            'msg_type': 1,
+            'msg': '用户[' + user['name'] + ']: ' + message['msg']
+        }
+        task = {
+            'task_type': const.TASK_TYPE_SENDMSG,
+            'task_dict': {
+                'wxid_to': room_wxid,
+                'at_list': [],
+                'msg_list': [msg_unit],
+                'at_style': 0
+            }
+        }
+        reply_task_list.append(task)
+        ack_data = {
+            'reply_task_list': reply_task_list
+        }
+        ack_dict = {
+            'error_code': 0, 
+            'error_reason': "no error",
+            'data': ack_data,
+            'ack_type': 'common_ack'
+            }
+        # 回调wehub
+        await self.send(json.dumps(ack_dict))
