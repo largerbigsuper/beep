@@ -50,20 +50,9 @@ class LiveConsumer(AsyncWebsocketConsumer):
 
     # Receive message from WebSocket
     async def receive(self, text_data):
-
+        """处理用户发送的消息
+        """
         message = json.loads(text_data)
-        # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message
-            }
-        )
-
-    # Receive message from room group
-    async def chat_message(self, event):
-        message = event['message']
         user = {
             'id': self.user.id,
             'name': self.user.name,
@@ -86,10 +75,16 @@ class LiveConsumer(AsyncWebsocketConsumer):
             'wxid_to': room_wxid,
             'msg_timestamp': int(time.time())
         }
+        # 记录
         await  database_sync_to_async(mm_WxMessage.create)(**wxmessage_dict)
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps(user_message))
-        
+        # 群发
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': user_message
+            }
+        )
         # 提问需要推送到wehub
         if message.get('msg_type', 0) != 0:
             await self.channel_layer.group_send(
@@ -100,6 +95,18 @@ class LiveConsumer(AsyncWebsocketConsumer):
                     'room_wxid': room_wxid
                 }
             )
+
+
+    # Receive message from room group
+    async def chat_message(self, event):
+        # 处理每个socket链接的函数， self.scope['user'] 是每个socket链接对应的user
+        message = event['message']
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps(message))
+
+
+        
+
 
     # Receive message from room group
     async def wehub_message(self, event):
