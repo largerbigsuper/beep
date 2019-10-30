@@ -3,7 +3,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 
-from .models import mm_WxUser
+from .models import mm_WxUser, mm_WxMessage
 
 """消息格式
 msg_type
@@ -73,6 +73,17 @@ class LiveConsumer(AsyncWebsocketConsumer):
             'msg_dict': message,
             'user': user
         }
+        room_wxid = self.room_name + '@chatroom'
+        wxmessage_dict = {
+            'user_type': 1,
+            'user_id': self.user.id,
+            'msg': message['msg'],
+            'raw_msg': message,
+            'room_wxid': room_wxid,
+            'wxid_from': str(self.user.id),
+            'wxid_to': room_wxid,
+        }
+        await  database_sync_to_async(mm_WxMessage.create)(**wxmessage_dict)
         # Send message to WebSocket
         await self.send(text_data=json.dumps(user_message))
 

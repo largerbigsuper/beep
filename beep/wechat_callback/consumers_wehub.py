@@ -148,7 +148,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
         """上报新的聊天消息
         """
         # 存储消息
-        mm_WxMessage.create(bot_wxid=bot_wxid, **data_dict)
+        wxmessage_dict = data_dict['msg']
+        mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
 
     def main_process(self, wxid, action, request_data_dict):
         self.logger.info("action = {0},data = {1}".format(action, request_data_dict))

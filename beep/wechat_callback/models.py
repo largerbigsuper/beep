@@ -253,33 +253,36 @@ class WxMessage(models.Model):
 
     """
 
-    msg_id = models.CharField(max_length=200, verbose_name='id')
-    msg_timestamp = models.CharField(max_length=200, blank=True, null=True, verbose_name='时间戳')
+    msg_id = models.CharField(max_length=200, verbose_name='msg_id')
+    msg_timestamp = models.BigIntegerField(default=0, verbose_name='时间戳')
     msg_type = models.CharField(max_length=200, blank=True, null=True, verbose_name='类型')
     room_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='群wxid')
     wxid_from = models.CharField(max_length=200, blank=True, null=True, verbose_name='发送人')
     wxid_to = models.CharField(max_length=200, blank=True, null=True, verbose_name='接收人')
     atUserList = JSONField(default='[]', verbose_name='@用户列表')
-    msg = models.CharField(max_length=2000, blank=True, null=True, verbose_name='文本内容')
-    raw_msg = models.CharField(max_length=2000, blank=True, null=True, verbose_name='微信原始消息')
+    msg = models.TextField(blank=True, null=True, verbose_name='文本内容（平台消息）')
+    raw_msg = models.TextField(blank=True, null=True, verbose_name='微信原始消息（平台消息）')
     
     file_index = models.CharField(max_length=500, blank=True, null=True, verbose_name='图片文件索引')
     file_name = models.CharField(max_length=500, blank=True, null=True, verbose_name='图片文件名')
     file_size = models.FloatField(default=0, verbose_name='文件大小')
     
-    emoji_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='表情')
+    emoji_url = models.CharField(max_length=500, blank=True, null=True, verbose_name='表情')
 
     link_title = models.CharField(max_length=200, blank=True, null=True, verbose_name='标题')
     link_desc = models.CharField(max_length=200, blank=True, null=True, verbose_name='副标题')
-    link_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='链接')
-    link_img_url = models.CharField(max_length=200, blank=True, null=True, verbose_name='链接所列图地址')
+    link_url = models.CharField(max_length=500, blank=True, null=True, verbose_name='链接')
+    link_img_url = models.CharField(max_length=500, blank=True, null=True, verbose_name='链接所列图地址')
     bot_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='bot_wxid')
-
+    user_id = models.IntegerField(default=0, blank=True, verbose_name='平台用户user_id')
+    user_type = models.IntegerField(default=0, blank=True, verbose_name='用户类型：0:微信用户， 1:平台用户')
+    create_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='创建时间')
 
     objects = WxMessageManager()
 
     class Meta:
         db_table = 'wx_message'
+        ordering = ['-create_at']
 
 mm_WxMessage = WxMessage.objects
 
