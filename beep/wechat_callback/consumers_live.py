@@ -1,3 +1,5 @@
+import time
+
 from channels.auth import login
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -82,6 +84,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
             'room_wxid': room_wxid,
             'wxid_from': str(self.user.id),
             'wxid_to': room_wxid,
+            'msg_timestamp': int(time.time())
         }
         await  database_sync_to_async(mm_WxMessage.create)(**wxmessage_dict)
         # Send message to WebSocket

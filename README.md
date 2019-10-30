@@ -118,5 +118,6 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 
 ## 2019-10-30
 - [x] 直播群与活动绑定
-- [ ] 群直播增加历史消息
+- [x] 群直播增加历史消息
 - [x] 群成员更新到用户表
+- [x] 用户消息记录
