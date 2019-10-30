@@ -127,6 +127,11 @@ class WehubConsumer(AsyncWebsocketConsumer):
         room_data_list = data_dict['room_data_list']
         for room in room_data_list:
             mm_WxGroup.update_group(bot_wxid, room)
+            memberInfo_list = room['memberInfo_list']
+            for info in memberInfo_list:
+                info.pop('room_nickname')
+                mm_WxUser.update_user(bot_wxid, info)
+
 
     def process_report_room_member_change(self, bot_wxid, data_dict):
         """上报群成员变化
