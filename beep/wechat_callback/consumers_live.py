@@ -1,5 +1,9 @@
+from channels.auth import login
+from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
+
+from .models import mm_WxUser
 
 """消息格式
 msg_type
@@ -8,10 +12,9 @@ msg_type
 
 {
     "msg_type": "聊天消息| 弹幕",
-    "msg": {
-        "txt": "xxxxx"
+    "msg_dict": {
+
     },
-    "msg_wechat": {}
     "user": { 
         "id": "",
         "name": "",
@@ -31,7 +34,9 @@ class LiveConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-
+        self.user = self.scope["user"]
+        # await login(self.scope, user)
+        # await database_sync_to_async(self.scope["session"].save)()
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -57,10 +62,16 @@ class LiveConsumer(AsyncWebsocketConsumer):
     # Receive message from room group
     async def chat_message(self, event):
         message = event['message']
+        user = {
+            'id': self.user.id,
+            'name': self.user.name,
+            'avatar_url': self.user.avatar_url,
+            'user_type': 'user'
+        }
         user_message = {
             'msg_type': 'user',
             'msg_dict': message,
-            'user': {}
+            'user': user
         }
         # Send message to WebSocket
         await self.send(text_data=json.dumps(user_message))
@@ -68,9 +79,11 @@ class LiveConsumer(AsyncWebsocketConsumer):
     # Receive message from room group
     async def wehub_message(self, event):
         message = event['message']
+        wxid = message['wxid_from']
+        user = await database_sync_to_async(mm_WxUser.get_info)(wxid)
         text_dict = {
             'msg_type': 'wechat',
             'msg_dict': message,
-            'user': {}
+            'user': user
         }
         await self.send(json.dumps(text_dict))

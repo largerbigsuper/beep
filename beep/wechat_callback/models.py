@@ -50,6 +50,21 @@ class WxUserManager(ModelManager):
         wxid = userinfo_dict.pop('wxid')
         self.update_or_create(bot_wxid=bot_wxid, wxid=wxid, defaults=userinfo_dict)
 
+    def get_info(self, wxid):
+        """获取用户信息
+        """
+        info = self.cache.get(wxid)
+        if not info:
+            wxuser = self.filter(wxid=wxid).first()
+            info = {
+                'id': wxid,
+                'name': wxuser.nickname,
+                'avatar_url': wxuser.head_img,
+                'user_type': 'wechat'
+            }
+            self.cache.set(wxid, info)
+        return info
+
 
 class WxUser(models.Model):
     """微信用户

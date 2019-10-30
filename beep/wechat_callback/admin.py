@@ -12,11 +12,13 @@ class WxBotAdmin(admin.ModelAdmin):
 class WxUserAdmin(admin.ModelAdmin):
     
     list_display = ['wxid', 'wx_alias', 'nickname']
+    search_fields = ['wxid', 'nickname']
 
 @admin.register(WxGroup)
 class WxGroupAdmin(admin.ModelAdmin):
     
     list_display = ['room_wxid', 'name', 'owner_wxid', 'member_count']
+    search_fields = ['room_wxid', 'name']
 
 @admin.register(WxMessage)
 class WxMessageAdmin(admin.ModelAdmin):
