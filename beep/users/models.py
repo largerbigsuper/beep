@@ -52,6 +52,25 @@ class UserManager(AuthUserManager, ModelManager):
                 users_list.append(info)
         return users_list
 
+    def get_info(self, user_id):
+        """获取用户信息
+        """
+        info = self.cache.get(user_id)
+        if not info:
+            user = self.filter(pk=user_id).first()
+            if user:
+                info = {
+                    'id': user_id,
+                    'name': user.name,
+                    'avatar_url': user.avatar_url,
+                    'user_type': 'user'
+                }
+                self.cache.set(user_id, info)
+            else:
+                info = {}
+        return info
+
+
     def _create_miniprogram_account(self, mini_openid, avatar_url, name):
         account = 'wx_' + ''.join([random.choice(string.ascii_lowercase) for _ in range(8)])
         password = self.Default_Password

@@ -259,7 +259,7 @@ class WxMessage(models.Model):
     room_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='群wxid')
     wxid_from = models.CharField(max_length=200, blank=True, null=True, verbose_name='发送人')
     wxid_to = models.CharField(max_length=200, blank=True, null=True, verbose_name='接收人')
-    atUserList = JSONField(default='[]', verbose_name='@用户列表')
+    atUserList = JSONField(default='[]', blank=True, verbose_name='@用户列表')
     msg = models.TextField(blank=True, null=True, verbose_name='文本内容（平台消息）')
     raw_msg = models.TextField(blank=True, null=True, verbose_name='微信原始消息（平台消息）')
     

@@ -5,11 +5,13 @@ from .models import mm_WxMessage
 from .filters import WxMessageFilter
 from .serializers import WxMessageSerializer
 
-class WxMessageViewSet(
-        viewsets.GenericViewSet,
-        mixins.ListModelMixin):
+class WxMessageViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
-        queryset = mm_WxMessage.all()
-        permission_classes = []
-        serializer_class = WxMessageSerializer
-        filter_class = WxMessageFilter
+    queryset = mm_WxMessage.all()
+    permission_classes = []
+    serializer_class = WxMessageSerializer
+    filter_class = WxMessageFilter
+
+    def paginate_queryset(self, queryset):
+        # a = queryset
+        return super().paginate_queryset(queryset)
