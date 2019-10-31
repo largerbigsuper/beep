@@ -27,6 +27,15 @@ class TopicSerializer(serializers.ModelSerializer):
             return instance
 
 
+
+
+blog_base_fields = ['id', 'topic', 'is_anonymous', 'content', 'img_list', 'at_list', 'forward_blog',
+                    'total_share', 'total_like', 'total_comment', 'total_view', 'total_forward',
+                    'update_at', 'video', 'is_top', 'title', 'cover', 'activity', 'origin_blog']
+
+blog_readonly_fields = ['total_share', 'total_like', 'total_comment', 'total_view', 'total_forward']
+
+
 class BaseBlogSerializer(serializers.ModelSerializer):
 
     topic = TopicSerializer(read_only=True)
@@ -36,12 +45,9 @@ class BaseBlogSerializer(serializers.ModelSerializer):
     at_list = serializers.ListField()
     user = UserBaseSerializer(read_only=True)
 
-
-blog_base_fields = ['id', 'topic', 'is_anonymous', 'content', 'img_list', 'at_list', 'forward_blog',
-                    'total_share', 'total_like', 'total_comment', 'total_view', 'total_forward',
-                    'update_at', 'video', 'is_top', 'title', 'cover', 'activity', 'origin_blog']
-
-blog_readonly_fields = ['total_share', 'total_like', 'total_comment', 'total_view', 'total_forward']
+    class Meta:
+        model = Blog
+        fields = blog_base_fields + ['user']
 
 class BlogSimpleSerializer(BaseBlogSerializer):
     
