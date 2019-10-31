@@ -3,7 +3,8 @@ import os
 
 
 FILE_PATH = os.path.join(os.path.dirname(__file__), 'data/area.json')
-SAVE_PATH = os.path.join(os.path.dirname(__file__), 'data/area_provine_city.json')
+# SAVE_PATH = os.path.join(os.path.dirname(__file__), 'data/area_provine_city.json')
+SAVE_PATH = os.path.join(os.path.dirname(__file__), 'data/area_provine_city_district.json')
 
 def run():
     print('begin ...')
@@ -16,7 +17,11 @@ def run():
             for city in city_list:
                 city_name = city['name']
                 city_code = city['code']
-                del city['children']
+                district_list = city['children']
+                for district in district_list:
+                    district_name = district['name']
+                    district_code = district['code']
+                    del district['children']
             print(province_name + 'done')
         with open(SAVE_PATH, 'w') as save_file:
             save_file.write(json.dumps(area_json, ensure_ascii=False))
