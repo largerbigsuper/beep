@@ -26,6 +26,8 @@ def wehub_api(request):
     action = request_object.get('action', None)
     wxid = request_object.get('wxid', None)
     req_data_dict = request_object.get('data', {})
+    logger.info('appid: {}'.format(appid))
+    logger.info('wxid: {}'.format(wxid))
 
     if appid is None or action is None or wxid is None:
         rsp_dict = {"error_code": 1, "error_reason": '参数错误', "data": {}}
@@ -56,7 +58,7 @@ def upload_file(request):
     logger.info("request.files:{0}".format(file_data))
     file_type = file_data.name.split('.')[-1]
     file_name = hashlib.md5(file_index.encode('utf8')).hexdigest() + '.' + file_type
-    
+
     path = QiniuService.upload_data(file_data, file_name)
     logger.info('[upload_file] {}'.format(path))
 
@@ -84,7 +86,7 @@ def main_req_process(wxid, action, request_data_dict):
         protocol_dict = {
             "type": "websocket",
             "param": {
-                    'ws_url': const.WEBSOCKET_URL,
+                'ws_url': const.WEBSOCKET_URL,
                 'heartbeat_interval': 30
             }
         }
