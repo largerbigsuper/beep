@@ -32,7 +32,7 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 
 - [x] 评论分级列表
 - [ ] es搜索功能
-- [ ] 微信信息回调
+- [x] 微信信息回调
 - [ ] 聊天服务器搭建
 - [x] 活动查看详情增加浏览次数
 - [x] 活动报名增加到行程表中
@@ -69,10 +69,10 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 
 - [ ] 博文搜索
 - [ ] 微信服务号 直播推送
-- [ ] 群直播接入
+- [x] 群直播接入
 - [x] 小程序授权登陆
 - [x] 红V蓝V身份设置
-- [ ] 图片加水印
+- [x] 图片加水印
 - [x] 站点支持https
 - [ ] 活动增加审核状态
 
@@ -102,12 +102,12 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 
 ## 2019-10-25 任务
 
-- [ ] wehub回调服务
-- [ ] 群直播功能
+- [x] wehub回调服务
+- [x] 群直播功能
 
 ## 2019-10-26 任务
 
-- [ ] 我的微博列表中没有转发微博信息
+- [x] 我的微博列表中没有转发微博信息
 
 ## 2019-10-29
 
