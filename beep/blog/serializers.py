@@ -40,7 +40,6 @@ class BaseBlogSerializer(serializers.ModelSerializer):
 
     topic = TopicSerializer(read_only=True)
     topic_str = serializers.CharField(write_only=True, allow_blank=True, required=False)
-    cover_url = serializers.CharField(write_only=True, allow_blank=True, required=False)
     img_list = serializers.ListField()
     at_list = serializers.ListField()
     user = UserBaseSerializer(read_only=True)
@@ -57,6 +56,8 @@ class BlogSimpleSerializer(BaseBlogSerializer):
         fields = blog_base_fields + ['user']
 
 class BlogCreateSerializer(BaseBlogSerializer):
+
+    cover_url = serializers.CharField(write_only=True, allow_blank=True, required=False)
 
     class Meta:
         model = Blog
