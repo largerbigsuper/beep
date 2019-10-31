@@ -233,6 +233,7 @@ class CommentLikeCreateSerializer(serializers.ModelSerializer):
 class LikeListSerializer(serializers.ModelSerializer):
 
     blog = BlogListSerialzier()
+    user = UserBaseSerializer()
 
     class Meta:
         model = Like
