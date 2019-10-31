@@ -141,10 +141,11 @@ class BlogListSerialzier(BaseBlogSerializer):
 class AtMessageSerializer(serializers.ModelSerializer):
 
     blog = BlogListSerialzier()
+    user = UserBaseSerializer(read_only=True)
 
     class Meta:
         model = AtMessage
-        fields = ('id', 'blog', 'status', 'create_at')
+        fields = ('id', 'blog', 'status', 'create_at', 'user')
 
 
 class CommentBaseSerializer(serializers.ModelSerializer):
@@ -190,19 +191,11 @@ class CommentListSerializer(serializers.ModelSerializer):
 
     user = UserBaseSerializer()
     to_user = UserBaseSerializer()
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'total_like')
-
-class CommentDetailSerializer(CommentListSerializer):
-
     blog = BlogSimpleSerializer()
-    
+
     class Meta:
         model = Comment
-        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'blog', 'total_like')
-
+        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'total_like', 'blog')
 
 class LikeCreateSerializer(serializers.ModelSerializer):
 
@@ -237,9 +230,11 @@ class CommentLikeCreateSerializer(serializers.ModelSerializer):
 
 class LikeListSerializer(serializers.ModelSerializer):
 
+    blog = BlogListSerialzier()
+
     class Meta:
         model = Like
-        fields = ('id', 'user', 'create_at')
+        fields = ('id', 'user', 'create_at', 'blog')
 
 
 class MyLikeListSerializer(serializers.ModelSerializer):

@@ -122,4 +122,8 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 - [x] 群成员更新到用户表
 - [x] 用户消息记录
 - [x] 历史记录增加用户信息
-- [ ] 用户提问推送到微信
+- [x] 用户提问推送到微信
+
+## 2019-10-31
+
+- [x] 收到的评论| @我的 |收到的赞 返回原始博文信息

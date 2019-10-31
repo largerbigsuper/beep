@@ -13,7 +13,7 @@ from utils.permissions import IsOwerPermission
 from .serializers import (TopicSerializer,
                           BlogCreateSerializer, BlogListSerialzier,
                           AtMessageSerializer,
-                          CommentCreateSerializer, CommentListSerializer, CommentDetailSerializer,
+                          CommentCreateSerializer, CommentListSerializer,
                           LikeCreateSerializer, LikeListSerializer, MyLikeListSerializer,
                           CommentLikeCreateSerializer)
 from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment, mm_user_Blog
@@ -215,7 +215,7 @@ class AtMessageViewSet(mixins.RetrieveModelMixin,
     serializer_class = AtMessageSerializer
 
     def get_queryset(self):
-        return mm_AtMessage.my_messages(self.request.user.id).select_related('blog', 'blog__topic', 'blog__user')
+        return mm_AtMessage.my_messages(self.request.user.id).select_related('blog', 'blog__topic', 'blog__user', 'user')
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -240,8 +240,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'update']:
             return CommentCreateSerializer
-        elif self.action in ['mine', 'received']:
-            return CommentDetailSerializer
         else:
             return CommentListSerializer
 

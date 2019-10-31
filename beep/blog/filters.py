@@ -19,6 +19,7 @@ class LikeFilter(filters.FilterSet):
 
         fields = {
             'blog_id': ['exact'],
+            'user_id': ['exact'],
         }
 
 
