@@ -38,7 +38,7 @@ S_OK = 0
 S_FAIL = 1
 
 FIX_REQUEST_TYPES = ['login','logout','pull_task']
-SECRET_KEY = "dnADFGKMV026"    #换成自己的secret_key
+SECRET_KEY = "ehlyFOTWX18"    #换成自己的secret_key
 TEST_WXID = "hulihutuEeee"    #换成自己的测试小号 碗底有虫
 UPLOAD_FOLDER = '~/test_uploads'     #上传的文件的存放地址,换成服务端的文件存储路径
 WEBSOCKET_URL = 'wss://beep.lhxq.top/ws/wehub/'
