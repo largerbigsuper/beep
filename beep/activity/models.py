@@ -198,13 +198,16 @@ class RewardPlan(models.Model):
         verbose_name = verbose_name_plural = '活动空投'
         ordering = ['-start_time']
     
+    def __str__(self):
+        return self.desc
+    
     @property
     def get_rewardplan_result(self):
         """产生抽奖名单
         """
         if self.result:
             return self.result
-            
+
         applys = list(mm_RewardPlanApply.filter(rewardplan=self).all())
 
         if self.total_luckyuser >= len(applys):
@@ -258,6 +261,10 @@ class RewardPlanApply(models.Model):
             ['user', 'rewardplan', 'activity']
         ]
         ordering = ['-activity', '-create_at']
+        verbose_name = verbose_name_plural = '活动空投报名'
+
+    def __str__(self):
+        return '<{pk}: {user}>'.format(pk=self.id, user=self.user)
 
 
 mm_Activity = Activity.objects
