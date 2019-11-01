@@ -133,7 +133,7 @@ class Blog(models.Model):
     cover = models.ImageField(max_length=200, blank=True, null=True, verbose_name='文章封面图')
     activity = models.ForeignKey('activity.Activity', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name='活动')
     is_delete = models.BooleanField(default=False, verbose_name='是否删除')
-    order_num = models.IntegerField(default=0, verbose_name='排序值[越大越靠前]')
+    order_num = models.IntegerField(default=0, verbose_name='排序值[越小越靠前]')
 
 
     objects = BlogManager()

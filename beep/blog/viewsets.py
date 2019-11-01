@@ -92,7 +92,7 @@ class BlogViewSet(viewsets.ModelViewSet):
         elif self.action in ['lookup']:
             queryset = queryset.exclude(is_anonymous=True).select_related('user', 'topic')
         elif self.action in ['topic']:
-            queryset = queryset.select_related('user', 'topic').order_by('-order_num', '-create_at')
+            queryset = queryset.select_related('user', 'topic').order_by('order_num', '-create_at')
         else:
             queryset = queryset.select_related('user', 'topic')
 
