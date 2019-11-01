@@ -127,3 +127,10 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 ## 2019-10-31
 
 - [x] 收到的评论| @我的 |收到的赞 返回原始博文信息
+- [ ] 博文搜索
+
+
+## 2019-11-01
+
+- [x] 搜索记录不加分词
+- [ ] 搜索功能

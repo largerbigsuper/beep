@@ -304,13 +304,13 @@ ALIYUN_SMS_TEMPLATE_NAME = '浙江建筑宝典'
 ALIYUN_SMS_TEMPLATE_ID = 'SMS_168875146'
 
 # jieba分词
-import jieba
-JIEBA = jieba
-JIEBA.initialize()
-JIEBA_WORD_PATH = ROOT_DIR.path('config/jieba.txt')
-with open(JIEBA_WORD_PATH) as f:
-    for word in f.readlines():
-        JIEBA.add_word(word)
+# import jieba
+# JIEBA = jieba
+# JIEBA.initialize()
+# JIEBA_WORD_PATH = ROOT_DIR.path('config/jieba.txt')
+# with open(JIEBA_WORD_PATH) as f:
+#     for word in f.readlines():
+#         JIEBA.add_word(word)
 
 
 import pathlib

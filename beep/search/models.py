@@ -44,10 +44,11 @@ class SearchKeyWordManager(ModelManager):
     def process_search(self, content):
         if not content:
             return
-        seg_list = settings.JIEBA.cut(content)
-        keyword_list = [word for word in seg_list if len(word) > 1]
-        for keyword in keyword_list:
-            self.add_keyword(keyword)
+        self.add_keyword(content)
+        # seg_list = settings.JIEBA.cut(content)
+        # keyword_list = [word for word in seg_list if len(word) > 1]
+        # for keyword in keyword_list:
+        #     self.add_keyword(keyword)
         
 
 
@@ -66,6 +67,7 @@ class SearchKeyWord(models.Model):
             ['keyword', 'create_date']
         ]
         ordering = ['-create_date', '-frequency']
+        verbose_name = verbose_name_plural = '搜索关键词'
 
 
 
