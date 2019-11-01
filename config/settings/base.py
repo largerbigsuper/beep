@@ -366,7 +366,7 @@ LOGGING = {
             "formatter": "verbose"
         },
         "request_file": {
-            "level": LOG_LEVEL_ERROR,
+            "level": LOG_LEVEL_INFO,
             "class": "logging.handlers.RotatingFileHandler",
             "filename": "./logs/requests.log",
             "maxBytes": 1024 * 1024 * 10,  # 10MB
@@ -398,7 +398,7 @@ LOGGING = {
         'django.request': {
             'handlers': ['request_file', 'mail_admins'],
             'level': 'INFO',
-            'propagate': False,
+            'propagate': True,
         },
         'wehub': {
             'handlers': ['wehub_file', 'console'],
