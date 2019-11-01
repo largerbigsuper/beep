@@ -398,7 +398,7 @@ LOGGING = {
         'django.request': {
             'handlers': ['request_file', 'mail_admins'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
         'wehub': {
             'handlers': ['wehub_file', 'console'],
