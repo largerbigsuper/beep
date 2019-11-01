@@ -326,7 +326,7 @@ LOG_LEVEL_CRITICAL = 'CRITICAL'
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
             'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
@@ -398,7 +398,7 @@ LOGGING = {
         'django.request': {
             'handlers': ['request_file', 'mail_admins'],
             'level': 'INFO',
-            'propagate': False,
+            'propagate': True,
         },
         'wehub': {
             'handlers': ['wehub_file', 'console'],
