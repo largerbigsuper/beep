@@ -229,7 +229,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         reply_task_list = []
         msg_unit = {
             'msg_type': 1,
-            'msg': '用户[' + user['name'] + ']: ' + message['msg']
+            'msg': '来自Beep的[' + user['name'] + ']: ' + message['msg']
         }
         task = {
             'task_type': const.TASK_TYPE_SENDMSG,
