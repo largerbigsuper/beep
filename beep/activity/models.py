@@ -60,6 +60,7 @@ class Activity(models.Model):
     wx_groupname = models.CharField(max_length=200, blank=True, verbose_name='微信群名[后台获取]')
     wx_groupwxid = models.CharField(max_length=200, blank=True, verbose_name='微信群wxid[后台获取]')
     wx_botwxid = models.CharField(max_length=200, blank=True, verbose_name='微信机器人wxid[后台获取]')
+    ask_allowed = models.BooleanField(default=False, verbose_name='是否可以提问')
     
     objects = ActivityManager()
 

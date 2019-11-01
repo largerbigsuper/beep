@@ -58,7 +58,8 @@ class ActivityListSerializer(ActivityCreateSerializer):
                   'create_at', 'content', 'is_registrated', 'total_collect', 'is_collected',
                   'province_code', 'province_name',
                   'city_code', 'city_name',
-                  'district_code', 'district_name', 'blog_id', 'wx_groupname', 'wx_groupwxid', 'wx_botwxid'
+                  'district_code', 'district_name', 'blog_id', 'wx_groupname', 'wx_groupwxid', 'wx_botwxid',
+                  'ask_allowed'
                   )
 
 

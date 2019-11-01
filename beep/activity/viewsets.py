@@ -51,6 +51,15 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+    @action(detail=True, methods=['get'])
+    def get_question_status(self, request, pk=None):
+        """获取提问状态
+        """
+        obj = self.get_object()
+        data = {
+            'ask_allowed': obj.ask_allowed
+        }
+        return Response(data=data)
 
 class RegistrationViewSet(mixins.ListModelMixin,
                           mixins.CreateModelMixin,
