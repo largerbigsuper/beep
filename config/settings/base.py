@@ -381,6 +381,14 @@ LOGGING = {
             "backupCount": 10,
             "formatter": "verbose"
         },
+        "qiniu_file": {
+            "level": LOG_LEVEL_INFO,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "./logs/qiniu.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10MB
+            "backupCount": 10,
+            "formatter": "verbose"
+        },
     },
     'loggers': {
         'django': {
@@ -394,6 +402,11 @@ LOGGING = {
         },
         'wehub': {
             'handlers': ['wehub_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'qiniu': {
+            'handlers': ['qiniu_file', 'console'],
             'level': 'INFO',
             'propagate': True,
         },

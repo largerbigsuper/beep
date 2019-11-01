@@ -11,6 +11,7 @@ from utils.qiniucloud import QiniuService
 from . import const
 
 logger = logging.getLogger('wehub')
+logger_qiniu = logging.getLogger('qiniu')
 
 
 def socket_test(request):
@@ -52,15 +53,15 @@ def upload_file(request):
         file {file} -- wehub上传的文件   
     """
     # 取出file_index
-    file_index = request.POST.get('file_index', None)  # 从form中提取file_index的值
-    logger.info("file_index: {}".format(file_index))
+    file_index = request.POST.get('file_index', None) 
+    logger_qiniu.info("file_index: {}".format(file_index))
     file_data = request.FILES['file']
-    logger.info("request.files:{0}".format(file_data))
+    logger_qiniu.info("request.files: {}".format(file_data))
     file_type = file_data.name.split('.')[-1]
     file_name = hashlib.md5(file_index.encode('utf8')).hexdigest() + '.' + file_type
 
     path = QiniuService.upload_data(file_data, file_name)
-    logger.info('[upload_file] {}'.format(path))
+    logger_qiniu.info('upload_file: {}'.format(path))
 
     rt_dict = {'error_code': 0,
                'error_reason': '',
