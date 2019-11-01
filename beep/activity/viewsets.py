@@ -7,9 +7,10 @@ from django.db import transaction
 
 from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           RegistrationCreateSerializer, RegistrationListSerializer,
-                          CollectCreateSerializer, CollectListSerializer, MyCollectListSerializer
+                          CollectCreateSerializer, CollectListSerializer, MyCollectListSerializer,
+                          RewardPlanApplyCreateSerializer, RewardPlanApplySerializer
                           )
-from .models import mm_Activity, mm_Registration, mm_Collect
+from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply
 from .filters import ActivityFilter, CollectFilter
 from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission
@@ -30,9 +31,13 @@ class ActivityViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         with transaction.atomic():
             serializer.is_valid(raise_exception=True)
+            # rewardplan
+            rewardplan_dict = serializer.validated_data.pop('rewardplan')
+            rewardplan_dict['coin_logo'] = rewardplan_dict.pop('coin_logo_url', None)
+            rewardplan = mm_RewardPlan.create(**rewardplan_dict)
             cover_url = serializer.validated_data.pop('cover_url', None)
             serializer.validated_data['cover'] = cover_url
-            activity = serializer.save(user=self.request.user)
+            activity = serializer.save(user=self.request.user, rewardplan=rewardplan)
             # params = {
             #     'user': self.request.user,
             #     'cover': activity.cover,
@@ -60,6 +65,15 @@ class ActivityViewSet(viewsets.ModelViewSet):
             'ask_allowed': obj.ask_allowed
         }
         return Response(data=data)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated, IsOwerPermission])
+    def get_rewardplan_result(self, request, pk=None):
+        activity = self.get_object()
+        data = []
+        if activity.rewardplan:
+            data = activity.rewardplan.get_rewardplan_result
+        return Response(data=data)
+
 
 class RegistrationViewSet(mixins.ListModelMixin,
                           mixins.CreateModelMixin,
@@ -149,3 +163,22 @@ class CollectViewSet(mixins.CreateModelMixin,
         """
 
         return super().list(request)
+
+
+class RewardPlanApplyViewSet(viewsets.ModelViewSet):
+
+    permission_class = [IsAuthenticated,]
+
+    def get_queryset(self):
+        return mm_RewardPlanApply.filter(user=self.request.user)
+    
+    def get_serializer_class(self):
+        if self.action in ['create']:
+            return RewardPlanApplyCreateSerializer
+        else:
+            return RewardPlanApplySerializer
+
+    def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        rewardplan = serializer.validated_data['rewardplan']
+        serializer.save(user=self.request.user, activity=rewardplan.activity)

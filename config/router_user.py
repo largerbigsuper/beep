@@ -17,6 +17,7 @@ router_user.register('point', user_viewsets.PointViewSet, base_name='user-point'
 router_user.register('label', user_viewsets.LabelApplyViewSet, base_name='user-label')
 router_user.register('area', common_viewsets.AreaViewSet, base_name='user-area')
 router_user.register('activity', activity_viewsets.ActivityViewSet, base_name='user-activity')
+router_user.register('rewardplan_apply', activity_viewsets.RewardPlanApplyViewSet, base_name='user-rewardplanapply')
 router_user.register('registration', activity_viewsets.RegistrationViewSet, base_name='user-registration')
 router_user.register('collect', activity_viewsets.CollectViewSet, base_name='user-collect')
 router_user.register('topic', blog_viewsets.TopicViewSet, base_name='user-topic')
