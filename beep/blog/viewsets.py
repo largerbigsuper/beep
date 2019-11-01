@@ -91,6 +91,8 @@ class BlogViewSet(viewsets.ModelViewSet):
             queryset = queryset.exclude(is_anonymous=True).filter(user_id__in=following_ids).select_related('user', 'topic')
         elif self.action in ['lookup']:
             queryset = queryset.exclude(is_anonymous=True).select_related('user', 'topic')
+        elif self.action in ['topic']:
+            queryset = queryset.select_related('user', 'topic').order_by('-order_num', '-create_at')
         else:
             queryset = queryset.select_related('user', 'topic')
 
@@ -141,6 +143,13 @@ class BlogViewSet(viewsets.ModelViewSet):
         """
 
         return super().list(request)
+
+    @action(detail=False, methods=['get'])
+    def topic(self, request):
+        """专题、新人榜博文列表，
+        """
+        return super().list(request)
+
 
     @action(detail=True, methods=['post'])
     def add_like(self, request, pk=None):

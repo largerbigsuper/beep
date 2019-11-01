@@ -61,6 +61,7 @@ class Topic(models.Model):
     class Meta:
         db_table = 'topics'
         verbose_name = verbose_name_plural = '话题|专题|新人榜'
+        ordering = ['-create_at']
 
     def __str__(self):
         return '[{}]'.format(self.get_topic_type_display()) + self.name
@@ -132,6 +133,7 @@ class Blog(models.Model):
     cover = models.ImageField(max_length=200, blank=True, null=True, verbose_name='文章封面图')
     activity = models.ForeignKey('activity.Activity', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name='活动')
     is_delete = models.BooleanField(default=False, verbose_name='是否删除')
+    order_num = models.IntegerField(default=0, verbose_name='排序值[越大越靠前]')
 
 
     objects = BlogManager()
@@ -139,7 +141,7 @@ class Blog(models.Model):
 
     class Meta:
         db_table = 'blogs'
-        ordering = ['-id']
+        ordering = ['-create_at']
         verbose_name = verbose_name_plural = '博文'
 
     def __str__(self):
