@@ -39,6 +39,7 @@ class Topic(models.Model):
 
 
     name = models.CharField(max_length=40, verbose_name='话题')
+    sub_name = models.CharField(max_length=200, blank=True, default='', verbose_name='子话题')
     status = models.PositiveSmallIntegerField(
         choices=TopicManager.TOPIC_STATUS,
         default=TopicManager.STATUS_NORMAL,
