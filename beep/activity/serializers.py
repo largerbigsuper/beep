@@ -32,7 +32,7 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
     user = UserBaseSerializer(read_only=True)
     cover_url = serializers.CharField(write_only=True, allow_blank=True, required=False)
 
-    rewardplan = RewardPlanCreateSerializer()
+    rewardplan = RewardPlanCreateSerializer(allow_blank=True, required=False)
 
     class Meta:
         model = Activity
@@ -46,7 +46,7 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
                   'province_code', 'province_name',
                   'city_code', 'city_name',
                   'district_code', 'district_name', 'blog_id', 'cover_url'] + ['rewardplan']
-        read_only_fields = ('user', 'total_view', 'total_registration', 'total_collect', 'blog_id')
+        read_only_fields = ('user', 'total_view', 'total_registration', 'total_collect', 'blog_id', 'cover')
 
 
 class ActivityListSerializer(ActivityCreateSerializer):
