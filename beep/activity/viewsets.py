@@ -34,7 +34,8 @@ class ActivityViewSet(viewsets.ModelViewSet):
             # rewardplan
             rewardplan_dict = serializer.validated_data.pop('rewardplan')
             rewardplan_dict['coin_logo'] = rewardplan_dict.pop('coin_logo_url', None)
-            rewardplan = mm_RewardPlan.create(**rewardplan_dict)
+            if rewardplan_dict:
+                rewardplan = mm_RewardPlan.create(**rewardplan_dict)
             cover_url = serializer.validated_data.pop('cover_url', None)
             serializer.validated_data['cover'] = cover_url
             activity = serializer.save(user=self.request.user, rewardplan=rewardplan)
