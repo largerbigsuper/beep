@@ -241,6 +241,21 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         mm_User.cache.set(cache_key, code, 60 * 3)
         return Response()
 
+    @action(detail=False, methods=['get'])
+    def user_info(self, request):
+        """根据用户名获取用户信息
+        """
+        name = request.query_params.get('name', '')
+        u = mm_User.get_user_by_name()(name=name)
+        if not u:
+            data = {
+                'detail': '用户不存在'
+            }
+            return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+        else:
+            data = UserSerializer(u, context={'request': request}).data
+            return Response(data=data)
+
 
 class ScheduleViewSet(viewsets.ModelViewSet):
     """用户行程表

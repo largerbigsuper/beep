@@ -134,5 +134,7 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 
 - [x] 搜索记录不加分词
 - [ ] 搜索功能
-- [ ] 专题增加sub_title
-- [ ] 增加抽奖功能
+- [x] 专题增加sub_title
+- [x] 增加抽奖功能
+- [ ] 名字不能有空格
+- [x] 通过用户名查用户信息

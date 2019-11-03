@@ -14,6 +14,6 @@ class UserFilter(filters.FilterSet):
         model = User
         fields = {
             'user_id': ['exact'],
-            'name': ['icontains'],
+            'name': ['exact', 'icontains'],
             'account': ['icontains'],
         }

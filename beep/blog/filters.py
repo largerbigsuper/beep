@@ -34,6 +34,7 @@ class BlogFilter(filters.FilterSet):
         model = Blog
         fields = {
             'user': ['exact'],
+            'user__name': ['exact'],
             'topic_id': ['exact'],
             'topic__name': ['icontains'],
             'content': ['icontains']
