@@ -246,7 +246,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         """根据用户名获取用户信息
         """
         name = request.query_params.get('name', '')
-        u = mm_User.get_user_by_name()(name=name)
+        u = mm_User.get_obj_by_name(name=name)
         if not u:
             data = {
                 'detail': '用户不存在'

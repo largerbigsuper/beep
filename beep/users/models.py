@@ -110,7 +110,7 @@ class UserManager(AuthUserManager, ModelManager):
         }
         self.filter(pk=pk).update(**updates)
 
-    def get_user_by_name(self, name):
+    def get_obj_by_name(self, name):
         return self.filter(name=name).first()
 
 class User(AbstractUser):
