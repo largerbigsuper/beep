@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 
 services:
   django:
@@ -15,7 +15,7 @@ services:
       - ./.envs/.production/.django
       - ./.envs/.production/.mysql
     ports:
-      - 8000:8000
+      - 9000:8000
     command: ["/start"]
 
   mysql:
@@ -23,6 +23,8 @@ services:
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     expose:
       - "3306"
+    ports:
+      - 3307:3306
     env_file:
       - ./.envs/.production/.mysql
   
