@@ -1,9 +1,5 @@
 version: '3'
 
-volumes:
-  production_mysql_data: {}
-  production_mysql_data_backups: {}
-
 services:
   django:
     build:
