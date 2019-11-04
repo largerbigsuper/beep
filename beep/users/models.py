@@ -285,6 +285,7 @@ class CheckIn(models.Model):
 
     class Meta:
         db_table = 'user_checkin'
+        ordering = ['-create_at']
 
 
 mm_CheckIn = CheckIn.objects

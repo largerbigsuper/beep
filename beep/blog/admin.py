@@ -5,8 +5,9 @@ from .models import Topic, Blog
 
 class BlogAdmin(admin.ModelAdmin):
     
-    list_display = ['user', 'topic', 'is_anonymous', 'content', 'create_at']
+    list_display = ['user', 'topic', 'is_anonymous', 'create_at', 'order_num']
     list_filter = ['topic__topic_type', 'topic', 'is_top']
+    list_editable = ['order_num']
 
 admin.site.register(Blog, BlogAdmin)
 
