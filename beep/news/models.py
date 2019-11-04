@@ -52,3 +52,26 @@ class News(models.Model):
         return self.title
 
 mm_News = News.objects
+
+
+class CrawledDocumentManager(ModelManager):
+    pass
+
+class CrawledDocument(models.Model):
+    """爬取的文章
+    """
+
+    site_name = models.CharField(max_length=120, verbose_name='网站名')
+    title = models.CharField(max_length=200, verbose_name='标题')
+    content = models.TextField(verbose_name='内容')
+    published_at = models.DateTimeField(null=True, verbose_name='发布时间')
+    source = models.CharField(max_length=200, verbose_name='爬取原始平台')
+    link = models.CharField(max_length=200, default='', verbose_name='原始链接')
+    crawled_at = models.DateTimeField(null=True, verbose_name='爬取时间')
+    md5_content = models.CharField(max_length=120, verbose_name='内容md5')
+
+    objects = CrawledDocumentManager()
+
+    class Meta:
+        db_table = 'crawled_document'
+
