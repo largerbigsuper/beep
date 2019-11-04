@@ -6,8 +6,9 @@ from beep.blog.models import mm_Blog, mm_Topic
 from beep.users.models import mm_User
 from beep.news.models import mm_News
 
-DOMAIN = 'http://pyc81u1xn.bkt.clouddn.com'
-NEW_DOMAIN = 'http://imgbeepcrypto.lhxq.top'
+# DOMAIN = 'http://pyc81u1xn.bkt.clouddn.com'
+DOMAIN = 'http://imgbeepcrypto.lhxq.top'
+NEW_DOMAIN = 'http://cdn.beepcrypto.com'
 
 
 def run():
