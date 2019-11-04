@@ -208,24 +208,24 @@ MANAGERS = ADMINS
 # https://docs.djangoproject.com/en/dev/ref/settings/#logging
 # See https://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
-        }
-    },
-    "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        }
-    },
-    "root": {"level": "INFO", "handlers": ["console"]},
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "verbose": {
+#             "format": "%(levelname)s %(asctime)s %(module)s "
+#             "%(process)d %(thread)d %(message)s"
+#         }
+#     },
+#     "handlers": {
+#         "console": {
+#             "level": "DEBUG",
+#             "class": "logging.StreamHandler",
+#             "formatter": "verbose",
+#         }
+#     },
+#     "root": {"level": "INFO", "handlers": ["console"]},
+# }
 
 # django-compressor
 # ------------------------------------------------------------------------------
@@ -294,14 +294,9 @@ QINIU_BUCKET_NAME_DICT = {
     'video': 'videos-beepcrypto'
 }
 QINIU_BUCKET_DOMAIN_DICT = {
-    'image': 'http://imgbeepcrypto.lhxq.top/',
-    'video': 'http://pyc8hxlh6.bkt.clouddn.com/'
+    'image': 'http://cdn.beepcrypto.com/',
+    'video': 'http://cdn.beepcrypto.com/'
 }
-
-ALIYUN_SMS_ACCESS_KEY_ID = "LTAIg1VpIb5ah7aK"
-ALIYUN_SMS_ACCESS_KEY_SECRET = "avnP9AWfnoZ0eWvXQku7cwUPagTtNt"
-ALIYUN_SMS_TEMPLATE_NAME = '浙江建筑宝典'
-ALIYUN_SMS_TEMPLATE_ID = 'SMS_168875146'
 
 # jieba分词
 # import jieba
