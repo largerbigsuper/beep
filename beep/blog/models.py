@@ -81,11 +81,19 @@ class BlogManager(ModelManager):
             field_name: value
         }
         self.filter(pk=pk).update(**updates)
+    
+    def get_queryset(self):
+        return super().get_queryset().exclude(is_delete=True)
+    
+    def blogs(self):
+        return self.exclude(title=None)
+
+    def articles(self):
+        return self.filter(title__isnull=False)
 
 class UserBlogManager(ModelManager):
 
-    def get_queryset(self):
-        return super().get_queryset().exclude(is_delete=True)
+    pass
 
 
 class Blog(models.Model):
@@ -142,7 +150,7 @@ class Blog(models.Model):
 
     class Meta:
         db_table = 'blogs'
-        ordering = ['-create_at']
+        ordering = ['is_delete', '-create_at']
         verbose_name = verbose_name_plural = '博文'
 
     def __str__(self):
