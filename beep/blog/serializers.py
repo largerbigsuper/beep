@@ -187,7 +187,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
             else:
                 validated_data['parent_id'] = reply_to.id
         else:
-            to_user = request.user
+            to_user = blog.user
         instance = Comment(user=request.user,
                            to_user=to_user, **validated_data)
         instance.save()
