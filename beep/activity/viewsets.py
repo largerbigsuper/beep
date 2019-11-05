@@ -9,7 +9,7 @@ from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           RegistrationCreateSerializer, RegistrationListSerializer,
                           CollectCreateSerializer, CollectListSerializer, MyCollectListSerializer,
                           RewardPlanApplyCreateSerializer, RewardPlanApplySerializer, RewardPlanApplyListSerializer,
-                          RewardPlanSerializer,
+                          RewardPlanSerializer, RewardPlanCreateSerializer
                           )
 from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply
 from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter
@@ -35,9 +35,12 @@ class ActivityViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             # rewardplan
             rewardplan_dict = serializer.validated_data.pop('rewardplan')
-            rewardplan_dict['coin_logo'] = rewardplan_dict.pop('coin_logo_url', None)
+            coin_logo = rewardplan_dict.pop('coin_logo_url', None)
             if rewardplan_dict:
-                rewardplan = mm_RewardPlan.create(**rewardplan_dict)
+                serializer_rewardplan = RewardPlanCreateSerializer(data=rewardplan_dict)
+                serializer_rewardplan.is_valid()
+                serializer_rewardplan.validated_data['coin_logo'] = coin_logo
+                rewardplan = serializer_rewardplan.save()
             cover_url = serializer.validated_data.pop('cover_url', None)
             serializer.validated_data['cover'] = cover_url
             activity = serializer.save(user=self.request.user, rewardplan=rewardplan)
