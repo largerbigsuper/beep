@@ -12,9 +12,10 @@ from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           RewardPlanSerializer,
                           )
 from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply
-from .filters import ActivityFilter, CollectFilter
+from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter
 from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission
+from utils.pagination import Size_200_Pagination
 
 
 class ActivityViewSet(viewsets.ModelViewSet):
@@ -180,11 +181,15 @@ class CollectViewSet(mixins.CreateModelMixin,
 
 
 class RewardPlanApplyViewSet(viewsets.ModelViewSet):
+    """空投报名
+    mine -- 我的报名记录
+    list -- 列表
+    """
 
     permission_class = [IsAuthenticated,]
-
-    def get_queryset(self):
-        return mm_RewardPlanApply.filter(user=self.request.user)
+    filter_class = RewardPlanApplyFilter
+    pagination_class = Size_200_Pagination
+    queryset = mm_RewardPlanApply.all()
     
     def get_serializer_class(self):
         if self.action in ['create']:
@@ -196,3 +201,10 @@ class RewardPlanApplyViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         rewardplan = serializer.validated_data['rewardplan']
         serializer.save(user=self.request.user, activity=rewardplan.activity)
+
+    @action(detail=False)
+    def mine(self, request):
+        """我的提交记录
+        """
+        self.queryset = mm_RewardPlanApply.filter(user=request.user)
+        return super().list(request)

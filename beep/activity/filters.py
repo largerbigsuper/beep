@@ -1,7 +1,7 @@
 from django_filters import rest_framework as filters
 from django.db.models import Subquery
 
-from .models import Activity, Collect
+from .models import Activity, Collect, RewardPlanApply
 from beep.common.models import mm_Area
 
 class ActivityFilter(filters.FilterSet):
@@ -44,3 +44,13 @@ class CollectFilter(filters.FilterSet):
         }
 
 
+class RewardPlanApplyFilter(filters.FilterSet):
+
+    class Meta:
+        model = RewardPlanApply
+        fields = {
+            'activity_id': ['exact'],
+            'user': ['exact'],
+            'rewardplan': ['exact'],
+            'is_selected': ['exact'],
+        }

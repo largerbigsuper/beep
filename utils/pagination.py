@@ -19,3 +19,7 @@ class CustomPagination(pagination.PageNumberPagination):
 class ReturnAllPagination(CustomPagination):
 
     page_size = sys.maxsize
+    
+class Size_200_Pagination(CustomPagination):
+
+    page_size = 200
