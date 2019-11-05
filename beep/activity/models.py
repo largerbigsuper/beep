@@ -246,6 +246,7 @@ class RewardPlan(models.Model):
             u = {
                 'id': apply.user.id,
                 'name': apply.user.name,
+                'avatar_url': apply.user.avatar_url,
                 'address': apply.address
             }
             result.append(u)
