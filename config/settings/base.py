@@ -294,8 +294,8 @@ QINIU_BUCKET_NAME_DICT = {
     'video': 'videos-beepcrypto'
 }
 QINIU_BUCKET_DOMAIN_DICT = {
-    'image': 'http://cdn.beepcrypto.com/',
-    'video': 'http://cdn.beepcrypto.com/'
+    'image': 'https://cdn.beepcrypto.com/',
+    'video': 'https://cdn.beepcrypto.com/'
 }
 
 # jieba分词

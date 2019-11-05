@@ -90,7 +90,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['servicewechat.com', 'lhxq.top', 'beep.lhxq.top', '127.0.0.1', '127.0.0.1:8080', '127.0.0.1:7788']
+CSRF_TRUSTED_ORIGINS = ['servicewechat.com', 'lhxq.top', 'beep.lhxq.top', 'test.beepcrypto.com', '127.0.0.1', '127.0.0.1:8080', '127.0.0.1:7788']
 
 # 小程序
 MINI_PRAGRAM_APP_ID = 'wx300f2f1d32b30613'
