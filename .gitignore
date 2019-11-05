@@ -278,3 +278,4 @@ beep/media/
 
 .vscode
 .qiniu_pythonsdk_hostscache.json
+ssl/
