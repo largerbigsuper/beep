@@ -23,9 +23,18 @@ class RewardPlanSerializer(serializers.ModelSerializer):
     """奖励详情
     """
     result = serializers.ListField()
+    is_applyed = serializers.SerializerMethodField()
+
+    def get_is_applyed(self, obj):
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return 0
+        if not hasattr(self, '_applys'):
+            self._applys = mm_RewardPlanApply.filter(user=user).values_list('pk', flat=True)
+        return 1 if obj.id in self._applys else 0
     class Meta:
         model = RewardPlan
-        fields = ['id', 'desc', 'coin_name', 'coin_logo', 'total_coin', 'total_luckyuser', 'start_time', 'applyers', 'result']
+        fields = ['id', 'desc', 'coin_name', 'coin_logo', 'total_coin', 'total_luckyuser', 'start_time', 'applyers', 'result', 'is_applyed']
 
 
 class ActivityCreateSerializer(serializers.ModelSerializer):
@@ -145,7 +154,7 @@ class MyCollectListSerializer(serializers.ModelSerializer):
 class RewardPlanApplyCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = RewardPlanApply
-        fields = ['rewardplan']
+        fields = ['rewardplan', 'address',]
 
 class RewardPlanApplySerializer(serializers.ModelSerializer):
 
