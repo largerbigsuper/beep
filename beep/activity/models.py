@@ -1,3 +1,4 @@
+import datetime
 from random import choices
 
 from django.db import models
@@ -8,7 +9,9 @@ from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django_extensions.db.fields.json import JSONField
 
 from beep.blog.models import mm_Blog
+from config import celery_app
 from utils.modelmanager import ModelManager
+from .tasks import send_rewardplan_start
 
 
 class ActivityManager(ModelManager):
@@ -174,7 +177,24 @@ class Collect(models.Model):
 
 class RewardPlanManager(ModelManager):
 
-    pass
+    def update_task_status(self, rewardplan):
+        # 更新空投计划后修改计划任务
+
+        # 已执行任务直接pass
+        delta_time = rewardplan.start_time.timestamp() - datetime.datetime.now().timestamp()
+        if delta_time < 0:
+            return
+        
+        # 取消之前任务
+        if rewardplan.task_id:
+            celery_app.control.revoke(rewardplan.task_id, terminate=False)
+
+        # 新建任务
+        countdown = int(delta_time)
+        task_id = send_rewardplan_start.apply_async((rewardplan.id, ), countdown=countdown, ignore_result=False)
+        rewardplan.task_id = task_id
+        self.filter(pk=rewardplan.id).update(task_id=task_id)
+
 
 class RewardPlan(models.Model):
     """活动空投
@@ -190,6 +210,8 @@ class RewardPlan(models.Model):
                                       through_fields=['rewardplan', 'user'],
                                       blank=True, )
     result = JSONField(default='[]', blank=True, verbose_name='中奖信息')
+    task_id = models.CharField(max_length=120, db_index=True, null=True, blank=True, verbose_name='定时任务id')
+    task_result = models.CharField(max_length=120,  null=True, blank=True, verbose_name='任务结果')
 
     objects = RewardPlanManager()
 
@@ -200,7 +222,11 @@ class RewardPlan(models.Model):
     
     def __str__(self):
         return self.desc
-    
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        mm_RewardPlan.update_task_status(self)
+        
     @property
     def get_rewardplan_result(self):
         """产生抽奖名单

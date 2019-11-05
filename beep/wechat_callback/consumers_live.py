@@ -53,12 +53,21 @@ class LiveConsumer(AsyncWebsocketConsumer):
         """处理用户发送的消息
         """
         message = json.loads(text_data)
-        user = {
-            'id': self.user.id,
-            'name': self.user.name,
-            'avatar_url': self.user.avatar_url,
-            'user_type': 'user'
-        }
+        if self.user.is_authenticated:
+            user = {
+                'id': self.user.id,
+                'name': self.user.name,
+                'avatar_url': self.user.avatar_url,
+                'user_type': 'user'
+            }
+        else:
+            user = {
+                'id': 0,
+                'name': '系统消息',
+                'avatar_url': '',
+                'user_type': 'admin'
+            }
+            
         user_message = {
             'msg_type': 'user',
             'msg_dict': message,
@@ -67,7 +76,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
         room_wxid = self.room_name + '@chatroom'
         wxmessage_dict = {
             'user_type': 1,
-            'user_id': self.user.id,
+            'user_id': user['id'],
             'msg': message['msg'],
             'raw_msg': message,
             'room_wxid': room_wxid,
@@ -96,17 +105,12 @@ class LiveConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-
     # Receive message from room group
     async def chat_message(self, event):
         # 处理每个socket链接的函数， self.scope['user'] 是每个socket链接对应的user
         message = event['message']
         # Send message to WebSocket
         await self.send(text_data=json.dumps(message))
-
-
-        
-
 
     # Receive message from room group
     async def wehub_message(self, event):

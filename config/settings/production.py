@@ -100,3 +100,9 @@ CHANNEL_LAYERS = {
 }
 
 
+CELERY_BROKER_URL = 'redis://redis:6379/2' # Broker配置，使用Redis作为消息中间件
+
+CELERY_RESULT_BACKEND = 'redis://redis:6379/2' # BACKEND配置，这里使用redis
+
+CELERY_RESULT_SERIALIZER = 'json' # 结果序列化方案
+

@@ -32,3 +32,12 @@ services:
     image: redis:5.0
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+
+  celery:
+    image: beep_production_django
+    command: celery -A config worker -l info -f logs/celery.log
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - django

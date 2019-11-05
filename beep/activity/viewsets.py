@@ -8,7 +8,7 @@ from django.db import transaction
 from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           RegistrationCreateSerializer, RegistrationListSerializer,
                           CollectCreateSerializer, CollectListSerializer, MyCollectListSerializer,
-                          RewardPlanApplyCreateSerializer, RewardPlanApplySerializer,
+                          RewardPlanApplyCreateSerializer, RewardPlanApplySerializer, RewardPlanApplyListSerializer,
                           RewardPlanSerializer,
                           )
 from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply

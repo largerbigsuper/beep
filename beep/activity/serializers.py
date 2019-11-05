@@ -153,4 +153,12 @@ class RewardPlanApplySerializer(serializers.ModelSerializer):
     class Meta:
         model = RewardPlanApply
         fields = ['id', 'rewardplan', 'activity', 'address', 'create_at', 'is_selected']
-        
+
+
+class RewardPlanApplyListSerializer(serializers.ModelSerializer):
+
+    user = UserSampleSerializer()
+
+    class Meta:
+        model = RewardPlanApply
+        fields = ['id', 'user', 'address', 'create_at', 'is_selected']
