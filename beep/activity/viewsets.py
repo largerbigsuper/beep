@@ -69,8 +69,11 @@ class ActivityViewSet(viewsets.ModelViewSet):
         }
         return Response(data=data)
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated, IsOwerPermission])
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def get_rewardplan_result(self, request, pk=None):
+        """获取抽奖结果【定时任务会触发产生结果】
+        """
+        
         activity = self.get_object()
         data = []
         if activity.rewardplan:
