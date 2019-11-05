@@ -34,10 +34,16 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
 
   celery:
-    image: beep_production_django
+    build:
+      context: .
+      dockerfile: ./compose/dev/django/Dockerfile
+    image: beep_dev_django
     command: celery -A config worker -l info -f logs/celery.log
     volumes:
       - .:/app
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.mysql
     depends_on:
       - redis
       - django
