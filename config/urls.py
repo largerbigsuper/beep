@@ -24,6 +24,7 @@ schema_view = get_schema_view(
 from .router_user import router_user
 from .router_admin import router_admin
 from beep.wechat_callback import views as wehub_views
+from beep.common import views as common_views
 
 urlpatterns = [
     # path('swagger(?P<format>\.json|\.yaml)', schema_view.without_ui(cache_timeout=0), name='schema-json'),
@@ -37,6 +38,7 @@ urlpatterns = [
     path('socket/', wehub_views.socket_test),
     path('wehub_api/', wehub_views.wehub_api),
     path('upload_file/', wehub_views.upload_file),
+    path('coindata/', common_views.data_ticker),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
