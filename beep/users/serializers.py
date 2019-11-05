@@ -128,7 +128,12 @@ class PointSerializer(serializers.ModelSerializer):
         fields = ['id', 'in_or_out', 'amount',
                   'total_left', 'action', 'desc', 'create_at']
 
+class UserSampleSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = User
+        fields = ['id', 'name', 'age', 'gender', 'avatar_url']
+        
 class UserBaseSerializer(serializers.ModelSerializer):
 
     is_following = serializers.SerializerMethodField()

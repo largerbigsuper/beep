@@ -8,7 +8,8 @@ from django.db import transaction
 from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           RegistrationCreateSerializer, RegistrationListSerializer,
                           CollectCreateSerializer, CollectListSerializer, MyCollectListSerializer,
-                          RewardPlanApplyCreateSerializer, RewardPlanApplySerializer
+                          RewardPlanApplyCreateSerializer, RewardPlanApplySerializer,
+                          RewardPlanSerializer,
                           )
 from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply
 from .filters import ActivityFilter, CollectFilter
@@ -73,6 +74,18 @@ class ActivityViewSet(viewsets.ModelViewSet):
         data = []
         if activity.rewardplan:
             data = activity.rewardplan.get_rewardplan_result
+        return Response(data=data)
+
+    @action(detail=True, methods=['get'])
+    def get_rewardplan_detail(self, request, pk=None):
+        """获取空投详情
+        """
+        activity = self.get_object()
+        applys_qs = mm_RewardPlanApply.filter(activity=activity)
+        applyer_serializer = RewardPlanApplyListSerializer(applys_qs, many=True)
+        rewardplan_serizlizer = RewardPlanSerializer(activity.rewardplan)
+        data = rewardplan_serizlizer.data
+        data['applyers'] = applyer_serializer.data
         return Response(data=data)
 
 

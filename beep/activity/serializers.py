@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db.models import F
 
-from beep.users.serializers import UserBaseSerializer
+from beep.users.serializers import UserBaseSerializer, UserSampleSerializer
 from beep.common.serializers import AreaSerializer
 from .models import (Activity, mm_Activity,
                      Registration, mm_Registration,
@@ -22,6 +22,7 @@ class RewardPlanCreateSerializer(serializers.ModelSerializer):
 class RewardPlanSerializer(serializers.ModelSerializer):
     """奖励详情
     """
+    result = serializers.ListField()
     class Meta:
         model = RewardPlan
         fields = ['id', 'desc', 'coin_name', 'coin_logo', 'total_coin', 'total_luckyuser', 'start_time', 'applyers', 'result']
@@ -152,3 +153,4 @@ class RewardPlanApplySerializer(serializers.ModelSerializer):
     class Meta:
         model = RewardPlanApply
         fields = ['id', 'rewardplan', 'activity', 'address', 'create_at', 'is_selected']
+        
