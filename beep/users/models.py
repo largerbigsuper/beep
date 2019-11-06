@@ -62,7 +62,7 @@ class UserManager(AuthUserManager, ModelManager):
                 info = {
                     'id': user_id,
                     'name': user.name,
-                    'avatar_url': user.avatar_url.url,
+                    'avatar_url': user.avatar_url.url if user.avatar_url else '',
                     'user_type': 'user'
                 }
                 self.cache.set(user_id, info)
