@@ -187,7 +187,7 @@ class RewardPlanManager(ModelManager):
         
         # 取消之前任务
         if rewardplan.task_id:
-            celery_app.control.revoke(rewardplan.task_id, terminate=False)
+            celery_app.control.revoke(rewardplan.task_id, terminate=True)
 
         # 新建任务
         countdown = int(delta_time)
