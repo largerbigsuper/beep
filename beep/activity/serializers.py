@@ -30,7 +30,7 @@ class RewardPlanSerializer(serializers.ModelSerializer):
         if not user.is_authenticated:
             return 0
         if not hasattr(self, '_applys'):
-            self._applys = mm_RewardPlanApply.filter(user=user).values_list('pk', flat=True)
+            self._applys = mm_RewardPlanApply.filter(user=user).values_list('rewardplan_id', flat=True)
         return 1 if obj.id in self._applys else 0
     class Meta:
         model = RewardPlan
