@@ -92,7 +92,9 @@ class BlogViewSet(viewsets.ModelViewSet):
         elif self.action in ['lookup']:
             queryset = queryset.exclude(is_anonymous=True).select_related('user', 'topic')
         elif self.action in ['topic']:
-            queryset = queryset.select_related('user', 'topic').order_by('order_num', '-create_at')
+            queryset = queryset.filter(topic__topic_type=1).select_related('user', 'topic').order_by('order_num', '-create_at')
+        elif self.action in ['xinrenbang']:
+            queryset = queryset.filter(topic__topic_type=2).select_related('user', 'topic').order_by('order_num', 'create_at')
         else:
             queryset = queryset.select_related('user', 'topic')
 
@@ -146,7 +148,13 @@ class BlogViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def topic(self, request):
-        """专题、新人榜博文列表，
+        """专题榜博文列表，
+        """
+        return super().list(request)
+
+    @action(detail=False, methods=['get'])
+    def xinrenbang(self, request):
+        """新人榜博文列表，
         """
         return super().list(request)
 
