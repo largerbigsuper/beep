@@ -40,7 +40,7 @@ class QiniuService:
         #  }
         policy = {
             # 'saveKey': '%s/$(etag)$(ext)' % user_id,
-            'fsizeLimit': 10 * 1024 * 1024
+            'fsizeLimit': 500 * 1024 * 1024
         }
         #3600为token过期时间，秒为单位。3600等于一小时
         token = cls.qiniuAuth.upload_token(bucket_name, None, 3600, policy)
