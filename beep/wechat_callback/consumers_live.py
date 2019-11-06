@@ -58,14 +58,14 @@ class LiveConsumer(AsyncWebsocketConsumer):
                 'id': self.user.id,
                 'name': self.user.name,
                 'avatar_url': self.user.avatar_url,
-                'user_type': 'user'
+                'user_type': 1
             }
         else:
             user = {
                 'id': 0,
                 'name': '系统消息',
                 'avatar_url': '',
-                'user_type': 'admin'
+                'user_type': 2
             }
             
         user_message = {
@@ -75,7 +75,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
         }
         room_wxid = self.room_name + '@chatroom'
         wxmessage_dict = {
-            'user_type': 1,
+            'user_type': user['user_type'],
             'user_id': user['id'],
             'msg': message['msg'],
             'raw_msg': message,

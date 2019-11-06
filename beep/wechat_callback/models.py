@@ -276,7 +276,7 @@ class WxMessage(models.Model):
     sub_type = models.IntegerField(default=0, blank=True, verbose_name='/链接消息的子类型')
     bot_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='bot_wxid')
     user_id = models.IntegerField(default=0, blank=True, verbose_name='平台用户user_id')
-    user_type = models.IntegerField(default=0, blank=True, verbose_name='用户类型：0:微信用户， 1:平台用户')
+    user_type = models.IntegerField(default=0, blank=True, verbose_name='用户类型：0:微信用户， 1:平台用户, 2:系统消息')
     create_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='创建时间')
 
     objects = WxMessageManager()

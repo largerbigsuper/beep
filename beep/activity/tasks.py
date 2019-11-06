@@ -66,7 +66,7 @@ def send_rewardplan_start(rewardplan_id):
         'id': 0,
         'name': '系统消息',
         'avatar_url': '',
-        'user_type': 'admin'
+        'user_type': 2
     }
     # 中奖信息
     data = {
