@@ -103,7 +103,7 @@ class Blog(models.Model):
                              on_delete=models.CASCADE,
                              verbose_name='作者')
     topic = models.ForeignKey(Topic,
-                              on_delete=models.DO_NOTHING,
+                              on_delete=models.SET_NULL,
                               related_name='blogs',
                               blank=True,
                               null=True,
@@ -133,14 +133,14 @@ class Blog(models.Model):
     total_view = models.PositiveIntegerField(default=0, verbose_name='查看次数')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
-    forward_blog = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='forward_blogs', null=True, blank=True, verbose_name='转发blog_id')
-    origin_blog = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='origin_blogs', null=True, blank=True, verbose_name='转发原始blog_id')
+    forward_blog = models.ForeignKey('self', on_delete=models.SET_NULL, related_name='forward_blogs', null=True, blank=True, verbose_name='转发blog_id')
+    origin_blog = models.ForeignKey('self', on_delete=models.SET_NULL, related_name='origin_blogs', null=True, blank=True, verbose_name='转发原始blog_id')
     total_forward = models.PositiveIntegerField(default=0, verbose_name='转发次数')
     video = models.CharField(max_length=200, blank=True, null=True, verbose_name='视频地址')
     is_top = models.BooleanField(default=False, verbose_name='是否置顶')
     title = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章标题')
     cover = models.ImageField(max_length=200, blank=True, null=True, verbose_name='文章封面图')
-    activity = models.ForeignKey('activity.Activity', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name='活动')
+    activity = models.ForeignKey('activity.Activity', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='活动')
     is_delete = models.BooleanField(default=False, verbose_name='是否删除')
     order_num = models.IntegerField(default=0, verbose_name='排序值[越小越靠前]')
 
@@ -231,13 +231,13 @@ class Comment(models.Model):
     to_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='my_replys',
                                 on_delete=models.CASCADE, db_index=False, verbose_name='被回复的人')
     reply_to = models.ForeignKey('self', null=True, blank=True, related_name='reply_real',
-                                 on_delete=models.DO_NOTHING, db_index=False, verbose_name='回复消息id')
+                                 on_delete=models.SET_NULL, db_index=False, verbose_name='回复消息id')
     text = models.CharField(max_length=200, null=True,
                             blank=True, verbose_name='评论正文')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     is_del = models.BooleanField(default=False, verbose_name='删除')
     parent = models.ForeignKey('self', null=True, blank=True, related_name='reply_group',
-                                 on_delete=models.DO_NOTHING, db_index=False, verbose_name='回复消息的一级id')
+                                 on_delete=models.SET_NULL, db_index=False, verbose_name='回复消息的一级id')
     total_like = models.PositiveIntegerField(default=0, verbose_name='点赞数量')
 
     objects = CommentManager()

@@ -276,12 +276,16 @@ class RewardPlanApply(models.Model):
                              db_constraint=False,
                              verbose_name='报名人')
     rewardplan = models.ForeignKey(RewardPlan,
-                                   on_delete=models.DO_NOTHING,
+                                   on_delete=models.SET_NULL,
                                    db_constraint=False,
+                                   null=True,
+                                   blank=True,
                                    verbose_name='空投')
     activity = models.ForeignKey(Activity,
-                                 on_delete=models.DO_NOTHING,
+                                 on_delete=models.SET_NULL,
                                  db_constraint=False,
+                                 null=True,
+                                 blank=True,
                                  verbose_name='活动')
     address = models.CharField(max_length=200, verbose_name='收币地址')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')

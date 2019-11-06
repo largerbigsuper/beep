@@ -9,6 +9,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 from django.conf import settings
+from django.core.cache import cache
 
 logger = logging.getLogger('celery')
 
@@ -29,6 +30,11 @@ def send_rewardplan_start(rewardplan_id):
     logger.info(msg_start)
     # 1. 处理中奖名单
     from .models import mm_RewardPlan
+
+    cache_key = 'task_{}'.format(rewardplan_id)
+    result = cache.get(cache_key)
+    if result:
+        return
 
     rewardplan = mm_RewardPlan.get(pk=rewardplan_id)
     
@@ -82,6 +88,7 @@ def send_rewardplan_start(rewardplan_id):
                                             )
     # 更新结果
     mm_RewardPlan.filter(pk=rewardplan_id).update(task_result='successed')
+    cache.set(cache_key, 'successed', 60 * 60)
     logger.info(msg_done)
 
 
