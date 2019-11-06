@@ -117,7 +117,6 @@ class BlogListSerialzier(BaseBlogSerializer):
 
     user = UserBaseSerializer()
     is_like = serializers.SerializerMethodField()
-    is_following = serializers.SerializerMethodField()
     origin_blog = BlogSimpleSerializer()
 
     def get_is_like(self, obj):
@@ -126,23 +125,13 @@ class BlogListSerialzier(BaseBlogSerializer):
         user = self.context['request'].user
         if not user.is_authenticated:
             return 0
-        if not hasattr(self, '_likes'):
-            self._likes = mm_Like.blogs().filter(user=user).values_list('blog_id', flat=True)
-        return 1 if obj.id in self._likes else 0
-
-    def get_is_following(self, obj):
-        """用户关系
-        """
-        user = self.context['request'].user
-        if not user.is_authenticated:
-            return 0
-        if not hasattr(self, '_relations'):
-            self._relations = mm_RelationShip.filter(user=user).values_list('following_id', flat=True)
-        return 1 if obj.user_id in self._relations else 0
-
+        if not hasattr(user, '_likes'):
+            user._likes = mm_Like.blogs().filter(user=user).values_list('blog_id', flat=True)
+        return 1 if obj.id in user._likes else 0
+        
     class Meta:
         model = Blog
-        fields = blog_base_fields + ['user', 'is_like', 'is_following', 'origin_blog']
+        fields = blog_base_fields + ['user', 'is_like', 'origin_blog']
         read_only_fields = blog_readonly_fields
 
 

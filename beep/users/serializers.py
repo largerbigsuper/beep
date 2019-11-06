@@ -79,8 +79,7 @@ class UserSerializer(serializers.ModelSerializer):
         if not user.is_authenticated:
             return 0
         if not hasattr(user, '_following'):
-            user._following = user.following_set.values_list(
-                'following_id', flat=True)
+            user._following = user.following_set.values_list('following_id', flat=True)
         return 1 if obj.id in user._following else 0
 
     class Meta:
@@ -167,8 +166,7 @@ class UserBaseSerializer(serializers.ModelSerializer):
         if not user.is_authenticated:
             return 0
         if not hasattr(user, '_following'):
-            user._following = user.following_set.values_list(
-                'following_id', flat=True)
+            user._following = user.following_set.values_list('following_id', flat=True)
         return 1 if obj.id in user._following else 0
 
     class Meta:
