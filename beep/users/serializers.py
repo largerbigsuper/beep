@@ -28,6 +28,21 @@ user_data_fields = [
     'total_following',
     'total_followers'
 ]
+user_readonly_fields = [
+    'username',
+    'account',
+    'last_login',
+    'is_superuser',
+    'first_name',
+    'last_name',
+    'is_staff',
+    'is_active',
+    'date_joined',
+    'mini_openid',
+    'create_at',
+    'update_at',
+    'label_type',
+]
 
 
 class NoneSerializer(serializers.Serializer):
@@ -76,9 +91,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 class MyUserProfileSerializer(serializers.ModelSerializer):
 
+    avatar_url_url = serializers.CharField(
+        write_only=True, allow_blank=True, required=False)
+
     class Meta:
         model = User
-        fields = '__all__'
+        fields = base_user_fields + ['avatar_url_url'] + user_data_fields
+        read_only_fields = user_readonly_fields + user_data_fields + ['avatar_url']
+
 
 class ResetPasswordSerializer(serializers.ModelSerializer):
 
@@ -99,9 +119,11 @@ class SendCodeSerializer(serializers.Serializer):
         ('login', '登陆'),
     )
     account = serializers.CharField(max_length=11)
-    code_type = serializers.ChoiceField(choices=code_type_choices, default='enroll')
+    code_type = serializers.ChoiceField(
+        choices=code_type_choices, default='enroll')
 
 # ========= Schedule Serializers  ==========
+
 
 class ScheduleSerializer(serializers.ModelSerializer):
 
@@ -128,12 +150,14 @@ class PointSerializer(serializers.ModelSerializer):
         fields = ['id', 'in_or_out', 'amount',
                   'total_left', 'action', 'desc', 'create_at']
 
+
 class UserSampleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
         fields = ['id', 'name', 'age', 'gender', 'avatar_url']
-        
+
+
 class UserBaseSerializer(serializers.ModelSerializer):
 
     is_following = serializers.SerializerMethodField()
@@ -155,13 +179,16 @@ class UserBaseSerializer(serializers.ModelSerializer):
 class MyFollowingSerializer(serializers.ModelSerializer):
 
     following = UserBaseSerializer()
+
     class Meta:
         model = RelationShip
         fields = ['id', 'following', 'create_at']
 
+
 class MyFollowersSerializer(serializers.ModelSerializer):
 
     user = UserBaseSerializer()
+
     class Meta:
         model = RelationShip
         fields = ['id', 'user', 'create_at']
@@ -170,14 +197,14 @@ class MyFollowersSerializer(serializers.ModelSerializer):
 class LabelApplySerializer(serializers.ModelSerializer):
 
     # DEFAULT_DATA = '{"total_view": 0, "total_followers": 0, "total_blog": 0}'
-    
+
     # data_dict = serializers.JSONField(default=DEFAULT_DATA)
-    
+
     class Meta:
         model = LableApply
-        fields = ['id', 'lebel_type', 'image', 'desc', 'data_dict', 'status', 'create_at']
+        fields = ['id', 'lebel_type', 'image', 'desc',
+                  'data_dict', 'status', 'create_at']
         read_only_fields = ['status']
-
 
 
 # =======================================
