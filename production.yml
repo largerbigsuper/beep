@@ -36,8 +36,8 @@ services:
   celery:
     build:
       context: .
-      dockerfile: ./compose/dev/django/Dockerfile
-    image: beep_dev_django
+      dockerfile: ./compose/production/django/Dockerfile
+    image: beep_production_django
     command: celery -A config worker -l info -f logs/celery.log
     volumes:
       - .:/app
@@ -47,3 +47,19 @@ services:
     depends_on:
       - redis
       - django
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    image: beep_production_django
+    command: celery -A config beat -l info -f logs/celery_beat.log
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.mysql
+    depends_on:
+      - redis
+      - django
+      - celery

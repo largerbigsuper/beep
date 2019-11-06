@@ -52,12 +52,18 @@ services:
       - redis
       - django
 
-
-  # celery-beat:
-  #   image: beep_dev_django
-  #   command: celery -A config beat -l info -f logs/celery_beat.log
-  #   volumes:
-  #     - .:/code
-  #   depends_on:
-  #     - db
-  #     - redis
+  celery_beat:
+    build:
+      context: .
+      dockerfile: ./compose/dev/django/Dockerfile
+    image: beep_dev_django
+    command: celery -A config beat -l info -f logs/celery_beat.log
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.dev/.django
+      - ./.envs/.dev/.mysql
+    depends_on:
+      - redis
+      - django
+      - celery

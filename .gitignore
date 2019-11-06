@@ -279,3 +279,5 @@ beep/media/
 .vscode
 .qiniu_pythonsdk_hostscache.json
 ssl/
+celerybeat-schedule
+jupyter_notebook_config.py
