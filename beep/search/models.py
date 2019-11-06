@@ -124,11 +124,11 @@ class HotSearchManager(ModelManager):
     def hot(self):
         """热搜榜
         """
-        task = mm_SearchTask.filter(status=1).first()
-        if task:
-            return self.filter(task=task)
-        else:
-            return self.filter(task=None)
+        # task = mm_SearchTask.filter(status=1).first()
+        # if task:
+        #     return self.filter(task=task)
+        # else:
+        #     return self.filter(task=None)
 
 
 class HotSearch(models.Model):
