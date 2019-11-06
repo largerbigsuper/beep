@@ -83,7 +83,7 @@ class BlogManager(ModelManager):
         self.filter(pk=pk).update(**updates)
     
     def get_queryset(self):
-        return super().get_queryset().exclude(is_delete=True)
+        return super().get_queryset().filter(is_delete=False)
     
     def blogs(self):
         return self.exclude(title=None)
@@ -91,7 +91,7 @@ class BlogManager(ModelManager):
     def articles(self):
         return self.filter(title__isnull=False)
 
-class UserBlogManager(ModelManager):
+class UserBlogManager(BlogManager):
 
     pass
 
