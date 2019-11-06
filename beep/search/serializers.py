@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import SearchHistory, SearchKeyWord
+from .models import SearchHistory, SearchKeyWord, HotSearch
 
 class SearchHistorySerializer(serializers.ModelSerializer):
 
@@ -20,3 +20,12 @@ class SearchKeyWordSerializer(serializers.ModelSerializer):
     class Meta:
         model = SearchKeyWord
         fields = ['keyword']
+
+
+class HotSearchSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = HotSearch
+        fields = ['id', 'keyword', 'frequency', 'is_top', 'lable_type']
+
+

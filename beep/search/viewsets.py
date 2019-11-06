@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 
-from .models import mm_SearchHistory, mm_SearchKeyWord
-from .serializers import SearchHistorySerializer, SearchKeyWordSerializer
+from .models import mm_SearchHistory, mm_SearchKeyWord, mm_HotSearch
+from .serializers import SearchHistorySerializer, SearchKeyWordSerializer, HotSearchSerializer
 from .filters import SearchKeyWordFilter
 
 
@@ -50,3 +50,11 @@ class SearchKeyWordViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
         return Response(data=data[:10])
 
+
+class HotSearchViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+    """热搜榜
+    """
+
+    permission_class = []
+    serializer_class = HotSearchSerializer
+    queryset = mm_HotSearch.hot()

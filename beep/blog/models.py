@@ -46,6 +46,7 @@ class Topic(models.Model):
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     total_view = models.PositiveIntegerField(default=0, verbose_name='查看人数')
     total_comment = models.PositiveIntegerField(default=0, verbose_name='评论次数')
+    total_search = models.PositiveIntegerField(default=0, verbose_name='搜索次数')
     cover = models.ImageField(blank=True, null=True, verbose_name='封面图')
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE,

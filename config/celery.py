@@ -28,6 +28,11 @@ app.conf.beat_schedule = {
     #     'schedule': crontab(hour=7, minute=30, day_of_week=1),
     #     'args': (16, 16),
     # },
+    'caculate-hotsearch-per-minute': {
+        'task': 'beep.search.tasks.caculate_hotsearch',
+        'schedule': crontab(minute='*'),
+        'args': (),
+    }
 }
 
 

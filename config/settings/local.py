@@ -103,7 +103,7 @@ INSTALLED_APPS += ["django_extensions"]  # noqa F405
 #         },
 #     }
 # }
-# LOGGING['loggers']['django.db.backends'] = {'handlers': ['console'], 'level': 'DEBUG',}
+LOGGING['loggers']['django.db.backends'] = {'handlers': ['console'], 'level': 'DEBUG',}
 
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 

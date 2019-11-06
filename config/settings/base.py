@@ -384,6 +384,14 @@ LOGGING = {
             "backupCount": 10,
             "formatter": "verbose"
         },
+        "cornjob_file": {
+            "level": LOG_LEVEL_INFO,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "./logs/cornjob_file.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10MB
+            "backupCount": 10,
+            "formatter": "verbose"
+        },
     },
     'loggers': {
         'django': {
@@ -402,6 +410,11 @@ LOGGING = {
         },
         'qiniu': {
             'handlers': ['qiniu_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'qiniu': {
+            'handlers': ['cornjob_file', 'console'],
             'level': 'INFO',
             'propagate': True,
         },

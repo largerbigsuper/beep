@@ -28,4 +28,5 @@ router_user.register('comment', blog_viewsets.CommentViewSet, base_name='user-co
 router_user.register('news', news_viewsets.NewsViewSet, base_name='user-news')
 router_user.register('keyword', search_viewsets.SearchKeyWordViewSet, base_name='user-keyword')
 router_user.register('search-history', search_viewsets.SearchHistoryViewSet, base_name='user-search-history')
+router_user.register('hot', search_viewsets.HotSearchViewSet, base_name='user-hot')
 router_user.register('wxmessage', wechat_viewsets.WxMessageViewSet, base_name='user-wxmessge')
