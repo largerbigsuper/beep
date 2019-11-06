@@ -37,7 +37,6 @@ class TopicManager(ModelManager):
 class Topic(models.Model):
     """话题"""
 
-
     name = models.CharField(max_length=40, verbose_name='话题')
     sub_name = models.CharField(max_length=200, blank=True, default='', verbose_name='子话题')
     status = models.PositiveSmallIntegerField(
@@ -56,13 +55,14 @@ class Topic(models.Model):
                              verbose_name='创建人')
     topic_type= models.PositiveSmallIntegerField(choices=TopicManager.TOPIC_TYPE, default=TopicManager.TYPE_TOPIC, verbose_name='话题|专题榜|新人榜')
     detail = models.TextField(blank=True, verbose_name='详情')
+    order_num = models.IntegerField(default=0, verbose_name='排序值[越小越靠前]')
 
     objects = TopicManager()
 
     class Meta:
         db_table = 'topics'
         verbose_name = verbose_name_plural = '话题|专题|新人榜'
-        ordering = ['-create_at']
+        ordering = ['order_num', '-create_at']
 
     def __str__(self):
         return '[{}]'.format(self.get_topic_type_display()) + self.name

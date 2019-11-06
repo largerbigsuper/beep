@@ -29,7 +29,7 @@ class TopicViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = TopicSerializer
-    queryset = mm_Topic.allowed_topics().select_related('user')
+    # queryset = mm_Topic.allowed_topics().select_related('user')
     filter_class = TopicFilter
 
     def get_permissions(self):
@@ -37,6 +37,29 @@ class TopicViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'destory']:
             permissions = [IsAuthenticated, IsAdminUser]
         return [permission() for permission in permissions]
+    
+    def get_queryset(self):
+        queryset = mm_Topic.allowed_topics().select_related('user')
+        if self.action in ['xinrenbang']:
+            # 新人榜 按排序值排小的靠前，同排序值的按时间正序排
+            queryset = queryset.filter(topic_type=mm_Topic.TYPE_XinRenBang).order_by('order_num', 'create_at')
+        elif self.action in ['topic']:
+            # 专题榜 按排序值排小的靠前，同排序值的按时间倒序排
+            queryset = queryset.filter(topic_type=mm_Topic.TYPE_ZhuanTiBang).order_by('order_num', '-create_at')
+        return queryset
+
+    @action(detail=False)
+    def topic(self, request):
+        """专题榜
+        """
+        return super().list(request)
+
+    @action(detail=False)
+    def xinrenbang(self, request):
+        """新人榜
+        """
+        return super().list(request)
+
 
 
 class BlogViewSet(viewsets.ModelViewSet):
