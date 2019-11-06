@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='user',
-            name='avatar_url',
-            field=models.ImageField(upload_to='', verbose_name='头像'),
-        ),
+        # migrations.AlterField(
+        #     model_name='user',
+        #     name='avatar_url',
+        #     field=models.ImageField(upload_to='', verbose_name='头像'),
+        # ),
     ]
