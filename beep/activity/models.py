@@ -1,3 +1,4 @@
+import logging
 import datetime
 from random import choices
 
@@ -13,6 +14,7 @@ from config import celery_app
 from utils.modelmanager import ModelManager
 from .tasks import send_rewardplan_start
 
+celery_logger = logging.getLogger('celery')
 
 class ActivityManager(ModelManager):
 
@@ -179,7 +181,7 @@ class RewardPlanManager(ModelManager):
 
     def update_task_status(self, rewardplan):
         # 更新空投计划后修改计划任务
-
+        celery_logger.info('[celery] 更新空投<rewardplan: {}>'.format(rewardplan.id))
         # 已执行任务直接pass
         delta_time = rewardplan.start_time.timestamp() - datetime.datetime.now().timestamp()
         if delta_time < 0:
@@ -187,6 +189,10 @@ class RewardPlanManager(ModelManager):
         
         # 取消之前任务
         if rewardplan.task_id:
+            status = celery_app.AsyncResult(rewardplan.task_id).status
+            result = celery_app.AsyncResult(rewardplan.task_id).result
+            celery_logger.info('[celery] <task_id: {}, status: {}, result: {}>'.format(rewardplan.task_id, status, result))
+            celery_logger.info('[celery] stop task_id: {}'.format(rewardplan.task_id))
             celery_app.control.revoke(rewardplan.task_id, terminate=True)
 
         # 新建任务
@@ -194,6 +200,7 @@ class RewardPlanManager(ModelManager):
         task_id = send_rewardplan_start.apply_async((rewardplan.id, ), countdown=countdown, ignore_result=False)
         rewardplan.task_id = task_id
         self.filter(pk=rewardplan.id).update(task_id=task_id)
+        celery_logger.info('[celery] new task_id'.format(task_id))
 
 
 class RewardPlan(models.Model):

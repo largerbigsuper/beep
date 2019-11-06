@@ -22,24 +22,28 @@ def send_rewardplan_start(rewardplan_id):
     3. 更新rewardplan.task_result
 
     """
-    msg_start = 'start send rewardplan message :<rewardplan_id: {}>'.format(
+    msg_start = 'start process rewardplan :<rewardplan_id: {}>'.format(
         rewardplan_id)
-    msg_done = 'start send rewardplan message :<rewardplan_id: {}>'.format(
+    msg_done = 'successed processed rewardplan :<rewardplan_id: {}>'.format(
         rewardplan_id)
     logger.info(msg_start)
     # 1. 处理中奖名单
     from .models import mm_RewardPlan
 
     rewardplan = mm_RewardPlan.get(pk=rewardplan_id)
+    
+    # 已经执行便跳过
+    if rewardplan.task_result == 'successed':
+        return
+
+    # 频道为空跳过
+    wx_groupwxid = rewardplan.activity.wx_groupwxid
+    group_name = wx_groupwxid.replace('@chatroom', '')
+    if not group_name:
+        return
+
     # 生成中奖结果
     result_list = rewardplan.get_rewardplan_result
-    rewardplan.task_result = 'successed'
-    rewardplan.save()
-
-    wx_groupwxid = rewardplan.activity.wx_groupwxid
-
-    group_name = wx_groupwxid.replace('@chatroom', '')
-
     msg_dict = {
         'msg': '活动抽奖开始',
         'rewardplan': {
@@ -68,6 +72,7 @@ def send_rewardplan_start(rewardplan_id):
         'user': user,
         'data': data
     }
+    # 推送消息
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(group_name,
                                             {
@@ -75,8 +80,8 @@ def send_rewardplan_start(rewardplan_id):
                                                 'message': message
                                             }
                                             )
-
-
+    # 更新结果
+    mm_RewardPlan.filter(pk=rewardplan_id).update(task_result='successed')
     logger.info(msg_done)
 
 
