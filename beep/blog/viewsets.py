@@ -340,6 +340,7 @@ class LikeViewSet(mixins.CreateModelMixin,
     destory -- 删除点赞
     list -- 点赞人列表
     mine -- 我的点赞列表
+    received -- 我收到的点赞列表
     """
 
     filter_class = LikeFilter
@@ -368,7 +369,7 @@ class LikeViewSet(mixins.CreateModelMixin,
             queryset = queryset.filter(
                 blog_id__gt=0,
                 user=self.request.user).select_related('blog', 'blog__topic', 'blog__user')
-        elif self.action in ('recivied'):
+        elif self.action in ('received'):
             queryset = queryset.filter(
                 blog_id__gt=0,
                 blog__user=self.request.user).select_related('blog', 'blog__topic', 'blog__user')
@@ -383,7 +384,7 @@ class LikeViewSet(mixins.CreateModelMixin,
         return super().list(request)
 
     @action(detail=False, methods=['get'])
-    def recivied(self, request):
+    def received(self, request):
         """我收到的点赞
         """
         return super().list(request)
