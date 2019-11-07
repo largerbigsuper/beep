@@ -62,6 +62,8 @@ class MyUserAdmin(UserAdmin):
             (None, {'fields': tuple(extra_fields)}),
     )
 
+    list_display = ['id', 'name', 'account', 'gender', 'avatar_url', 'label_type']
+    
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
