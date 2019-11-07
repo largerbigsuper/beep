@@ -19,10 +19,11 @@ cornjob_logger = logging.getLogger('cornjob')
 def caculate_hotsearch():
     """生成热搜
     规则：
-    两天内带有话题的博文 阅读数 * 1 + 点赞数 * 1 + 评论数 * 1  + 搜索量
+    两天内带有话题的博文 阅读数 * 1 + 点赞数 * 1 + 评论数 * 1  + 搜索量 + 博文数量 * 5
     1. 统计两天内的搜索历史单个记录词频
     2. 【新】话题产生时间小于2小时（前10）
     """
+    cornjob_logger.info('task start..')
     search_days = 2
     limit = 100
     cornjob_logger.info('now: {}'.format(
@@ -30,39 +31,27 @@ def caculate_hotsearch():
     dt_end = datetime.datetime.now()
     dt_start = dt_end - timedelta(days=search_days)
     filter_range = (dt_start, dt_end)
-    # 统计两天内的博文
 
     data_list = mm_user_Blog.filter(
+        topic__topic_type=mm_Topic.TYPE_TOPIC,
         create_at__range=filter_range,
-        topic_id__gt=0
     ).values(
         'topic_id',
         'topic__name',
         'topic__create_at'
     ).annotate(
-        frequency=Sum('total_view') + Sum('total_comment') +
-        Sum('total_like') + Sum('total_forward')
+        frequency=Sum('total_view') + Sum('total_comment') + Sum('total_like') + Sum('total_forward') + 5 * Count('topic_id')
     ).order_by('-frequency')[:limit]
+
+    print(str(data_list.query))
     data_list = list(data_list)
     topic_ids = [d['topic_id'] for d in data_list]
-    # 转化为list
-    data_search_list = mm_Topic.filter(pk__in=topic_ids).values('id', 'total_search', 'total_blog')
-    search_dict = {}
-    blog_dict = {}
-    for d in data_search_list:
-        search_dict[d['id']] = d['total_search']
-        blog_dict[d['id']] = d['total_blog']
-
-    for t in data_list:
-        t['frequency'] += search_dict.get(t['topic_id'], 0)
-        t['frequency'] += blog_dict.get(t['topic_id'], 0)
     
     sorted_data_list = sorted(data_list, key=lambda x: x['frequency'], reverse=True)
     
     # 处理【新】标签
-    now = datetime.datetime.now()
     for d in sorted_data_list[:20]:
-        if d['topic__create_at'].timestamp() + timedelta(hours=2).total_seconds() > now.timestamp():
+        if d['topic__create_at'] + timedelta(hours=2) > dt_end:
             d['lable_type'] = 2
 
     hotsearch_list = []
@@ -72,8 +61,8 @@ def caculate_hotsearch():
             'keyword': d['topic__name'],
             'frequency': d['frequency'],
             'lable_type': d.get('lable_type', 0),
-            'create_at': dt_start,
-            'update_at': dt_start,
+            'create_at': dt_end,
+            'update_at': dt_end,
             'task': task
         }
         item = HotSearch(**params)

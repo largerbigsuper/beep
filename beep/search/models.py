@@ -35,8 +35,6 @@ class SearchTask(models.Model):
         db_table = 'search_task'
         ordering = ['-id']
 
-    def __str__(self):
-        return self.slug
 
 class SearchHistoryManager(ModelManager):
 
@@ -124,11 +122,11 @@ class HotSearchManager(ModelManager):
     def hot(self):
         """热搜榜
         """
-        task = mm_SearchTask.filter(status=1).first()
+        task = mm_SearchTask.filter(status=1).order_by('-id').first()
         if task:
-            return self.filter(task=task)
+            return self.filter(task=task).order_by('-frequency')
         else:
-            return self.filter(task=None)
+            return self.filter(task=None).order_by('-frequency')
 
 
 class HotSearch(models.Model):
@@ -137,7 +135,7 @@ class HotSearch(models.Model):
 
     keyword = models.CharField(max_length=40, verbose_name='检索内容')
     frequency = models.PositiveIntegerField(default=1, verbose_name='检索次数')
-    create_at = models.DateField(blank=True, verbose_name='产生时间')
+    create_at = models.DateTimeField(blank=True, verbose_name='产生时间')
     update_at = models.DateTimeField(blank=True, verbose_name='更新时间')
     is_top = models.BooleanField(default=False, verbose_name='置顶')
     lable_type = models.PositiveIntegerField(choices=HotSearchManager.LABEL_CHOICES,
@@ -152,7 +150,7 @@ class HotSearch(models.Model):
         unique_together = [
             ['keyword', 'update_at']
         ]
-        ordering = ['-task', '-update_at', '-frequency']
+        ordering = ['-task_id', '-update_at', '-frequency']
         verbose_name = verbose_name_plural = '热搜榜'
 
 

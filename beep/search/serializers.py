@@ -26,6 +26,6 @@ class HotSearchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HotSearch
-        fields = ['id', 'keyword', 'frequency', 'is_top', 'lable_type']
+        fields = ['id', 'keyword', 'frequency', 'is_top', 'lable_type', 'update_at']
 
 

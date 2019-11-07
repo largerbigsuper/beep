@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import SearchKeyWord, HotSearch, SearchHistory
+from .models import SearchKeyWord, HotSearch, SearchHistory, SearchTask
 
 @admin.register(SearchKeyWord)
 class SearchKeyWordAdmin(admin.ModelAdmin):
@@ -12,5 +12,11 @@ class SearchKeyWordAdmin(admin.ModelAdmin):
 @admin.register(HotSearch)
 class HotSearchAdmin(admin.ModelAdmin):
 
-    list_display = ['id', 'keyword', 'frequency', 'is_top', 'lable_type', 'task']
+    list_display = ['id', 'keyword', 'frequency', 'is_top', 'lable_type', 'task', 'update_at']
     list_filter = ['is_top', 'lable_type']
+
+
+@admin.register(SearchTask)
+class SearchTaskAdmin(admin.ModelAdmin):
+
+    list_display = ['id', 'create_at', 'end_at', 'slug', 'status']

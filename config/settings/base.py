@@ -31,7 +31,8 @@ USE_I18N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-l10n
 USE_L10N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
-USE_TZ = True
+# USE_TZ = True
+USE_TZ = False
 
 
 
@@ -285,7 +286,7 @@ DEFAULT_FILE_STORAGE = 'utils.qiniucloud.StorageObject'
 MINI_PROGRAM_APP_ID = 'wx1743dc274cf46871'
 MINI_PROGRAM_APP_SECRET = '648a7ae2cbf66aa7e48992d76f46e621'
 MINI_PROGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=userization_code&js_code='.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
-
+MINI_PROGRAM_ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={}&secret={}'.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
 
 QINIU_ACCESS_KEY = 'r9Wn86UUlqWqRbt1E4Mvl8lPXPcZpSSH1t2n0MR6'
 QINIU_SECRET_KEY = 'OdRXdCnUSpDdkY5n4-PUQT3psAm2zJMiHvgNfU_S'
