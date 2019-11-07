@@ -17,6 +17,7 @@ def timeit(method):
 from django.db.models import Count
 
 from beep.blog.models import mm_Blog, mm_Topic
+from beep.users.models import mm_User
 
 
 def migrate_topic__total_blog():
@@ -27,9 +28,17 @@ def migrate_topic__total_blog():
     for pk, count in data_dict.items():
         mm_Topic.filter(pk=pk).update(total_blog=count)
 
+def migrate_user__total_blog():
+    data_list = mm_Blog.filter(user_id__gt=0).values_list('user').annotate(total_blog=Count('user')).order_by('user')
+    data_dict = dict(data_list)
+    for pk, count in data_dict.items():
+        mm_User.filter(pk=pk).update(total_blog=count)
+
+
 @timeit
 def run():
     migrate_topic__total_blog()
+    migrate_user__total_blog()
 
 
 if __name__ == "__main__":
