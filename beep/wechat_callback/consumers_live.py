@@ -53,6 +53,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
         """处理用户发送的消息
         """
         message = json.loads(text_data)
+        msg_type = 'admin'
         if self.user.is_authenticated:
             user = {
                 'id': self.user.id,
@@ -60,6 +61,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
                 'avatar_url': self.user.avatar_url_url,
                 'user_type': 1
             }
+            msg_type = 'user'
         else:
             user = {
                 'id': 0,
@@ -69,7 +71,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
             }
             
         user_message = {
-            'msg_type': 'user',
+            'msg_type': msg_type,
             'msg_dict': message,
             'user': user
         }
