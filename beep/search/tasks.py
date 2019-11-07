@@ -45,10 +45,17 @@ def caculate_hotsearch():
     ).order_by('-frequency')[:limit]
     data_list = list(data_list)
     topic_ids = [d['topic_id'] for d in data_list]
-    data_search_dict = dict(mm_Topic.filter(pk__in=topic_ids).values_list('id', 'total_search'))
+    # 转化为list
+    data_search_list = mm_Topic.filter(pk__in=topic_ids).values('id', 'total_search', 'total_blog')
+    search_dict = {}
+    blog_dict = {}
+    for d in data_search_list:
+        search_dict[d['id']] = d['total_search']
+        blog_dict[d['id']] = d['total_blog']
 
     for t in data_list:
-        t['frequency'] += data_search_dict.get(t['topic_id'], 0)
+        t['frequency'] += search_dict.get(t['topic_id'], 0)
+        t['frequency'] += blog_dict.get(t['topic_id'], 0)
     
     sorted_data_list = sorted(data_list, key=lambda x: x['frequency'], reverse=True)
     
