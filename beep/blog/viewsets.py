@@ -20,6 +20,7 @@ from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_C
 from .filters import CommentFilter, LikeFilter, BlogFilter, TopicFilter
 from beep.search.models import mm_SearchHistory
 from beep.users.models import mm_User
+from utils.pagination import ReturnAllPagination
 
 
 
@@ -291,6 +292,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     recivied -- 收到的评论
     """
     filter_class = CommentFilter
+    pagination_class = ReturnAllPagination
 
     def get_permissions(self):
         permissions = []

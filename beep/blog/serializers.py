@@ -191,11 +191,11 @@ class CommentListSerializer(serializers.ModelSerializer):
 
     user = UserBaseSerializer()
     to_user = UserBaseSerializer()
-    blog = BlogSimpleSerializer()
+    # blog = BlogSimpleSerializer()
 
     class Meta:
         model = Comment
-        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'total_like', 'blog')
+        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'total_like')
 
 class LikeCreateSerializer(serializers.ModelSerializer):
 
