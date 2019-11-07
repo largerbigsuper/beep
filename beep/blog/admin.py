@@ -11,7 +11,7 @@ class BlogAdmin(admin.ModelAdmin):
     
 
     def get_queryset(self, request):
-        return mm_Blog.blogs()
+        return mm_Blog.all()
 
     def delete_queryset(self, request, queryset):
 
