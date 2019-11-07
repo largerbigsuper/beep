@@ -57,7 +57,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
             user = {
                 'id': self.user.id,
                 'name': self.user.name,
-                'avatar_url': self.user.avatar_url,
+                'avatar_url': self.user.avatar_url_url,
                 'user_type': 1
             }
         else:

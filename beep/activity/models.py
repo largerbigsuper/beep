@@ -238,7 +238,7 @@ class RewardPlan(models.Model):
     def get_rewardplan_result(self):
         """产生抽奖名单
         """
-        if self.result:
+        if self.task_result:
             return self.result
 
         applys = list(mm_RewardPlanApply.filter(rewardplan=self).all())
@@ -253,7 +253,7 @@ class RewardPlan(models.Model):
             u = {
                 'id': apply.user.id,
                 'name': apply.user.name,
-                'avatar_url': apply.user.avatar_url,
+                'avatar_url': apply.user.avatar_url_url,
                 'address': apply.address
             }
             result.append(u)

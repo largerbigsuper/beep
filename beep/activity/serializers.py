@@ -24,6 +24,13 @@ class RewardPlanSerializer(serializers.ModelSerializer):
     """
     result = serializers.ListField()
     is_applyed = serializers.SerializerMethodField()
+    coin_logo = serializers.SerializerMethodField()
+    
+    def get_coin_logo(self, obj):
+        if obj.coin_logo:
+            return obj.coin_logo.url
+        else:
+            return ''
 
     def get_is_applyed(self, obj):
         user = self.context['request'].user

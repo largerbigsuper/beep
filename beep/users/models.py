@@ -62,7 +62,7 @@ class UserManager(AuthUserManager, ModelManager):
                 info = {
                     'id': user_id,
                     'name': user.name,
-                    'avatar_url': user.avatar_url.url if user.avatar_url else '',
+                    'avatar_url': user.avatar_url_url,
                     'user_type': 'user'
                 }
                 self.cache.set(user_id, info)
@@ -146,6 +146,13 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.account
+
+    @property
+    def avatar_url_url(self):
+        if self.avatar_url:
+            return self.avatar_url.url
+        else:
+            return ''
 
 
 mm_User = User.objects
