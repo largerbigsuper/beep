@@ -5,6 +5,7 @@ Base settings to build other settings files upon.
 import environ
 
 from .settings_ckeditor import *
+from .settings_beep import *
 
 ROOT_DIR = (
     environ.Path(__file__) - 3

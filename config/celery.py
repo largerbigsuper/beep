@@ -22,15 +22,14 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    # # Executes every Monday morning at 7:30 a.m.
-    # 'add-every-monday-morning': {
-    #     'task': 'tasks.add',
-    #     'schedule': crontab(hour=7, minute=30, day_of_week=1),
-    #     'args': (16, 16),
-    # },
-    'caculate-hotsearch-per-minute': {
+    'caculate-hotsearch-very-1-minute': {
         'task': 'beep.search.tasks.caculate_hotsearch',
         'schedule': crontab(minute='*'),
+        'args': (),
+    },
+    'update-ticker-cache-every-30-seconds': {
+        'task': 'beep.common.tasks.update_ticker_cache',
+        'schedule': 30.0,
         'args': (),
     }
 }
