@@ -47,6 +47,29 @@ class TopicViewSet(viewsets.ModelViewSet):
             # 专题榜 按排序值排小的靠前，同排序值的按时间倒序排
             queryset = queryset.filter(topic_type=mm_Topic.TYPE_ZhuanTiBang).order_by('order_num', '-create_at')
         return queryset
+    
+    @action(detail=False)
+    def lookup(self, request):
+        """根据话题名获取话题详情
+        """
+
+        name = request.query_params.get('name')
+
+        if name:
+            topic = mm_Topic.filter(name=name).first()
+            if topic:
+                serializer = TopicSerializer(topic)
+                data = serializer.data
+                status_code = status.HTTP_200_OK
+            else:
+                data = {'detail': '需要参数name'}
+                status_code = status.HTTP_404_NOT_FOUND
+        else:
+            data = {'detail': '需要参数name'}
+            status_code = status.HTTP_400_BAD_REQUEST
+
+        return Response(data=data, status=status_code)
+
 
     @action(detail=False)
     def topic(self, request):

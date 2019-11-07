@@ -46,6 +46,7 @@ class TopicFilter(filters.FilterSet):
     class Meta:
         model = Topic
         fields = {
+            'name': ['exact'],
             'status': ['exact'],
             'user': ['exact'],
             'topic_type': ['exact'],

@@ -1,5 +1,8 @@
 # Beep Project TODO List
 
+
+- production admin  beep@admin1234
+
 ## 2019-11-05
 
 - [ ] test.beepcrypto.com测试域名替换 【test.beepcrypto.com阿里云未备案不能使用】
@@ -26,6 +29,10 @@
 # 2019-11-08
 
 - [x] 调整热搜规则
+- [x] 同步博文评论数
+- [x] 更新博文点赞数
+- [x] 增加根据话题名获取话题信息
+- [ ] 修改首页货币信息更新方式为定时任务
 
-#  admin  beep@admin1234
+
 
