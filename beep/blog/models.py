@@ -33,6 +33,16 @@ class TopicManager(ModelManager):
     def allowed_topics(self):
         return self.exclude(status=self.STATUS_BLOCKED)
 
+    def update_data(self, pk, field_name, amount=1):
+        if amount > 0: 
+            value = F(field_name) + amount
+        else:
+            value = F(field_name) - abs(amount)
+        updates = {
+            field_name: value
+        }
+        self.filter(pk=pk).update(**updates)
+
 
 class Topic(models.Model):
     """话题"""
@@ -47,6 +57,7 @@ class Topic(models.Model):
     total_view = models.PositiveIntegerField(default=0, verbose_name='查看人数')
     total_comment = models.PositiveIntegerField(default=0, verbose_name='评论次数')
     total_search = models.PositiveIntegerField(default=0, verbose_name='搜索次数')
+    total_blog = models.PositiveIntegerField(default=0, verbose_name='博文数量')
     cover = models.ImageField(blank=True, null=True, verbose_name='封面图')
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE,

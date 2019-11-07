@@ -128,7 +128,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=30, blank=True, unique=True, verbose_name='昵称')
     age = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='年龄')
     gender = models.IntegerField(choices=GENDER_CHOICE, default=0, verbose_name='性别')
-    avatar_url = models.ImageField(verbose_name='头像')
+    avatar_url = models.ImageField(blank=True, default='', verbose_name='头像')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
     desc = models.CharField(max_length=500, blank=True, null=True, verbose_name='个人简介')

@@ -16,8 +16,8 @@ class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
         fields = ('id', 'name', 'status', 'create_at',
-                  'cover', 'total_view', 'total_comment', 'user', 'topic_type', 'detail', 'sub_name')
-        read_only_fields = ['status', 'total_view', 'total_comment', 'user']
+                  'cover', 'total_view', 'total_comment', 'user', 'topic_type', 'detail', 'sub_name', 'total_blog')
+        read_only_fields = ['status', 'total_view', 'total_comment', 'user', 'total_blog']
     
     def create(self, validated_data):
         request = self.context['request']
@@ -107,6 +107,8 @@ class BlogCreateSerializer(BaseBlogSerializer):
         # 更新转发
         if forward_blog:
             mm_Blog.update_data(forward_blog.id, 'total_forward')
+        # 更新博文数量
+        mm_Topic.update_data(topic.id, 'total_blog')
 
         return instance
 
