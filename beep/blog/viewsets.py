@@ -346,7 +346,7 @@ class LikeViewSet(mixins.CreateModelMixin,
 
     def get_permissions(self):
         permissions = []
-        if self.action in ['create', 'destory', 'mine']:
+        if self.action in ['create', 'destory', 'mine', 'recivied']:
             permissions.append(IsAuthenticated())
         if self.action in ['destory']:
             permissions.append(IsOwerPermission())
@@ -365,8 +365,13 @@ class LikeViewSet(mixins.CreateModelMixin,
     def get_queryset(self):
         queryset = mm_Like.all()
         if self.action in ('mine'):
-            queryset = queryset.exclude(comment_id__isnull=True).filter(
+            queryset = queryset.filter(
+                blog_id__gt=0,
                 user=self.request.user).select_related('blog', 'blog__topic', 'blog__user')
+        elif self.action in ('recivied'):
+            queryset = queryset.filter(
+                blog_id__gt=0,
+                blog__user=self.request.user).select_related('blog', 'blog__topic', 'blog__user')
         else:
             queryset = queryset.select_related('user')
         return queryset
@@ -375,7 +380,12 @@ class LikeViewSet(mixins.CreateModelMixin,
     def mine(self, request):
         """我的点赞
         """
+        return super().list(request)
 
+    @action(detail=False, methods=['get'])
+    def recivied(self, request):
+        """我收到的点赞
+        """
         return super().list(request)
 
     @action(detail=False, methods=['post'], serializer_class=CommentLikeCreateSerializer)
