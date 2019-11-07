@@ -4,6 +4,8 @@ from .models import Activity, Registration, RewardPlan, RewardPlanApply
 
 class ActivityAdmin(admin.ModelAdmin):
     list_display = ['user', 'title', 'cover', 'activity_type', 'start_at', 'end_at']
+    search_fields = ['title']
+    list_filter = ['activity_type']
 
 admin.site.register(Activity, ActivityAdmin)
 

@@ -8,6 +8,7 @@ class BlogAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'user', 'topic', 'is_anonymous', 'create_at', 'order_num']
     list_filter = ['topic__topic_type', 'topic', 'is_top']
     list_editable = ['order_num']
+    search_fields = ['title']
     
 
     def get_queryset(self, request):
