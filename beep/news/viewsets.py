@@ -9,7 +9,10 @@ class NewsViewSet(viewsets.ReadOnlyModelViewSet):
 
     permission_classes = []
     serializer_class = NewsSerializer
-    queryset = mm_News.published_news()
+    # queryset = mm_News.published_news()
+
+    def get_queryset(self):
+        return mm_News.published_news().order_by('-published_at')
 
 
 class AdminNewsViewSet(viewsets.ModelViewSet):
