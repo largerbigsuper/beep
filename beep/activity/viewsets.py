@@ -17,6 +17,7 @@ from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission
 from utils.pagination import Size_200_Pagination
 
+from utils.wexin_api import WeiXinOpenApi
 
 class ActivityViewSet(viewsets.ModelViewSet):
 
@@ -33,6 +34,9 @@ class ActivityViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         with transaction.atomic():
             serializer.is_valid(raise_exception=True)
+            # 微信内容校验
+            WeiXinOpenApi().check_content(serializer.validated_data)
+
             # rewardplan
             rewardplan_dict = serializer.validated_data.pop('rewardplan')
             coin_logo = rewardplan_dict.pop('coin_logo_url', None)

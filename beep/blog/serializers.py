@@ -1,4 +1,5 @@
 import re
+import json
 
 from django.db.models import F
 from rest_framework import serializers
@@ -8,6 +9,7 @@ from beep.users.models import mm_RelationShip, mm_User
 from .models import (Topic, mm_Topic, Blog, mm_Blog, AtMessage, mm_AtMessage,
                      Comment, mm_Comment, Like, mm_Like, BlogShare)
 
+from utils.wexin_api import WeiXinOpenApi
 
 
 class TopicSerializer(serializers.ModelSerializer):
@@ -68,6 +70,9 @@ class BlogCreateSerializer(BaseBlogSerializer):
         """
         发微博 @功能 格式：@xxx 文本信息
         """
+        # 微信内容校验
+        WeiXinOpenApi().check_content(validated_data)
+
         user = self.context['request'].user
         # deal topic
         cover_url = validated_data.pop('cover_url', None)
