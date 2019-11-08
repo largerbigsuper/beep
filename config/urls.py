@@ -25,9 +25,11 @@ from .router_user import router_user
 from .router_admin import router_admin
 from beep.wechat_callback import views as wehub_views
 from beep.common import views as common_views
+from .views import index
 
 urlpatterns = [
     # path('swagger(?P<format>\.json|\.yaml)', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('', index),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
