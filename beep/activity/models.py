@@ -85,7 +85,7 @@ class Activity(models.Model):
         max_length=200, blank=True, verbose_name='微信机器人wxid[后台获取]')
     ask_allowed = models.BooleanField(default=False, verbose_name='是否可以提问')
     rewardplan = models.OneToOneField('activity.RewardPlan',
-                                      on_delete=models.CASCADE,
+                                      on_delete=models.SET_NULL,
                                       null=True, blank=True,
                                       verbose_name='空投')
 
