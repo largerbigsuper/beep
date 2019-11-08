@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from .models import mm_SearchHistory, mm_SearchKeyWord, mm_HotSearch
 from .serializers import SearchHistorySerializer, SearchKeyWordSerializer, HotSearchSerializer
 from .filters import SearchKeyWordFilter
+from utils.pagination import Size_15_Pagination
 
 
 
@@ -57,6 +58,7 @@ class HotSearchViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     permission_class = []
     serializer_class = HotSearchSerializer
+    pagination_class = Size_15_Pagination
 
     def get_queryset(self):
         return mm_HotSearch.all().order_by('-task_id', '-frequency')
