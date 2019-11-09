@@ -20,13 +20,13 @@ class WeiXinOpenApi(object):
             _content_str = ''
             check_list = ['title', 'content', 'topic_str', 'name', 'sub_name', 'desc', 'text']
             for key in check_list:
-                _content_str += content.get(key, ' ')
+                _content_str += content.get(key,'')
             content = _content_str
         data = {
             'content': content
         }
         data_json = json.dumps(data, ensure_ascii=False).encode('utf-8')
-        data_json = data_json.replace(' ', '')
+        # data_json = data_json.replace(' ', '')
         if not content:
             return 0, 'ok'
         headers = {
