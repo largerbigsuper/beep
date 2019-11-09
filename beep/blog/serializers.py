@@ -102,6 +102,9 @@ class BlogCreateSerializer(BaseBlogSerializer):
         instance = self.Meta.model(user=user, **validated_data)
         instance.topic = topic
         instance.save()
+        # 更新博文数量
+        if topic:
+            mm_Topic.update_data(topic.id, 'total_blog')
         # deal at message
         at_message_list = []
         for user_info in at_list:
@@ -112,9 +115,6 @@ class BlogCreateSerializer(BaseBlogSerializer):
         # 更新转发
         if forward_blog:
             mm_Blog.update_data(forward_blog.id, 'total_forward')
-        # 更新博文数量
-        mm_Topic.update_data(topic.id, 'total_blog')
-
         return instance
 
 

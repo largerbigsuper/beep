@@ -26,6 +26,9 @@ class WeiXinOpenApi(object):
             'content': content
         }
         data_json = json.dumps(data, ensure_ascii=False).encode('utf-8')
+        data_json = data_json.replace(' ', '')
+        if not content:
+            return 0, 'ok'
         headers = {
             'Content-type': 'application/json',
         }
