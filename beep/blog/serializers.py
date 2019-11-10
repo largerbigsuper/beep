@@ -3,6 +3,7 @@ import json
 
 from django.db.models import F
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from beep.users.serializers import UserBaseSerializer
 from beep.users.models import mm_RelationShip, mm_User
@@ -70,9 +71,18 @@ class BlogCreateSerializer(BaseBlogSerializer):
         """
         发微博 @功能 格式：@xxx 文本信息
         """
+        # 图片列表，content，视频为空的话不允许创建博文
+        blank_check_fileds = ['content', 'img_list', 'at_list', 'title', 'cover_url']
+        blank_fields = []
+        for key in blank_check_fileds:
+            value = validated_data.get(key)
+            if not value:
+                blank_fields.append(key)
+        if len(blank_check_fileds) == len(blank_fields):
+            error_msg = '{}参数至少填一项'.format(blank_fields)
+            raise ValidationError(error_msg)
         # 微信内容校验
         WeiXinOpenApi().check_content(validated_data)
-
         user = self.context['request'].user
         # deal topic
         cover_url = validated_data.pop('cover_url', None)

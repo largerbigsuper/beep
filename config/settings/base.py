@@ -394,6 +394,14 @@ LOGGING = {
             "backupCount": 10,
             "formatter": "verbose"
         },
+        "api_weixin_file": {
+            "level": LOG_LEVEL_INFO,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "./logs/api_weixin.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10MB
+            "backupCount": 10,
+            "formatter": "verbose"
+        },
     },
     'loggers': {
         'django': {
@@ -415,8 +423,13 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'qiniu': {
+        'cornjob': {
             'handlers': ['cornjob_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'api_weixin': {
+            'handlers': ['api_weixin_file', 'console'],
             'level': 'INFO',
             'propagate': True,
         },

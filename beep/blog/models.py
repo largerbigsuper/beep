@@ -121,7 +121,7 @@ class Blog(models.Model):
                               null=True,
                               verbose_name='话题')
     is_anonymous = models.BooleanField(default=False, verbose_name='是否匿名')
-    content = RichTextUploadingField(verbose_name='内容')
+    content = RichTextUploadingField(blank=True, default='', verbose_name='内容')
     img_list = JSONField(default='[]', blank=True, verbose_name='图片列表')
     # [{"id": 1, "name": "9527"}, {"id": 2, "name": "9527"}]
     at_list = JSONField(default='[]', blank=True, verbose_name='at用户列表')
