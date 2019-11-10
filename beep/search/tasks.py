@@ -24,7 +24,7 @@ def caculate_hotsearch():
     2. 【新】话题产生时间小于2小时（前10）
     """
     cornjob_logger.info('task start..')
-    search_days = 2
+    search_days = 7
     limit = 100
     cornjob_logger.info('now: {}'.format(
         datetime.datetime.now().strftime(settings.DATETIME_FORMAT)))
