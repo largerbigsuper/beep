@@ -281,3 +281,4 @@ beep/media/
 ssl/
 celerybeat-schedule
 jupyter_notebook_config.py
+.env*
