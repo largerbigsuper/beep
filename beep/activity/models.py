@@ -232,7 +232,7 @@ class RewardPlan(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
-        mm_RewardPlan.update_task_status(self)
+        # mm_RewardPlan.update_task_status(self)
         
     @property
     def get_rewardplan_result(self):

@@ -16,8 +16,8 @@ from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter
 from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission
 from utils.pagination import Size_200_Pagination
-
 from utils.wexin_api import WeiXinOpenApi
+from .tasks import send_rewardplan_start
 
 class ActivityViewSet(viewsets.ModelViewSet):
 
@@ -98,6 +98,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         data = rewardplan_serizlizer.data
         data['applyers'] = applyer_serializer.data
         return Response(data=data)
+
 
 
 class RegistrationViewSet(mixins.ListModelMixin,
@@ -218,3 +219,20 @@ class RewardPlanApplyViewSet(viewsets.ModelViewSet):
         """
         self.queryset = mm_RewardPlanApply.filter(user=request.user)
         return super().list(request)
+
+
+class RewardPlanViewSet(viewsets.ModelViewSet):
+    """空投api
+    """
+    permission_class = []
+    serializer_class = RewardPlanSerializer
+    queryset = mm_RewardPlan.all()
+
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def set_rewardplan_start(self, request, pk=None):
+        """发送开奖信息到频道
+        """
+        # obj = self.get_object()
+        send_rewardplan_start(int(pk))
+        return Response()
