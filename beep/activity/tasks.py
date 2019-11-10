@@ -31,16 +31,16 @@ def send_rewardplan_start(rewardplan_id):
     # 1. 处理中奖名单
     from .models import mm_RewardPlan
 
-    # cache_key = 'task_{}'.format(rewardplan_id)
-    # result = cache.get(cache_key)
-    # if result:
-    #     return
+    cache_key = 'task_{}'.format(rewardplan_id)
+    result = cache.get(cache_key)
+    if result:
+        return
 
     rewardplan = mm_RewardPlan.get(pk=rewardplan_id)
     
     # 已经执行便跳过
-    if rewardplan.task_result == 'successed':
-        return
+    # if rewardplan.task_result == 'successed':
+    #     return
 
     # 频道为空跳过
     wx_groupwxid = rewardplan.activity.wx_groupwxid
@@ -88,7 +88,7 @@ def send_rewardplan_start(rewardplan_id):
                                             )
     # 更新结果
     mm_RewardPlan.filter(pk=rewardplan_id).update(task_result='successed')
-    # cache.set(cache_key, 'successed', 60 * 60)
+    cache.set(cache_key, 'successed', 60 * 60)
     logger.info(msg_done)
 
 
