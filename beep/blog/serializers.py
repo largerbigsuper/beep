@@ -178,6 +178,9 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'blog', 'reply_to', 'text')
 
     def create(self, validated_data):
+        # 微信内容校验
+        WeiXinOpenApi().check_content(validated_data)
+
         request = self.context['request']
         blog = validated_data['blog']
         blog.total_comment = F('total_comment') + 1
