@@ -1,5 +1,6 @@
 import logging
 import datetime
+from datetime import timedelta
 from random import choices
 
 from django.db import models
@@ -183,8 +184,8 @@ class RewardPlanManager(ModelManager):
         # 更新空投计划后修改计划任务
         celery_logger.info('[celery] 更新空投<rewardplan: {}>'.format(rewardplan.id))
         # 已执行任务直接pass
-        delta_time = rewardplan.start_time.timestamp() - datetime.datetime.now().timestamp()
-        if delta_time < 0:
+        delta_time = rewardplan.start_time - datetime.datetime.now()
+        if delta_time.seconds < 0:
             return
         
         # 取消之前任务
@@ -196,11 +197,13 @@ class RewardPlanManager(ModelManager):
             celery_app.control.revoke(rewardplan.task_id, terminate=True)
 
         # 新建任务
-        countdown = int(delta_time)
-        task_id = send_rewardplan_start.apply_async((rewardplan.id, ), countdown=countdown, ignore_result=False)
-        rewardplan.task_id = task_id
-        self.filter(pk=rewardplan.id).update(task_id=task_id)
-        celery_logger.info('[celery] new task_id'.format(task_id))
+
+        eta = rewardplan.start_time - timedelta(microseconds=500)
+        taskid = send_rewardplan_start.apply_async((rewardplan.id, ), eta=eta, ignore_result=False)
+        rewardplan.task_id = taskid
+        self.filter(pk=rewardplan.id).update(task_id=taskid)
+        logger_msg = '[celery] new task_id'.format(taskid)
+        celery_logger.info(logger_msg)
 
 
 class RewardPlan(models.Model):
