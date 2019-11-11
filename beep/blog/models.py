@@ -169,13 +169,6 @@ class Blog(models.Model):
     def __str__(self):
         return self.title if self.title else self.content[:50]
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
-        # 更新 活动绑定的总结文章
-        if self.activity_id and self.is_summary == True:
-            self.activity.summary_id = self.id
-            self.activity.save()
-
 
 class LikeManager(ModelManager):
     

@@ -2,4 +2,7 @@ from django.apps import AppConfig
 
 
 class BlogConfig(AppConfig):
-    name = 'blog'
+    name = 'beep.blog'
+
+    def ready(self):
+        from . import signals
