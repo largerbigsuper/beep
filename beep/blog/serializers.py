@@ -209,7 +209,7 @@ class CommentListSerializer(serializers.ModelSerializer):
 
     user = UserBaseSerializer()
     to_user = UserBaseSerializer()
-    # blog = BlogSimpleSerializer()
+    blog = BlogSimpleSerializer()
 
     class Meta:
         model = Comment
