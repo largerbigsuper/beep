@@ -78,6 +78,7 @@ class Activity(models.Model):
     content = RichTextUploadingField(blank=True, verbose_name='活动详情')
     total_collect = models.PositiveIntegerField(default=0, verbose_name='收藏数量')
     blog_id = models.IntegerField(null=True, blank=True, verbose_name='博文id')
+    summary_id = models.IntegerField(null=True, blank=True, verbose_name='总结博文id')
     wx_groupname = models.CharField(
         max_length=200, blank=True, verbose_name='微信群名[后台获取]')
     wx_groupwxid = models.CharField(

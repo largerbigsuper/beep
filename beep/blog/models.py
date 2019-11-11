@@ -153,6 +153,7 @@ class Blog(models.Model):
     title = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章标题')
     cover = models.ImageField(max_length=200, blank=True, null=True, verbose_name='文章封面图')
     activity = models.ForeignKey('activity.Activity', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='活动')
+    is_summary = models.BooleanField(default=False, verbose_name='活动总结博文')
     is_delete = models.BooleanField(default=False, verbose_name='是否删除')
     order_num = models.IntegerField(default=0, verbose_name='排序值[越小越靠前]')
 
@@ -167,6 +168,13 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title if self.title else self.content[:50]
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        # 更新 活动绑定的总结文章
+        if self.activity_id and self.is_summary == True:
+            self.activity.summary_id = self.id
+            self.activity.save()
 
 
 class LikeManager(ModelManager):
