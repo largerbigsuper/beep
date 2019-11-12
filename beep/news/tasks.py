@@ -16,7 +16,7 @@ def update_news_from_crawler():
         updates_id.append(doc.id)
         obj = News(title=doc.title,
                    content=doc.content,
-                   origin=doc.source,
+                   origin='' if doc.source == '币世界' else  doc.source,
                    published_at=doc.published_at,
                    status=mm_News.STATUS_PUBLISHED)
         objs.append(obj)
