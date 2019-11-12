@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from django.db import transaction
 from django.db.models import F, Count, Q
@@ -20,6 +20,7 @@ from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_C
 from .filters import CommentFilter, LikeFilter, BlogFilter, TopicFilter
 from beep.search.models import mm_SearchHistory
 from beep.users.models import mm_User
+from beep.users.serializers import UserBaseSerializer
 from utils.pagination import ReturnAllPagination
 
 
@@ -169,15 +170,42 @@ class BlogViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def index(self, request):
+        """返回增加搜素用户
+        """
+        q = request.query_params.get('content__icontains', '')
+        page_num = request.query_params.get('page', 1)
+        if q and page_num == 1:
+            user_qs = mm_User.filter(name__icontains=q)
+            total_user = user_qs.count()
+            top_ten = user_qs[:10]
+            users_serializers = UserBaseSerializer(top_ten, many=True, context={'request': request})
+            user_data = {
+                'total': total_user,
+                'data': users_serializers.data
+            }
+        else:
+            user_data = {
+                'total': 0,
+                'data': []
+            }
+
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(page, many=True)
+        # return self.get_paginated_response(serializer.data)
+        # 自定义返回
+        data = serializer.data
+        return Response(OrderedDict([
+            ('count', self.paginator.page.paginator.count),
+            ('next', self.paginator.get_next_link()),
+            ('previous', self.paginator.get_previous_link()),
+            ('page_count', self.paginator.page.paginator.num_pages),
+            ('results', data),
+            ('users', user_data),
+        ]))
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+
 
     @action(detail=False, methods=['get'])
     def mine(self, request):
