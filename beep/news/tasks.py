@@ -1,6 +1,6 @@
 from config.celery import app
 
-from utils.post.gen_post import Post
+from utils.post.gen_poster import Post
 from .models import News, mm_News, mm_CrawledDocument
 
 
@@ -36,7 +36,7 @@ def update_news_from_crawler():
 def generate_poster(news_id):
     news = mm_News.filter(pk=news_id).first()
     if news:
-        post = Post().generate_post(news.title, news.published_at, news.content)
+        post = Post().generate_post(news.title, news.published_at, news.content, 2)
         # 不能通过save()保存
         mm_News.filter(pk=news.id).update(post=post)
 

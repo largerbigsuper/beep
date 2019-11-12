@@ -2,7 +2,7 @@ from django.db import models
 import datetime
 
 from utils.modelmanager import ModelManager
-from utils.post.gen_post import Post
+from utils.post.gen_poster import Post
 
 
 class NewsManager(ModelManager):
@@ -45,7 +45,7 @@ class News(models.Model):
         """保存快讯时生成海报
         """
         post_date = self.published_at if self.published_at else datetime.datetime.now()
-        self.post = Post().generate_post(self.title, post_date, self.content)
+        self.post = Post().generate_post(self.title, post_date, self.content, tpl_id=2)
         return super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
     
     def __str__(self):
