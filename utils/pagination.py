@@ -23,6 +23,10 @@ class ReturnAllPagination(CustomPagination):
 class Size_200_Pagination(CustomPagination):
 
     page_size = 200
+class Size_12_Pagination(CustomPagination):
+
+    page_size = 12
+
 class Size_15_Pagination(CustomPagination):
 
     page_size = 15

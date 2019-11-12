@@ -15,7 +15,7 @@ from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_
 from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter
 from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission
-from utils.pagination import Size_200_Pagination
+from utils.pagination import Size_200_Pagination, Size_12_Pagination
 from utils.wexin_api import WeiXinOpenApi
 from .tasks import send_rewardplan_start
 
@@ -24,6 +24,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = mm_Activity.all().select_related('user')
     filter_class = ActivityFilter
+    pagination_class = Size_12_Pagination
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
