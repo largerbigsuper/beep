@@ -34,11 +34,11 @@ app.conf.beat_schedule = {
         'schedule': 30.0,
         'args': (),
     },
-    # 'update-crawled-news-very-5-minute': {
-    #     'task': 'beep.news.tasks.update_news_from_crawler',
-    #     'schedule': crontab(minute='*/5'),
-    #     'args': (),
-    # }
+    'update-crawled-news-very-2-minute': {
+        'task': 'beep.news.tasks.update_news_from_crawler',
+        'schedule': crontab(minute='*/2'),
+        'args': (),
+    }
 }
 
 
