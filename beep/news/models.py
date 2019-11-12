@@ -69,9 +69,12 @@ class CrawledDocument(models.Model):
     link = models.CharField(max_length=200, default='', verbose_name='原始链接')
     crawled_at = models.DateTimeField(null=True, verbose_name='爬取时间')
     md5_content = models.CharField(max_length=120, verbose_name='内容md5')
+    is_news = models.BooleanField(default=False, verbose_name='更新到news')
 
     objects = CrawledDocumentManager()
 
     class Meta:
         db_table = 'crawled_document'
+        ordering = ['-published_at']
 
+mm_CrawledDocument = CrawledDocument.objects

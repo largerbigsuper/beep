@@ -33,6 +33,11 @@ app.conf.beat_schedule = {
         'task': 'beep.common.tasks.update_ticker_cache',
         'schedule': 30.0,
         'args': (),
+    },
+    'update-crawled-news-very-5-minute': {
+        'task': 'beep.news.tasks.update_news_from_crawler',
+        'schedule': crontab(minute='*/5'),
+        'args': (),
     }
 }
 
