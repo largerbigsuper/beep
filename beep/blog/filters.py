@@ -36,7 +36,7 @@ class BlogFilter(filters.FilterSet):
             'user': ['exact'],
             'user__name': ['exact'],
             'topic_id': ['exact'],
-            'topic__name': ['icontains'],
+            'topic__name': ['exact', 'icontains'],
             'content': ['icontains']
         }
 
