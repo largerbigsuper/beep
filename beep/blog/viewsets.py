@@ -173,7 +173,7 @@ class BlogViewSet(viewsets.ModelViewSet):
         """返回增加搜素用户
         """
         q = request.query_params.get('content__icontains', '')
-        page_num = request.query_params.get('page', 1)
+        page_num = int(request.query_params.get('page', 1))
         if q and page_num == 1:
             user_qs = mm_User.filter(name__icontains=q)
             total_user = user_qs.count()
