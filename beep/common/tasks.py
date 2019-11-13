@@ -27,6 +27,6 @@ def update_ticker_cache():
         all_data = response.json()['data']
         for market_key in market_key_list:
             data[market_key] = all_data[market_key]
-    cache.set(cache_key, data, 31)
+    cache.set(cache_key, data, 60 * 60)
 
 
