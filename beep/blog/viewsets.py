@@ -324,7 +324,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         permissions = []
-        if self.action in ('mine', 'received'):
+        if self.action in ['mine', 'received', 'create']:
             permissions.append(IsAuthenticated())
         if self.action in ['update', 'destroy']:
             permissions.append(IsOwerPermission())
