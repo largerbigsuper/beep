@@ -75,6 +75,8 @@ class UserSerializer(serializers.ModelSerializer):
     is_following = serializers.SerializerMethodField(read_only=True)
 
     def get_is_following(self, obj):
+        if 'request' not in self.context:
+            return 0
         user = self.context['request'].user
         if not user.is_authenticated:
             return 0
@@ -162,6 +164,8 @@ class UserBaseSerializer(serializers.ModelSerializer):
     is_following = serializers.SerializerMethodField()
 
     def get_is_following(self, obj):
+        if 'request' not in self.context:
+            return 0
         user = self.context['request'].user
         if not user.is_authenticated:
             return 0
