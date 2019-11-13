@@ -88,7 +88,7 @@ def send_rewardplan_start(rewardplan_id):
                                             )
     # 更新结果
     mm_RewardPlan.filter(pk=rewardplan_id).update(task_result='successed')
-    cache.set(cache_key, 'successed', 60 * 60)
+    # cache.set(cache_key, 'successed', 60 * 60)
     logger.info(msg_done)
 
 
