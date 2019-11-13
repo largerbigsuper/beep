@@ -21,10 +21,16 @@ from .tasks import send_rewardplan_start
 
 class ActivityViewSet(viewsets.ModelViewSet):
 
-    permission_classes = [IsAuthenticated]
+
     queryset = mm_Activity.all().select_related('user')
     filter_class = ActivityFilter
     pagination_class = Size_12_Pagination
+
+    def get_permissions(self):
+        if self.action in ['create', 'put', 'delete']:
+            return [IsAuthenticated()]
+        else:
+            return []
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
