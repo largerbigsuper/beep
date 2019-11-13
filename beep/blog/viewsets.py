@@ -105,9 +105,9 @@ class BlogViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
 
         permissions = []
-        if self.action in ['add_like', 'add_share', 'mine', 'create']:
+        if self.action in ['add_like', 'remove_like', 'add_share', 'mine', 'create']:
             permissions.append(IsAuthenticated())
-        if self.action in ['update', 'destroy']:
+        if self.action in ['update', 'destroy', 'remove_top', 'set_top']:
             permissions.append(IsOwerPermission())
         return permissions
 
