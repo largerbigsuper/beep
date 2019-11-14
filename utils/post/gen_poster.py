@@ -10,14 +10,20 @@ from PIL import Image, ImageDraw, ImageFont
 from .poster_tpl_1 import Template_V1
 from .poster_tpl_2 import Template_V2
 
+from ..qiniucloud import QiniuService
+
 class Post:
 
     def generate_post(self, title, date, content, tpl_id=1):
         if tpl_id == 1:
-            return Template_V1().generate_post(title, date, content)
+            path =  Template_V1().generate_post(title, date, content)
         else:
-            return Template_V2().generate_post(title, date, content)
+            path = Template_V2().generate_post(title, date, content)
+        
+        return self._upload(path)
 
+    def _upload(self, path):
+        return QiniuService.upload_local_image(path)
 
 if __name__ == "__main__":
     p = Post()
