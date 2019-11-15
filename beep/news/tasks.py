@@ -18,7 +18,7 @@ def update_news_from_crawler():
                    content=doc.content,
                    origin='' if doc.source == '币世界' else  doc.source,
                    published_at=doc.published_at,
-                   status=mm_News.STATUS_PUBLISHED)
+                   status=mm_News.STATUS_EDITING)
         objs.append(obj)
     mm_CrawledDocument.filter(pk__in=updates_id).update(is_news=True)
     mm_News.bulk_create(objs)
