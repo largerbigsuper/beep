@@ -31,6 +31,7 @@ from utils.qiniucloud import QiniuService
 from utils.sms import smsserver
 from .models import mm_User, mm_Schedule, mm_CheckIn, mm_Point, mm_RelationShip, mm_LableApply
 from .filters import UserFilter
+from beep.blog.models import mm_AtMessage, mm_Comment, mm_Like
 
 
 
@@ -256,6 +257,18 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         else:
             data = UserSerializer(u, context={'request': request}).data
             return Response(data=data)
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def unread_info(self, request):
+        """获取未读信息
+        """
+        user_id = request.user.id
+        data = {
+            'unread_like': mm_Like.unread_count(user_id),
+            'unread_atmessage': mm_AtMessage.unread_count(user_id),
+            'unread_comment': mm_Comment.unread_count(user_id),
+        }
+        return Response(data=data)
 
 
 class ScheduleViewSet(viewsets.ModelViewSet):

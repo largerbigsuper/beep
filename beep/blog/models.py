@@ -171,7 +171,17 @@ class Blog(models.Model):
 
 
 class LikeManager(ModelManager):
+
+    STATUS_CREATED = 0
+    STATUS_READED = 1
+    STATUS_CHOICES = (
+        (STATUS_CREATED, '未读'),
+        (STATUS_CREATED, '已读'),
+    )
     
+    def unread_count(self, user_id):
+        return self.filter(status=self.STATUS_CREATED, blog__user_id=user_id).count()
+
     def blogs(self):
         return self.filter(comment=None)
 
@@ -187,6 +197,9 @@ class Like(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, verbose_name='博客')
     comment = models.ForeignKey('blog.Comment', on_delete=models.CASCADE, null=True, blank=True, verbose_name='评论')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    status = models.PositiveSmallIntegerField(choices=LikeManager.STATUS_CHOICES,
+                                            default=LikeManager.STATUS_CREATED,
+                                            verbose_name='未|已读')
 
     objects = LikeManager()
 
@@ -221,8 +234,21 @@ class BlogShare(models.Model):
 
 class CommentManager(ModelManager):
 
+    STATUS_CREATED = 0
+    STATUS_READED = 1
+    STATUS_CHOICES = (
+        (STATUS_CREATED, '未读'),
+        (STATUS_CREATED, '已读'),
+    )
+
+    def unread_count(self, user_id):
+        return self.recevied(user_id).filter(status=self.STATUS_CREATED).count()
+
     def valid(self):
         return self.filter(is_del=False)
+
+    def recevied(self, user_id):
+        return self.valid().filter(to_user_id=user_id)        
 
     def my_commnets(self, user_id):
         return self.valid().filter(user_id=user_id)
@@ -253,6 +279,9 @@ class Comment(models.Model):
                                  on_delete=models.SET_NULL, db_index=False, verbose_name='回复消息的一级id')
     total_like = models.PositiveIntegerField(default=0, verbose_name='点赞数量')
 
+    status = models.PositiveSmallIntegerField(choices=CommentManager.STATUS_CHOICES,
+                                            default=CommentManager.STATUS_CREATED,
+                                            verbose_name='未|已读')
     objects = CommentManager()
 
     class Meta:
@@ -269,17 +298,25 @@ class AtMessageManager(ModelManager):
 
     STATUS_CREATED = 0
     STATUS_READED = 1
-    MESSAGE_STATUS = (
+    STATUS_CHOICES = (
         (STATUS_CREATED, '未读'),
         (STATUS_CREATED, '已读'),
     )
+
+    def unread_count(self, user_id):
+        return self.recevied(user_id, status=self.STATUS_CREATED).count()
 
     def my_messages(self, user_id, status=None):
         messages = self.filter(user_id=user_id)
         if status is not None:
             messages.filter(status=status)
         return messages
-
+    
+    def recevied(self, user_id, status=None):
+        messages = self.filter(blog__user_id=user_id)
+        if status is not None:
+            messages.filter(status=status)
+        return messages
 
 class AtMessage(models.Model):
 
@@ -287,7 +324,7 @@ class AtMessage(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE,
                              verbose_name='被@用户')
-    status = models.PositiveSmallIntegerField(choices=AtMessageManager.MESSAGE_STATUS,
+    status = models.PositiveSmallIntegerField(choices=AtMessageManager.STATUS_CHOICES,
                                               default=AtMessageManager.STATUS_CREATED,
                                               verbose_name='未|已读')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
