@@ -9,6 +9,7 @@ class BlogAdmin(admin.ModelAdmin):
     list_filter = ['topic__topic_type', 'topic', 'is_top']
     list_editable = ['order_num']
     search_fields = ['title']
+    # autocomplete_fields = ['topic']
     
 
     def get_queryset(self, request):
