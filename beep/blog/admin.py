@@ -25,6 +25,6 @@ class TopicAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'sub_name', 'cover', 'topic_type', 'total_view', 'total_comment', 'total_blog', 'create_at', 'order_num']
     list_filter = ['topic_type']
     list_editable = ['order_num']
-    # search_fields = ['name', 'sub_name']
+    search_fields = ['name', 'sub_name']
 
 
