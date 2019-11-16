@@ -5,19 +5,22 @@ from .models import Topic, Blog, mm_Blog
 @admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):
     
-    list_display = ['id', 'title', 'user', 'topic', 'is_anonymous', 'create_at', 'order_num']
+    list_display = ['id', 'title', 'user', 'topic', 'content', 'is_anonymous', 'create_at', 'order_num']
     list_filter = ['topic__topic_type', 'topic', 'is_top']
     list_editable = ['order_num']
     search_fields = ['title']
-    # autocomplete_fields = ['topic']
+    autocomplete_fields = ['topic']
     
 
     def get_queryset(self, request):
         return mm_Blog.all()
 
     def delete_queryset(self, request, queryset):
-
         queryset.update(is_delete=True)
+
+    def content(self, obj):
+        return obj.content[:100]
+    
 
 
 @admin.register(Topic)
