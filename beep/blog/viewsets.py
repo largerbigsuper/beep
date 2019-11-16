@@ -307,7 +307,10 @@ class AtMessageViewSet(mixins.RetrieveModelMixin,
     serializer_class = AtMessageSerializer
 
     def get_queryset(self):
-        return mm_AtMessage.my_messages(self.request.user.id).select_related('blog', 'blog__topic', 'blog__user', 'user')
+        queryset = mm_AtMessage.my_messages(self.request.user.id).select_related('blog', 'blog__topic', 'blog__user', 'user')
+        # 更新未读
+        queryset.filter(status=mm_AtMessage.STATUS_CREATED).update(status=mm_AtMessage.STATUS_READED)
+        return queryset
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -359,7 +362,9 @@ class CommentViewSet(viewsets.ModelViewSet):
     def received(self, request):
         """收到的评论
         """
-
+        # 设置消息已读
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset.filter(status=mm_Comment.STATUS_CREATED).update(status=mm_Comment.STATUS_READED)
         return super().list(request)
 
     @action(detail=False, methods=['get'])
@@ -440,6 +445,9 @@ class LikeViewSet(mixins.CreateModelMixin,
     def received(self, request):
         """我收到的点赞
         """
+        # 设置消息已读
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset.filter(status=mm_Like.STATUS_CREATED).update(status=mm_Like.STATUS_READED)
         return super().list(request)
 
     @action(detail=False, methods=['post'], serializer_class=CommentLikeCreateSerializer)
