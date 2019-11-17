@@ -306,17 +306,12 @@ class AtMessageManager(ModelManager):
     def unread_count(self, user_id):
         return self.recevied(user_id, status=self.STATUS_CREATED).count()
 
-    def my_messages(self, user_id, status=None):
+    def recevied(self, user_id, status=None):
         messages = self.filter(user_id=user_id)
         if status is not None:
-            messages.filter(status=status)
+            messages = messages.filter(status=status)
         return messages
-    
-    def recevied(self, user_id, status=None):
-        messages = self.filter(blog__user_id=user_id)
-        if status is not None:
-            messages.filter(status=status)
-        return messages
+
 
 class AtMessage(models.Model):
 

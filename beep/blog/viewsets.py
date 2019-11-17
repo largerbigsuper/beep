@@ -307,9 +307,9 @@ class AtMessageViewSet(mixins.RetrieveModelMixin,
     serializer_class = AtMessageSerializer
 
     def get_queryset(self):
-        queryset = mm_AtMessage.my_messages(self.request.user.id).select_related('blog', 'blog__topic', 'blog__user', 'user')
+        queryset = mm_AtMessage.recevied(self.request.user.id).select_related('blog', 'blog__topic', 'blog__user', 'user')
         # 更新未读
-        queryset.filter(status=mm_AtMessage.STATUS_CREATED).update(status=mm_AtMessage.STATUS_READED)
+        mm_AtMessage.recevied(self.request.user.id, status=mm_AtMessage.STATUS_CREATED).update(status=mm_AtMessage.STATUS_READED)
         return queryset
 
 
