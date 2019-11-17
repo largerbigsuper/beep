@@ -9,16 +9,18 @@ class ActivityAdmin(admin.ModelAdmin):
 
 admin.site.register(Activity, ActivityAdmin)
 
+@admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
 
-    pass
-
-admin.site.register(Registration, RegistrationAdmin)
+    list_display = ['id', 'user', 'activity', 'status', 'create_at']
+    search_fields = ['user__name']
 
 
 @admin.register(RewardPlan)
 class RewardPlanAdmin(admin.ModelAdmin):
-    pass
+    
+    list_display = ['id', 'desc', 'coin_name', 'coin_logo', 'total_coin', 'start_time']
+    search_fields = ['desc']
 
 @admin.register(RewardPlanApply)
 class RewardPlanApplyAdmin(admin.ModelAdmin):
