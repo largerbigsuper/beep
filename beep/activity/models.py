@@ -17,6 +17,7 @@ from .tasks import send_rewardplan_start
 
 celery_logger = logging.getLogger('celery')
 
+
 class ActivityManager(ModelManager):
 
     def update_data(self, pk, field_name, amount=1):
@@ -140,6 +141,10 @@ class Registration(models.Model):
     status = models.PositiveSmallIntegerField(
         choices=REGISTRATION_STATUS_CHOICES, default=STATUS_SUCCESS)
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='申请时间')
+    company = models.CharField(max_length=120, default='', blank=True, verbose_name='公司')
+    address = models.CharField(max_length=120, default='', blank=True, verbose_name='地址')
+    name = models.CharField(max_length=120, default='', blank=True, verbose_name='姓名')
+    phone = models.CharField(max_length=120, default='', blank=True, verbose_name='手机号')
 
     objects = RegistrationManager()
 
@@ -188,7 +193,7 @@ class RewardPlanManager(ModelManager):
         delta_time = rewardplan.start_time - datetime.datetime.now()
         if delta_time.seconds < 0:
             return
-        
+
         # 取消之前任务
         if rewardplan.task_id:
             status = celery_app.AsyncResult(rewardplan.task_id).status
@@ -230,14 +235,15 @@ class RewardPlan(models.Model):
         db_table = 'activity_reward'
         verbose_name = verbose_name_plural = '活动空投'
         ordering = ['-start_time']
-    
+
     def __str__(self):
         return self.desc
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        super().save(force_insert=force_insert, force_update=force_update,
+                     using=using, update_fields=update_fields)
         # mm_RewardPlan.update_task_status(self)
-        
+
     @property
     def get_rewardplan_result(self):
         """产生抽奖名单
@@ -265,8 +271,9 @@ class RewardPlan(models.Model):
         self.result = result
         self.save()
         mm_RewardPlanApply.filter(pk__in=selected_pks).update(is_selected=True)
-        
+
         return result
+
 
 class RewardPlanApplyManager(ModelManager):
     pass

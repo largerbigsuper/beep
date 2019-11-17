@@ -123,7 +123,7 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Registration
-        fields = ['id', 'activity']
+        fields = ['id', 'activity', 'company', 'address', 'name', 'phone']
 
 
 class RegistrationListSerializer(serializers.ModelSerializer):
