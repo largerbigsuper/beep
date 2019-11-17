@@ -150,7 +150,7 @@ class HotSearch(models.Model):
         unique_together = [
             ['keyword', 'update_at']
         ]
-        ordering = ['-task_id', '-update_at', '-frequency']
+        ordering = ['-is_top', '-task_id', '-update_at', '-frequency']
         verbose_name = verbose_name_plural = '热搜榜'
 
 

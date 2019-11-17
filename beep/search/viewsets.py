@@ -61,7 +61,7 @@ class HotSearchViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     pagination_class = Size_15_Pagination
 
     def get_queryset(self):
-        return mm_HotSearch.all().order_by('-task_id', '-frequency')
+        return mm_HotSearch.all().order_by('-is_top', '-task_id', '-frequency')
 
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
