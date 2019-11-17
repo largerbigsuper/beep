@@ -1,3 +1,5 @@
+from itertools import chain
+
 from django.db.models import Sum
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
@@ -64,4 +66,18 @@ class HotSearchViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         return mm_HotSearch.all().order_by('-is_top', '-task_id', '-frequency')
 
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        """去除置顶重复的内容
+        """
+        hot_list = mm_HotSearch.filter(is_top=True).all()[:30]
+        hot_names_set = {hot.keyword for hot in hot_list}
+        normal_list = list(mm_HotSearch.exclude(is_top=True).order_by('-task_id', '-frequency')[:30])
+        for hot in normal_list:
+            if hot.keyword in hot_names_set:
+                normal_list.remove(hot)
+        result_list = list(chain(hot_list, normal_list))[:15]
+        serializer = HotSearchSerializer(result_list, many=True)
+        data = {
+            'results': serializer.data
+        }
+        return Response(data=data)
+
