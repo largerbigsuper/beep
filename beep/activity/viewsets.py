@@ -73,6 +73,28 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+    @action(detail=True, methods=['post'])
+    def remove_registration(self, request, pk=None):
+        """取消报名
+        """
+        activity = self.get_object()
+        record = mm_Registration.filter(user=request.user, activity=activity).first()
+        if record:
+            record.delete()
+            mm_Activity.update_data(activity.id, 'total_registration', -1)
+        return Response()
+
+    @action(detail=True, methods=['post'])
+    def remove_collect(self, request, pk=None):
+        """取消收藏
+        """
+        activity = self.get_object()
+        record = mm_Collect.filter(user=request.user, activity=activity).first()
+        if record:
+            record.delete()
+            mm_Activity.update_data(activity.id, 'total_collect', -1)
+        return Response()
+
     @action(detail=True, methods=['get'])
     def get_question_status(self, request, pk=None):
         """获取提问状态
