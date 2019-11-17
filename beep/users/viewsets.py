@@ -104,10 +104,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
                 return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         user = mm_User.filter(account=account).first()
         if user:
-            if code_login:
-
-                user = authenticate(request, username=account)
-            else:
+            if not code_login:
                 user = authenticate(request, username=account, password=password)
             if user:
                 process_login(request, user)
