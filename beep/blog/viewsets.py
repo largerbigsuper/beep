@@ -124,7 +124,7 @@ class BlogViewSet(viewsets.ModelViewSet):
         queryset = mm_user_Blog.all().order_by('-is_top', '-id')
         if self.action in ['index']:
             queryset = mm_user_Blog.all()
-            queryset = queryset.exclude(origin_blog__is_delete=True).select_related('user', 'topic').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score')
+            queryset = queryset.exclude(origin_blog__is_delete=True).select_related('user', 'topic').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score', '-create_at')
             # 处理搜索记录
             content = self.request.query_params.get('content__icontains', '')
             if content:
