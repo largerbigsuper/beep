@@ -9,7 +9,7 @@ def update_news_from_crawler():
     """将爬虫结果更新到快讯模块
     """
     last_news = mm_News.all().order_by('-id').first()
-    updates = mm_CrawledDocument.filter(is_news=False).order_by('published_at')[:10]
+    updates = mm_CrawledDocument.filter(is_news=False).order_by('crawled_at')[:10]
     updates_id = []
     objs = []
     for doc in updates:
@@ -17,7 +17,7 @@ def update_news_from_crawler():
         obj = News(title=doc.title,
                    content=doc.content,
                    origin='' if doc.source == '币世界' else  doc.source,
-                   published_at=doc.published_at,
+                   published_at=doc.crawled_at,
                    status=mm_News.STATUS_EDITING)
         objs.append(obj)
     mm_CrawledDocument.filter(pk__in=updates_id).update(is_news=True)
