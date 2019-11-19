@@ -32,7 +32,7 @@ class ActivityManager(ModelManager):
 
     def recommand(self):
         end_at = datetime.datetime.now()
-        return self.filter(start__lt=end_at, is_recommand=True)
+        return self.filter(start_at__lt=end_at, is_recommand=True)
 
 
 class Activity(models.Model):
