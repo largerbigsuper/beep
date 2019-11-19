@@ -31,8 +31,8 @@ class ActivityManager(ModelManager):
         self.filter(pk=pk).update(**updates)
 
     def recommand(self):
-        end_at = datetime.datetime.now() + timedelta(days=3)
-        return self.filter(end_at__lt=end_at, is_recommand=True)
+        end_at = datetime.datetime.now()
+        return self.filter(start__lt=end_at, is_recommand=True)
 
 
 class Activity(models.Model):
