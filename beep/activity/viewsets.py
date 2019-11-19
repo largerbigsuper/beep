@@ -12,7 +12,7 @@ from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           RewardPlanSerializer, RewardPlanCreateSerializer
                           )
 from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply
-from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter
+from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter, RegistrationFilter
 from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission
 from utils.pagination import Size_200_Pagination, Size_12_Pagination
@@ -55,15 +55,6 @@ class ActivityViewSet(viewsets.ModelViewSet):
             cover_url = serializer.validated_data.pop('cover_url', None)
             serializer.validated_data['cover'] = cover_url
             activity = serializer.save(user=self.request.user, rewardplan=rewardplan)
-            # params = {
-            #     'user': self.request.user,
-            #     'cover': activity.cover,
-            #     'title': '发布了活动：' + activity.title,
-            #     'activity': activity
-            # }
-            # blog = mm_Blog.create(**params)
-            # activity.blog_id = blog.id
-            # activity.save()
 
 
     def retrieve(self, request, *args, **kwargs):
@@ -128,6 +119,13 @@ class ActivityViewSet(viewsets.ModelViewSet):
         data['applyers'] = applyer_serializer.data
         return Response(data=data)
 
+    @action(detail=False, methods=['get'])
+    def recommand_list(self, request):
+        """活动推荐
+        """
+        queryset = mm_Activity.recommand()[:5]
+        serializer = ActivityListSerializer(queryset, many=True, context={'request': request})
+        return Response(data=serializer.data)
 
 
 class RegistrationViewSet(mixins.ListModelMixin,
@@ -140,7 +138,7 @@ class RegistrationViewSet(mixins.ListModelMixin,
     list -- 我的报名列表
     destory -- 删除报名
     """
-
+    filter_class = RegistrationFilter
     permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):

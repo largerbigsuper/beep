@@ -30,6 +30,10 @@ class ActivityManager(ModelManager):
         }
         self.filter(pk=pk).update(**updates)
 
+    def recommand(self):
+        end_at = datetime.datetime.now() + timedelta(days=3)
+        return self.filter(end_at__lt=end_at, is_recommand=True)
+
 
 class Activity(models.Model):
 
@@ -91,6 +95,7 @@ class Activity(models.Model):
                                       on_delete=models.SET_NULL,
                                       null=True, blank=True,
                                       verbose_name='空投')
+    is_recommand = models.BooleanField(default=False, blank=True, verbose_name='推荐')
 
     objects = ActivityManager()
 
