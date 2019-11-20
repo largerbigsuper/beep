@@ -29,6 +29,12 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='*'),
         'args': (),
     },
+    # 每周一清除上周热搜
+    'clear-hotsearch-very-7-day': {
+        'task': 'beep.search.tasks.clear_hotsearch',
+        'schedule': crontab(day_of_week=1, minute=0, hour=0),
+        'args': (),
+    },
     'update-ticker-cache-every-30-seconds': {
         'task': 'beep.common.tasks.update_ticker_cache',
         'schedule': 30.0,
@@ -40,6 +46,18 @@ app.conf.beat_schedule = {
         'args': (),
     }
 }
+
+
+from kombu import Queue
+
+app.conf.task_default_queue = 'default'
+app.conf.task_queues = (
+    Queue('default',    routing_key='task.#'),
+    Queue('news', routing_key='news.#'),
+)
+task_default_exchange = 'tasks'
+task_default_exchange_type = 'direct'
+task_default_routing_key = 'task.default'
 
 
 @app.task(bind=True)

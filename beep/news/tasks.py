@@ -4,7 +4,7 @@ from utils.post.gen_poster import Post
 from .models import News, mm_News, mm_CrawledDocument
 
 
-@app.task
+@app.task(queue='news')
 def update_news_from_crawler():
     """将爬虫结果更新到快讯模块
     """

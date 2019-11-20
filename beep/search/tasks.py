@@ -24,7 +24,8 @@ def caculate_hotsearch():
     2. 【新】话题产生时间小于2小时（前10）
     """
     cornjob_logger.info('task start..')
-    search_days = 7
+    # 几天内的文章
+    search_days = 2
     limit = 100
     cornjob_logger.info('now: {}'.format(
         datetime.datetime.now().strftime(settings.DATETIME_FORMAT)))
@@ -73,3 +74,13 @@ def caculate_hotsearch():
     task.status = 1
     task.end_at = datetime.datetime.now()
     task.save()
+
+
+@app.task
+def clear_hotsearch():
+    """清除三天之前的热搜计算缓存
+    """
+    cornjob_logger.info('clear_hotsearch start...')
+    limited_time = datetime.datetime.now() - timedelta(days=3)
+    mm_HotSearch.exclude(is_top=True).filter(create_at__lt=limited_time).delete()
+    cornjob_logger.info('clear_hotsearch end.')
