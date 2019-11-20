@@ -68,6 +68,7 @@ class Activity(models.Model):
     district_name = models.CharField(
         max_length=40, null=True, blank=True, verbose_name='区')
     address = models.CharField(max_length=120, blank=True, verbose_name='具体位置信息')
+    coordinates = models.CharField(max_length=120, default='', blank=True, verbose_name='经度,纬度')
     live_plateform = models.CharField(
         max_length=120, blank=True, verbose_name='直播平台')
     live_address = models.CharField(

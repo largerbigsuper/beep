@@ -56,7 +56,7 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
         # rewardplan_fields = ['coin_name', 'coin_logo', 'total_coin', 'total_luckyuser', 'start_time']
         fields = ['id', 'user', 'title', 'cover', 'activity_type',
                   'start_at', 'end_at', 'ticket_price',
-                  'address', 'live_plateform',
+                  'address', 'coordinates', 'live_plateform',
                   'live_address', 'total_user', 'contact_name',
                   'contact_info', 'total_view', 'total_registration',
                   'create_at', 'content', 'total_collect',
@@ -92,7 +92,7 @@ class ActivityListSerializer(ActivityCreateSerializer):
         model = Activity
         fields = ('id', 'user', 'title', 'cover', 'activity_type',
                   'start_at', 'end_at', 'ticket_price',
-                  'address', 'live_plateform',
+                  'address', 'coordinates', 'live_plateform',
                   'live_address', 'total_user', 'contact_name',
                   'contact_info', 'total_view', 'total_registration',
                   'create_at', 'content', 'is_registrated', 'total_collect', 'is_collected',
@@ -109,7 +109,7 @@ class ActivitySimpleSerializer(ActivityCreateSerializer):
         model = Activity
         fields = ('id', 'title', 'cover', 'activity_type',
                   'start_at', 'end_at', 'ticket_price',
-                  'address', 'live_plateform',
+                  'address', 'coordinates', 'live_plateform',
                   'live_address', 'total_user',
                   'total_view', 'total_registration',
                   'create_at', 'content', 'total_collect',
