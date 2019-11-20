@@ -16,7 +16,8 @@ def make_news_recall(modeladmin, request, queryset):
 make_news_recall.short_description = '撤回'
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'published_at', 'status']
+    list_display = ['id', 'title', 'content', 'published_at', 'status']
+    list_editable = ['status']
     actions = [make_news_published, make_news_recall]
 
 @admin.register(CrawledDocument)
