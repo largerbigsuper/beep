@@ -14,6 +14,7 @@ class HotSearchAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'keyword', 'frequency', 'is_top', 'lable_type', 'task', 'update_at']
     list_filter = ['is_top', 'lable_type']
+    search_fields = ['keyword']
 
 
 @admin.register(SearchTask)
