@@ -370,6 +370,7 @@ class LableApply(models.Model):
     class Meta:
         db_table = 'label_apply'
         ordering = ['-create_at']
+        verbose_name = verbose_name_plural = '加V申请'
 
 mm_LableApply = LableApply.objects
 
