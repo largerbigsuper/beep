@@ -123,8 +123,13 @@ class BlogViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = mm_user_Blog.all().order_by('-is_top', '-id')
         if self.action in ['index']:
-            queryset = mm_user_Blog.all()
-            queryset = queryset.exclude(origin_blog__is_delete=True).select_related('user', 'topic').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score', '-create_at')
+            # FIXME 
+            # 搜索关联话题表
+            # 后台修改博文关联的话题，但不修改话题内容导致搜索入口有搜索相关话题时，可能导致改博文不能被检索到
+            content = self.request.query_params.get('q', '')
+            if content:
+                queryset = queryset.filter(Q(topic__name__icontains=content) | Q(title__icontains=content) | Q(content__icontains=content))
+            queryset = queryset.exclude(origin_blog__is_delete=True).select_related('user', 'topic', 'topic__user').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score', '-create_at')
             # 处理搜索记录
             content = self.request.query_params.get('content__icontains', '')
             if content:
