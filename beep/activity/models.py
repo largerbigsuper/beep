@@ -378,6 +378,7 @@ class Schedule(models.Model):
         unique_together = [
             ['user', 'activity']
         ]
+        ordering = ['-plan_datetime', '-id']
 
 
 mm_Schedule = Schedule.objects
