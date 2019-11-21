@@ -131,7 +131,7 @@ class BlogViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(Q(topic__name__icontains=content) | Q(title__icontains=content) | Q(content__icontains=content))
             queryset = queryset.exclude(origin_blog__is_delete=True).select_related('user', 'topic', 'topic__user').annotate(score=F('total_like') + F('total_comment') + F('total_view')).order_by('-score', '-create_at')
             # 处理搜索记录
-            content = self.request.query_params.get('content__icontains', '')
+            content = self.request.query_params.get('q', '')
             if content:
                 user_id = None
                 if self.request.user:
@@ -177,7 +177,7 @@ class BlogViewSet(viewsets.ModelViewSet):
     def index(self, request):
         """返回增加搜素用户
         """
-        q = request.query_params.get('content__icontains', '')
+        q = request.query_params.get('q', '')
         page_num = int(request.query_params.get('page', 1))
         if q and page_num == 1:
             user_qs = mm_User.filter(name__icontains=q)
