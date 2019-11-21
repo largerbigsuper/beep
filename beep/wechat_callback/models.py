@@ -127,7 +127,9 @@ class WxGroupManager(ModelManager):
         if 'room_wxid' in groupinfo_dict:
             wxid = groupinfo_dict['room_wxid']
         else:
+            # 上报新群的接口数据中没有room_wxid字段
             wxid = groupinfo_dict.pop('wxid')
+            groupinfo_dict['room_wxid'] = wxid
         self.update_or_create(bot_wxid=bot_wxid, wxid=wxid, defaults=groupinfo_dict)
 
 
