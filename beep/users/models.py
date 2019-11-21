@@ -158,32 +158,6 @@ class User(AbstractUser):
 mm_User = User.objects
 
 
-class ScheduleManager(ModelManager):
-    pass
-
-
-class Schedule(models.Model):
-    """行程表
-    """
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE, verbose_name='用户')
-    plan_datetime = models.DateTimeField(verbose_name='计划时间')
-    content = models.CharField(max_length=500, verbose_name='计划内容')
-    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-
-    objects = ScheduleManager()
-
-    class Meta:
-        db_table = 'schedule'
-        index_together = [
-            ('user', 'plan_datetime')
-        ]
-
-
-mm_Schedule = Schedule.objects
-
-
 class PointManager(ModelManager):
     POINT_OUT = 0
     POINT_IN = 1

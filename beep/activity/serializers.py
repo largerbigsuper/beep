@@ -7,7 +7,8 @@ from .models import (Activity, mm_Activity,
                      Registration, mm_Registration,
                      Collect, mm_Collect,
                      RewardPlan, mm_RewardPlan,
-                     RewardPlanApply, mm_RewardPlanApply
+                     RewardPlanApply, mm_RewardPlanApply,
+                     Schedule
                      )
 
 
@@ -178,3 +179,14 @@ class RewardPlanApplyListSerializer(serializers.ModelSerializer):
     class Meta:
         model = RewardPlanApply
         fields = ['id', 'user', 'address', 'create_at', 'is_selected']
+
+
+# ========= Schedule Serializers  ==========
+
+
+class ScheduleSerializer(serializers.ModelSerializer):
+
+    activity = ActivityListSerializer(read_only=True)
+    class Meta:
+        model = Schedule
+        fields = ['id', 'plan_datetime', 'content', 'create_at', 'activity']

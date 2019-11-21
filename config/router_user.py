@@ -11,12 +11,12 @@ from beep.wechat_callback import viewsets as wechat_viewsets
 router_user = routers.DefaultRouter()
 
 router_user.register('u', user_viewsets.UserViewSet, base_name='user-users')
-# router_user.register('schedule', user_viewsets.ScheduleViewSet, base_name='user-schedule')
 router_user.register('checkin', user_viewsets.CheckInViewSet, base_name='user-checkin')
 router_user.register('point', user_viewsets.PointViewSet, base_name='user-point')
 router_user.register('label', user_viewsets.LabelApplyViewSet, base_name='user-label')
 router_user.register('area', common_viewsets.AreaViewSet, base_name='user-area')
 router_user.register('activity', activity_viewsets.ActivityViewSet, base_name='user-activity')
+router_user.register('schedule', activity_viewsets.ScheduleViewSet, base_name='user-schedule')
 router_user.register('rewardplan', activity_viewsets.RewardPlanViewSet, base_name='user-rewardplan')
 router_user.register('rewardplan_apply', activity_viewsets.RewardPlanApplyViewSet, base_name='user-rewardplanapply')
 router_user.register('registration', activity_viewsets.RegistrationViewSet, base_name='user-registration')

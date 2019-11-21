@@ -1,7 +1,7 @@
 from django_filters import rest_framework as filters
 from django.db.models import Subquery
 
-from .models import Activity, Collect, RewardPlanApply, Registration
+from .models import Activity, Collect, RewardPlanApply, Registration, Schedule
 from beep.common.models import mm_Area
 
 class ActivityFilter(filters.FilterSet):
@@ -63,4 +63,14 @@ class RegistrationFilter(filters.FilterSet):
         fields = {
             'activity__start_at': ['gt', 'lt'],
             'activity__end_at': ['gt', 'lt'],
+        }
+
+
+class ScheduleFilter(filters.FilterSet):
+
+    class Meta:
+        model = Schedule
+        fields = {
+            'user': ['exact'],
+            'plan_datetime': ['gt', 'lt'],
         }

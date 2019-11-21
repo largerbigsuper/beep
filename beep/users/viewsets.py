@@ -17,7 +17,6 @@ from .serializers import (UserSerializer,
                           MyUserProfileSerializer,
                           ResetPasswordSerializer,
                           UserBaseSerializer,
-                          ScheduleSerializer,
                           CheckInSerializer,
                           PointSerializer,
                           NoneSerializer,
@@ -29,7 +28,7 @@ from .serializers import (UserSerializer,
 from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
 from utils.sms import smsserver
-from .models import mm_User, mm_Schedule, mm_CheckIn, mm_Point, mm_RelationShip, mm_LableApply
+from .models import mm_User, mm_CheckIn, mm_Point, mm_RelationShip, mm_LableApply
 from .filters import UserFilter
 from beep.blog.models import mm_AtMessage, mm_Comment, mm_Like
 
@@ -268,18 +267,6 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         return Response(data=data)
 
 
-class ScheduleViewSet(viewsets.ModelViewSet):
-    """用户行程表
-    """
-
-    permission_classes = [IsAuthenticated]
-    serializer_class = ScheduleSerializer
-
-    def get_queryset(self):
-        return mm_Schedule.filter(user=self.request.user)
-
-    def perform_create(self, serailizer):
-        serailizer.save(user=self.request.user)
 
 
 class CheckInViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):

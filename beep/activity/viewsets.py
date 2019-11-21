@@ -9,10 +9,10 @@ from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           RegistrationCreateSerializer, RegistrationListSerializer,
                           CollectCreateSerializer, CollectListSerializer, MyCollectListSerializer,
                           RewardPlanApplyCreateSerializer, RewardPlanApplySerializer, RewardPlanApplyListSerializer,
-                          RewardPlanSerializer, RewardPlanCreateSerializer
+                          RewardPlanSerializer, RewardPlanCreateSerializer, ScheduleSerializer
                           )
-from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply
-from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter, RegistrationFilter
+from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply, mm_Schedule
+from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter, RegistrationFilter, ScheduleFilter
 from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission
 from utils.pagination import Size_200_Pagination, Size_12_Pagination
@@ -73,6 +73,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         if record:
             record.delete()
             mm_Activity.update_data(activity.id, 'total_registration', -1)
+            mm_Schedule.remove_activity(user_id=request.user.id, activity=activity, add_type='registration')
         return Response()
 
     @action(detail=True, methods=['post'])
@@ -84,6 +85,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         if record:
             record.delete()
             mm_Activity.update_data(activity.id, 'total_collect', -1)
+            mm_Schedule.remove_activity(user_id=request.user.id, activity=activity, add_type='collect')
         return Response()
 
     @action(detail=True, methods=['get'])
@@ -153,6 +155,7 @@ class RegistrationViewSet(mixins.ListModelMixin,
     def perform_create(self, serializer):
         instance = serializer.save(user=self.request.user)
         mm_Activity.update_data(instance.activity.id, 'total_registration')
+        mm_Schedule.add_activity(user_id=self.request.user.id, activity=instance.activity, add_type='registration')
         return super().perform_create(serializer)
 
     def perform_destroy(self, instance):
@@ -204,6 +207,7 @@ class CollectViewSet(mixins.CreateModelMixin,
         instance = serializer.save(user=self.request.user)
         # 更新收藏统计
         mm_Activity.update_data(instance.activity_id, 'total_collect')
+        mm_Schedule.add_activity(user_id=self.request.user.id, activity=instance.activity, add_type='registration')
     
     def perform_destroy(self, instance):
         # 更新收藏统计
@@ -263,3 +267,18 @@ class RewardPlanViewSet(viewsets.ModelViewSet):
         # obj = self.get_object()
         send_rewardplan_start(int(pk))
         return Response()
+
+
+class ScheduleViewSet(viewsets.ModelViewSet):
+    """用户行程表
+    """
+    
+    filter_class = ScheduleFilter
+    permission_classes = [IsAuthenticated]
+    serializer_class = ScheduleSerializer
+
+    def get_queryset(self):
+        return mm_Schedule.filter(user=self.request.user)
+
+    def perform_create(self, serailizer):
+        serailizer.save(user=self.request.user)

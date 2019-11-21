@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import User, Schedule, CheckIn, Point, RelationShip, LableApply
+from .models import User, CheckIn, Point, RelationShip, LableApply
 
 base_user_fields = ['id',
                     'last_login',
@@ -123,14 +123,6 @@ class SendCodeSerializer(serializers.Serializer):
     code_type = serializers.ChoiceField(
         choices=code_type_choices, default='enroll')
 
-# ========= Schedule Serializers  ==========
-
-
-class ScheduleSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Schedule
-        fields = ['id', 'plan_datetime', 'content', 'create_at']
 
 
 # ========= CheckIn Serializers  ==========

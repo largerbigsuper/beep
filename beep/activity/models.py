@@ -322,6 +322,65 @@ class RewardPlanApply(models.Model):
         return '<{pk}: {user}>'.format(pk=self.id, user=self.user)
 
 
+
+
+class ScheduleManager(ModelManager):
+    
+    def add_activity(self, user_id, activity, add_type='collect'):
+        """添加活动
+        """
+        defaults = {
+            'plan_datetime': activity.start_at
+        } 
+        if add_type == 'collect':
+            defaults['is_collected'] = True
+        elif add_type == 'registration':
+            defaults['is_registrated'] = True
+        self.update_or_create(user_id=user_id, activity_id=activity.id, defaults=defaults)
+
+
+    def remove_activity(self, user_id, activity, add_type='collect'):
+        """删除活动
+        """
+        obj = self.filter(user_id=user_id, activity_id=activity.id).first()
+        if not obj:
+            return
+        if add_type == 'collect':
+            obj.is_collected = False
+        elif add_type == 'registration':
+            obj.is_registrated = False
+            
+        if any([obj.is_registrated, obj.is_collected]):
+            obj.save()
+        else:
+            obj.delete()
+
+class Schedule(models.Model):
+    """行程表
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE, verbose_name='用户')
+    plan_datetime = models.DateTimeField(verbose_name='计划时间')
+    content = models.CharField(max_length=500, verbose_name='计划内容')
+    activity = models.ForeignKey('activity.Activity', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='活动')
+    is_registrated = models.BooleanField(default=False, verbose_name='活动报名')
+    is_collected = models.BooleanField(default=False, verbose_name='活动收藏')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+    objects = ScheduleManager()
+
+    class Meta:
+        db_table = 'schedule'
+        index_together = [
+            ('user', 'plan_datetime')
+        ]
+        unique_together = [
+            ['user', 'activity']
+        ]
+
+
+mm_Schedule = Schedule.objects
 mm_Activity = Activity.objects
 mm_Registration = Registration.objects
 mm_Collect = Collect.objects
