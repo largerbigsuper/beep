@@ -14,12 +14,12 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 class Template_V2:
 
     def __init__(self, *args, **kwargs):
-        self._width = 375
-        self._width_content = 351
-        self.padding = 12
-        self.padding_content = 13
+        self._width = 375 * 2
+        self._width_content = 351 * 2
+        self.padding = 12 * 2
+        self.padding_content = 13 * 2
         self.save_path = '/tmp/{name}.jpg'.format(name=uuid.uuid4())
-        self.head = os.path.join(BASE_PATH, 'templates_v2', 'post_head_v2.png')
+        self.head = os.path.join(BASE_PATH, 'templates_v2', 'post_head_v2_702.png')
         self.logo = os.path.join(BASE_PATH, 'templates_v2', 'logo_v2.png')
         self.bg = os.path.join(BASE_PATH, 'templates_v2', 'bg_v2.png')
         self.qrcode = os.path.join(BASE_PATH, 'templates', 'post_qrcode.png')
@@ -27,11 +27,11 @@ class Template_V2:
         self.circle_buttom = os.path.join(BASE_PATH, 'templates_v2', 'circle_buttom.png')
         self.font_pingfang_sc_regular = os.path.join(BASE_PATH, 'font', 'PingFang-SC-Regular.ttf')
         self.font_pingfang_bold = os.path.join(BASE_PATH, 'font', 'PingFang-Bold-2.ttf')
-        self.font_title = ImageFont.truetype(self.font_pingfang_bold, 20)
-        self.font_content = ImageFont.truetype(self.font_pingfang_sc_regular, 13)
-        self.font_date = ImageFont.truetype(self.font_pingfang_sc_regular, 12)
-        self.font_slogan = ImageFont.truetype(self.font_pingfang_sc_regular, 11)
-        self.font_alter = ImageFont.truetype(self.font_pingfang_sc_regular, 11)
+        self.font_title = ImageFont.truetype(self.font_pingfang_bold, 20 * 2)
+        self.font_content = ImageFont.truetype(self.font_pingfang_sc_regular, 13 * 2)
+        self.font_date = ImageFont.truetype(self.font_pingfang_sc_regular, 12 * 2)
+        self.font_slogan = ImageFont.truetype(self.font_pingfang_sc_regular, 11 * 2)
+        self.font_alter = ImageFont.truetype(self.font_pingfang_sc_regular, 11 * 2)
         self.color_bg = '#FEFFFF'
         self.color_title = '#333333'
         self.color_content = '#666666'
@@ -47,12 +47,13 @@ class Template_V2:
         """返回头部图片
         """
         head = Image.open(self.head).convert('RGBA')
+        # head = head.resize((int(head.width / 2), int(head.height / 2)), Image.ANTIALIAS)
         return head
 
     def get_title(self, title):
         """返回标题部分图片
         """
-        top = 23
+        top = 23 * 2
         left = self.padding_content
         max_width = self._width_content - left * 2
         lines = self._get_lines(title, font=self.font_title, max_width=max_width)
@@ -81,7 +82,7 @@ class Template_V2:
         date_str = date.strftime(date_format)
         weekday_str = weekday_map[date.weekday()]
         date_content = date_str + ' '  + weekday_str
-        top = 6
+        top = 6 * 2
         max_width = self._width_content
         lines = self._get_lines(date_content, font=self.font_date, max_width=max_width)
         _width, _height = self.font_date.getsize(date_content)
@@ -96,7 +97,7 @@ class Template_V2:
         return im
 
     def get_content(self, content):
-        top = 23
+        top = 23 * 2
         left = self.padding_content
         max_width = self._width_content - left * 2
         lines = self._get_lines(content, font=self.font_content, max_width=max_width, is_content=True)
@@ -112,12 +113,12 @@ class Template_V2:
 
     def get_circle_upper(self):
         im = Image.open(self.circle_upper).convert('RGBA')
-        im = im.resize((351, 60), Image.ANTIALIAS)
+        im = im.resize((351 * 2, 60 * 2), Image.ANTIALIAS)
         return im
 
     def get_circle_buttom(self):
         im = Image.open(self.circle_buttom).convert('RGBA')
-        im = im.resize((351, 60), Image.ANTIALIAS)
+        im = im.resize((351 * 2, 60 * 2), Image.ANTIALIAS)
         return im
     
     def add_content_bg(self, im_content):
@@ -138,9 +139,9 @@ class Template_V2:
     def get_logo(self):
         """获取logo
         """
-        top = 40
+        top = 40 * 2
         logo = Image.open(self.logo)
-        logo = logo.resize((90, 18))
+        logo = logo.resize((90 * 2, 18 *2))
         size = (self._width_content, logo.height + top)
         im = Image.new('RGBA', size)
         box = (self.padding_content, top)
@@ -149,7 +150,7 @@ class Template_V2:
         return im
 
     def get_slogan(self):
-        top = 10
+        top = 10 * 2
         left = self.padding_content
         _width, _height = self.font_content.getsize(self.slogan)
         im_height = top + _height + top
@@ -161,8 +162,8 @@ class Template_V2:
 
     def get_alter(self):
         """免责声明"""
-        top = 40
-        buttom = 24
+        top = 40 * 2
+        buttom = 24 * 2
         left = self.padding_content
         _width, _height = self.font_content.getsize(self.alter_msg)
         im_height = top + _height + buttom
@@ -174,7 +175,7 @@ class Template_V2:
 
     def get_qrcode(self):
         im = Image.open(self.qrcode)
-        size = (80, 80)
+        size = (80 * 2, 80 * 2)
         im = im.resize(size, Image.ANTIALIAS)
         return im
 
@@ -233,28 +234,28 @@ class Template_V2:
             box = (0, current_height)
             post_image.paste(im, box=box)
             current_height += im.height
-        # 设置圆角
-        # post_image = self.add_ellipse(post_image)
+
         post_image = self.add_qrcode(post_image)
         post_image = self.add_content_bg(post_image)
         post_image = self.add_head(post_image)
         post_image = self.add_bg(post_image)
-        # post_image.show()
+
         post_image = post_image.convert('RGB')
+        post_image.show()
         post_image.save(self.save_path)
 
 
     def add_qrcode(self, im):
         qrcode = self.get_qrcode()
-        right = 14
-        height = 59
+        right = 14 * 2
+        height = 59 * 2
         box = (self._width_content - qrcode.width - right,  im.height - qrcode.height - height)
         im.paste(qrcode, box)
         return im
 
     def add_head(self, im):
         im_head = self.get_head()
-        middle = 70
+        middle = 70 * 2
         h = im_head.height + im.height - middle
         size = (self._width_content, h)
         im_content = Image.new(mode='RGBA', size=size)
