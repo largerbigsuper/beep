@@ -20,6 +20,18 @@ celery_logger = logging.getLogger('celery')
 
 class ActivityManager(ModelManager):
 
+    STATUS_CREATED = 0
+    STATUS_PASSED = 1
+    STATUS_REFUSED = 2
+    STATUS_CHOICE = (
+        (STATUS_CREATED, '正在审核'),
+        (STATUS_PASSED, '审核通过'),
+        (STATUS_REFUSED, '正在失败'),
+    )
+
+    def valid(self):
+        return self.filter(status=self.STATUS_PASSED)
+
     def update_data(self, pk, field_name, amount=1):
         if amount > 0:
             value = F(field_name) + amount
@@ -32,7 +44,7 @@ class ActivityManager(ModelManager):
 
     def recommand(self):
         end_at = datetime.datetime.now()
-        return self.filter(start_at__gte=end_at, is_recommand=True)
+        return self.valid().filter(start_at__gte=end_at, is_recommand=True)
 
 
 class Activity(models.Model):
@@ -97,6 +109,9 @@ class Activity(models.Model):
                                       null=True, blank=True,
                                       verbose_name='空投')
     is_recommand = models.BooleanField(default=False, blank=True, verbose_name='推荐')
+    status = models.PositiveSmallIntegerField(choices=ActivityManager.STATUS_CHOICE,
+                                              default=ActivityManager.STATUS_CREATED,
+                                              verbose_name='审核状态')
 
     objects = ActivityManager()
 

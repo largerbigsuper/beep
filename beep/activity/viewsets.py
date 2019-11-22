@@ -22,7 +22,7 @@ from .tasks import send_rewardplan_start
 class ActivityViewSet(viewsets.ModelViewSet):
 
 
-    queryset = mm_Activity.all().select_related('user')
+    queryset = mm_Activity.valid().select_related('user')
     filter_class = ActivityFilter
     pagination_class = Size_12_Pagination
 

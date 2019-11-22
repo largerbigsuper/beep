@@ -2,12 +2,12 @@ from django.contrib import admin
 
 from .models import Activity, Registration, RewardPlan, RewardPlanApply
 
+@admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ['user', 'title', 'cover', 'activity_type', 'start_at', 'end_at']
+    list_display = ['user', 'title', 'cover', 'activity_type', 'start_at', 'end_at', 'is_recommand', 'status']
     search_fields = ['title']
-    list_filter = ['activity_type']
+    list_filter = ['activity_type', 'status', 'is_recommand']
 
-admin.site.register(Activity, ActivityAdmin)
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
