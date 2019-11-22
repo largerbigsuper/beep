@@ -1,6 +1,7 @@
 import os
 import datetime
 import uuid
+import logging
 
 from django.core.files.storage import Storage
 from django.conf import settings
@@ -16,6 +17,7 @@ class QiniuService:
     qiniuAuth = Auth(access_key, secret_key)
     bucket_name_dict = settings.QINIU_BUCKET_NAME_DICT
     bucket_domain_dict = settings.QINIU_BUCKET_DOMAIN_DICT
+    logger = logging.getLogger('qiniu')
 
     @classmethod
     def get_bucket_name(cls, file_type):
@@ -74,13 +76,10 @@ class QiniuService:
             base_url = '%s%s' % (QiniuService.bucket_domain_dict['image'], ret.get("key"))
             # 表示上传成功, 返回文件名
             return base_url
-            # file_type = base_url.split('.')[-1]
-            # if file_type in ['mp4']:
-            #     return base_url
-            # else: 
-            #     return base_url + beep_logo_cover
+
         else:
             # 上传失败
+            cls.logger.error('{} upload failed: {}, {}'.format(save_name, info, ret))
             raise Exception("上传七牛失败")
 
 
