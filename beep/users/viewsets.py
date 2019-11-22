@@ -24,6 +24,7 @@ from .serializers import (UserSerializer,
                           MyFollowingSerializer,
                           MyFollowersSerializer,
                           LabelApplySerializer,
+                          AccountCheckSerializer
                           )
 from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
@@ -266,6 +267,18 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         }
         return Response(data=data)
 
+    @action(detail=False, methods=['post'], serializer_class=AccountCheckSerializer)
+    def account_check(self, request):
+        """校验用户账号
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        account = serializer.validated_data['account'].strip()
+        existed = mm_User.filter(account=account).exists()
+        data = {
+            'can_enroll': not existed
+        }
+        return Response(data=data)
 
 
 

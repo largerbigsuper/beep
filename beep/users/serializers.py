@@ -49,6 +49,10 @@ class NoneSerializer(serializers.Serializer):
     pass
 
 
+class AccountCheckSerializer(serializers.Serializer):
+
+    account = serializers.CharField()
+
 class RegisterSerializer(serializers.Serializer):
 
     account = serializers.CharField()
