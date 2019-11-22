@@ -241,7 +241,7 @@ class Template_V2:
         post_image = self.add_bg(post_image)
 
         post_image = post_image.convert('RGB')
-        post_image.show()
+        # post_image.show()
         post_image.save(self.save_path)
 
 

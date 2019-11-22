@@ -179,7 +179,7 @@ class Template_V1:
             box = (0, current_height)
             post_image.paste(im, box=box)
             current_height += im.height
-        post_image.show()
+        # post_image.show()
         post_image.save(self.save_path)
 
 
