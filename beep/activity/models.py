@@ -397,6 +397,12 @@ class Schedule(models.Model):
 
 
 class WxFormManager(ModelManager):
+
+    def valid(self):
+        create_at = datetime.datetime.now() - timedelta(days=7)
+        qs = self.filter(create_at__gt=create_at, published=False)
+        return qs
+
     
     def add_form(self, user_id, activity_id, wxform_id):
         """添加记录
@@ -411,9 +417,10 @@ class WxFormManager(ModelManager):
 class WxForm(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, verbose_name='用户')
-    activity = models.ForeignKey(Activity, on_delete=models.SET_NULL, null=True, verbose_name='活动')
+    activity = models.ForeignKey(Activity, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='活动')
     wxform_id = models.CharField(max_length=32, verbose_name='wxform_id')
-    published = models.BooleanField(default=False, verbose_name='已推送')
+    published = models.BooleanField(default=False, blank=True, verbose_name='已推送')
+    create_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='创建时间')
 
     objects = WxFormManager()
 

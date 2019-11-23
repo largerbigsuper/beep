@@ -38,8 +38,6 @@ class ActivityViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'put']:
             return ActivityCreateSerializer
-        elif self.action in ['add_wxform']:
-            return WxFormSerializer
         elif self.action in ['remove_registration', 'remove_collect', 'delete']:
             return NoneParamsSerializer
         else:
@@ -136,22 +134,6 @@ class ActivityViewSet(viewsets.ModelViewSet):
         serializer = ActivityListSerializer(queryset, many=True, context={'request': request})
         return Response(data=serializer.data)
 
-    @action(detail=True, methods=['post'])
-    def add_wxform(self, request, pk=None):
-        """上报微信form_id
-        """
-        obj = self.get_object()
-        serializer = WxFormSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        wxform_id = serializer.validated_data['wxform_id']
-        form = mm_WxForm.add_form(user_id=request.user.id, activity_id=obj.id, wxform_id=wxform_id)
-        data = {
-            'id': form.id,
-            'wxform_id': form.wxform_id,
-            'published': form.published
-        }
-        return Response(data=data)
-        
 
 class RegistrationViewSet(mixins.ListModelMixin,
                           mixins.CreateModelMixin,
@@ -302,6 +284,20 @@ class ScheduleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return mm_Schedule.filter(user=self.request.user)
+
+    def perform_create(self, serailizer):
+        serailizer.save(user=self.request.user)
+
+
+class WxFormViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    """用户行程表
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = WxFormSerializer
+
+    def get_queryset(self):
+        return mm_WxForm.valid().filter(user=self.request.user)
 
     def perform_create(self, serailizer):
         serailizer.save(user=self.request.user)
