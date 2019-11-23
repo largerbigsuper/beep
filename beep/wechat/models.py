@@ -77,6 +77,24 @@ class WxSubMessageManager(ModelManager):
         (STATUS_SEND, '已发送'),
     )
 
+    news_dict = {
+        'name': '资讯更新提醒',
+        'code': '7r6MUUipAu9ZIdNIYeP2NoWCeYX0ksjOAvtMTmrFH9U',
+        'vars_list': ['thing2', 'thing3', 'date4', 'thing5']
+    }
+
+    activity_dict = {
+        'name': '活动开始提醒',
+        'code': 'eCbhJnmIktj4OsnBZkJdaYeSdpC3ZuwI5vOdl70io50',
+        'vars_list': ['thing1', 'date2']
+    }
+    
+    def send(self, pk):
+        """发送活动开始通知
+        """
+        from .tasks import send_activity_start_notice
+        send_activity_start_notice.delay(pk)
+
 
 class WxSubMessage(models.Model):
 
@@ -87,14 +105,14 @@ class WxSubMessage(models.Model):
                                  on_delete=models.SET_NULL,
                                  null=True, blank=True,
                                  verbose_name='活动')
-    news = models.ForeignKey('news.News',
-                             on_delete=models.SET_NULL,
-                             null=True, blank=True,
-                             verbose_name='快讯')
+    # news = models.ForeignKey('news.News',
+    #                          on_delete=models.SET_NULL,
+    #                          null=True, blank=True,
+    #                          verbose_name='快讯')
     status = models.PositiveSmallIntegerField(choices=WxSubMessageManager.STATUS_CHOICE,
                                               default=WxSubMessageManager.STATUS_DEFAULT,
                                               verbose_name='已发送')
-    data = JSONField(default='{}', blank=True, verbose_name='post.body')
+    # data = JSONField(default='{}', blank=True, verbose_name='post.body')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     objects = WxSubMessageManager()
