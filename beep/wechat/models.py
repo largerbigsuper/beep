@@ -31,6 +31,9 @@ class WxTemplate(models.Model):
         ordering = ['-id']
         verbose_name = verbose_name_plural = '订阅消息模板'
 
+    def __str__(self):
+        return self.name
+
 
 mm_WxTemplate = WxTemplate.objects
 
