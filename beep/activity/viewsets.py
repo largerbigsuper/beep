@@ -9,15 +9,18 @@ from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           RegistrationCreateSerializer, RegistrationListSerializer,
                           CollectCreateSerializer, CollectListSerializer, MyCollectListSerializer,
                           RewardPlanApplyCreateSerializer, RewardPlanApplySerializer, RewardPlanApplyListSerializer,
-                          RewardPlanSerializer, RewardPlanCreateSerializer, ScheduleSerializer
+                          RewardPlanSerializer, RewardPlanCreateSerializer, ScheduleSerializer,
+                          WxFormSerializer,
                           )
-from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply, mm_Schedule
+from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply, mm_Schedule, mm_WxForm
 from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter, RegistrationFilter, ScheduleFilter
+from .tasks import send_rewardplan_start
+
 from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission
 from utils.pagination import Size_200_Pagination, Size_12_Pagination
 from utils.wexin_api import WeiXinOpenApi
-from .tasks import send_rewardplan_start
+from utils.serializers import NoneParamsSerializer
 
 class ActivityViewSet(viewsets.ModelViewSet):
 
@@ -33,10 +36,14 @@ class ActivityViewSet(viewsets.ModelViewSet):
             return []
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return ActivityListSerializer
-        else:
+        if self.action in ['create', 'put']:
             return ActivityCreateSerializer
+        elif self.action in ['add_wxform']:
+            return WxFormSerializer
+        elif self.action in ['remove_registration', 'remove_collect', 'delete']:
+            return NoneParamsSerializer
+        else:
+            return ActivityListSerializer            
 
     def perform_create(self, serializer):
         with transaction.atomic():
@@ -129,6 +136,22 @@ class ActivityViewSet(viewsets.ModelViewSet):
         serializer = ActivityListSerializer(queryset, many=True, context={'request': request})
         return Response(data=serializer.data)
 
+    @action(detail=True, methods=['post'])
+    def add_wxform(self, request, pk=None):
+        """上报微信form_id
+        """
+        obj = self.get_object()
+        serializer = WxFormSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        wxform_id = serializer.validated_data['wxform_id']
+        form = mm_WxForm.add_form(user_id=request.user.id, activity_id=obj.id, wxform_id=wxform_id)
+        data = {
+            'id': form.id,
+            'wxform_id': form.wxform_id,
+            'published': form.published
+        }
+        return Response(data=data)
+        
 
 class RegistrationViewSet(mixins.ListModelMixin,
                           mixins.CreateModelMixin,

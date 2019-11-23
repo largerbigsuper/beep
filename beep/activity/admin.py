@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Activity, Registration, RewardPlan, RewardPlanApply
+from .models import Activity, Registration, RewardPlan, RewardPlanApply, WxForm
 
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
@@ -26,3 +26,9 @@ class RewardPlanAdmin(admin.ModelAdmin):
 class RewardPlanApplyAdmin(admin.ModelAdmin):
     search_fields = ['user__name', 'activity__title']
     list_filter = ['activity', 'rewardplan', 'is_selected']
+
+
+@admin.register(WxForm)
+class WxFormAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'activity', 'wxform_id', 'published']
+    list_filter = ['published']

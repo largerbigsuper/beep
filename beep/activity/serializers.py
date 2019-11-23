@@ -190,3 +190,9 @@ class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
         fields = ['id', 'plan_datetime', 'content', 'create_at', 'activity']
+
+
+class WxFormSerializer(serializers.Serializer):
+
+    wxform_id = serializers.CharField(max_length=32)
+    
