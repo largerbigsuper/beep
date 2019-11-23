@@ -53,13 +53,25 @@ class MyUserAdmin(UserAdmin):
     form = MyUserChangeForm
     add_form = UserCreationForm
 
-    parent_fields = {f.name for f in models.User._meta.fields}
-    extra_fields = {f.name for f in User._meta.fields} - {f.name for f in models.User._meta.fields}
-    extra_fields.remove('create_at')
-    extra_fields.remove('update_at')
-    
-    fieldsets = UserAdmin.fieldsets + (
-            (None, {'fields': tuple(extra_fields)}),
+    # parent_fields = {f.name for f in models.User._meta.fields}
+    # extra_fields = {f.name for f in User._meta.fields} - {f.name for f in models.User._meta.fields}
+    # extra_fields.remove('create_at')
+    # extra_fields.remove('update_at')
+    # 
+    # fieldsets = UserAdmin.fieldsets + (
+    #         (None, {'fields': tuple(extra_fields)}),
+    # )
+
+    user_info = ('name', 'mini_openid', 'age', 'gender', 'desc', 'email')
+    data_info = ('total_blog', 'total_following', 'total_followers', 'label_type')
+    user_info_tuple = user_info + data_info 
+    fieldsets = (
+        (None, {'fields': ('account', 'password')}),
+        (_('Personal info'), {'fields': user_info_tuple}),
+        (_('Permissions'), {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+        }),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
 
     list_display = ['id', 'name', 'account', 'gender', 'avatar_url', 'label_type']
