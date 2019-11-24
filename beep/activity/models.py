@@ -238,7 +238,7 @@ class RewardPlan(models.Model):
     """
     desc = models.CharField(max_length=500, blank=True, verbose_name='描述')
     coin_name = models.CharField(max_length=100, verbose_name='代币名称')
-    coin_logo = models.ImageField(verbose_name='代币logo')
+    coin_logo = models.ImageField(default='', blank=True, verbose_name='代币logo')
     total_coin = models.IntegerField(default=0, verbose_name='代币数量')
     total_luckyuser = models.IntegerField(default=0, verbose_name='中奖人数')
     start_time = models.DateTimeField(verbose_name='开奖时间')
