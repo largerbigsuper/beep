@@ -94,10 +94,10 @@ class WeiXinSubscribeMessageApi(object):
         if rep.status_code == 200:
             print(rep.json())
 
-    def send(self, touser, template_id, page, params_data):
+    def send(self, touser, template_id, page, params_data, refresh=False):
         """推送订阅消息
         """
-        token = WeiXinOpenApi().get_token()
+        token = WeiXinOpenApi().get_token(refresh)
         url = self.URL_SEND.format(token)
         headers = {
             'Content-type': 'application/json',
@@ -112,8 +112,12 @@ class WeiXinSubscribeMessageApi(object):
         rep = requests.post(url, data=data_json, headers=headers, verify=False)
         if rep.status_code == 200:
             ret = rep.json()
-            if ret['errcode'] != 0:
+            errcode = ret['errcode']
+            if errcode == 40001:
+                return self.send(touser, template_id, page, params_data, refresh=True)
+            if errcode != 0:
                 self.logger.error(ret)
+            
 
 
 class WeiXinData(object):

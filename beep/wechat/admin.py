@@ -24,8 +24,9 @@ make_published.short_description = '发布'
 @admin.register(WxSubMessage)
 class WxSubMessageAdmin(admin.ModelAdmin):
 
-    list_display = ['id', 'wx_template', 'activity', 'status', 'create_at']
+    list_display = ['id', 'wx_template', 'activity', 'hotsearch', 'title', 'warn_msg', 'status', 'create_at']
     list_filter = ['wx_template']
-    search_fields = ['activity__title']
+    search_fields = ['title', 'activity__title', 'hotsearch__keyword']
+    autocomplete_fields = ['activity', 'hotsearch']
 
     actions = [make_published]

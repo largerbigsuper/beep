@@ -152,7 +152,9 @@ class HotSearch(models.Model):
         ]
         ordering = ['-is_top', '-task_id', '-update_at', '-frequency']
         verbose_name = verbose_name_plural = '热搜榜'
-
+    
+    def __str__(self):
+        return self.keyword
 
 mm_SearchTask = SearchTask.objects
 mm_SearchHistory = SearchHistory.objects

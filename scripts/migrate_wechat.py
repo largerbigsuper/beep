@@ -1,5 +1,7 @@
-from beep.wechat.models import mm_WxTemplate
 import time
+import json
+
+from beep.wechat.models import mm_WxTemplate
 
 
 def timeit(method):
@@ -24,25 +26,32 @@ def init_wechat_template():
     """统计话题博文总量
     """
 
-    p1 = {
+    news_dict = {
         'name': '资讯更新提醒',
-        'code': '7r6MUUipAu9ZIdNIYeP2NoWCeYX0ksjOAvtMTmrFH9U',
-        'vars_list': ['thing2', 'thing3', 'date4', 'thing5']
+        'code': '7r6MUUipAu9ZIdNIYeP2NuOJNQZVmML344JeldvPmvI',
+        'tpl_id': 2142,
+        'vars_list': {
+            '新闻标题': 'thing2',
+            '更新时间': 'date4',
+            '温馨提示': 'thing5'
+        }
     }
 
-    p2 = {
+    activity_dict = {
         'name': '活动开始提醒',
         'code': 'eCbhJnmIktj4OsnBZkJdaYeSdpC3ZuwI5vOdl70io50',
-        'vars_list': ['thing1', 'date2']
+        'tpl_id': 731,
+        'vars_list': {
+            '活动名称': 'thing1',
+            '活动时间': 'date2'
+        }
     }
-    prams_list = [p1, p2]
+    
+    prams_list = [news_dict, activity_dict]
     obj_list = []
     for p in prams_list:
-        obj = mm_WxTemplate.model(**p)
-        obj_list.append(obj)
-
-    mm_WxTemplate.bulk_create(obj_list)
-
+        code = p.pop('code')
+        obj, created = mm_WxTemplate.update_or_create(code=code, defaults=p)
 
 @timeit
 def run():

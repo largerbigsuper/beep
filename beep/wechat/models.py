@@ -10,7 +10,6 @@ class WxTemplateManager(ModelManager):
     
     WxFields_CN = {
         '新闻标题': 'thing2',
-        '新闻摘要': 'thing3',
         '更新时间': 'date4',
         '温馨提示': 'thing5',
         '活动名称': 'thing1',
@@ -22,7 +21,8 @@ class WxTemplate(models.Model):
 
     name = models.CharField(max_length=100, verbose_name='模板名')
     code = models.CharField(max_length=64, verbose_name='模板id')
-    vars_list = JSONField(default='[]', blank=True, verbose_name='变量名列表')
+    tpl_id = models.PositiveIntegerField(default=0, verbose_name='模板编号')
+    vars_list = JSONField(default='{}', blank=True, verbose_name='变量名列表')
 
     objects = WxTemplateManager()
 
@@ -77,16 +77,25 @@ class WxSubMessageManager(ModelManager):
         (STATUS_SEND, '已发送'),
     )
 
-    news_dict = {
+    hotsearch_dict = {
         'name': '资讯更新提醒',
-        'code': '7r6MUUipAu9ZIdNIYeP2NoWCeYX0ksjOAvtMTmrFH9U',
-        'vars_list': ['thing2', 'thing3', 'date4', 'thing5']
+        'code': '7r6MUUipAu9ZIdNIYeP2NuOJNQZVmML344JeldvPmvI',
+        'tpl_id': 2142,
+        'vars_list': {
+            '新闻标题': 'thing2',
+            '更新时间': 'date4',
+            '温馨提示': 'thing5'
+        }
     }
 
     activity_dict = {
         'name': '活动开始提醒',
         'code': 'eCbhJnmIktj4OsnBZkJdaYeSdpC3ZuwI5vOdl70io50',
-        'vars_list': ['thing1', 'date2']
+        'tpl_id': 731,
+        'vars_list': {
+            '活动名称': 'thing1',
+            '活动时间': 'date2'
+        }
     }
     
     def send(self, pk):
@@ -104,15 +113,18 @@ class WxSubMessage(models.Model):
     activity = models.ForeignKey('activity.Activity',
                                  on_delete=models.SET_NULL,
                                  null=True, blank=True,
+                                 db_constraint=False,
                                  verbose_name='活动')
-    # news = models.ForeignKey('news.News',
-    #                          on_delete=models.SET_NULL,
-    #                          null=True, blank=True,
-    #                          verbose_name='快讯')
+    hotsearch = models.ForeignKey('search.HotSearch',
+                             on_delete=models.SET_NULL,
+                             null=True, blank=True,
+                             db_constraint=False,
+                             verbose_name='热搜')
+    title = models.CharField(max_length=20, default='', blank=True, verbose_name='热搜标题')
+    warn_msg = models.CharField(max_length=20, default='Beep币扑不作为投资理财建议～', blank=True, verbose_name='温馨提示')
     status = models.PositiveSmallIntegerField(choices=WxSubMessageManager.STATUS_CHOICE,
                                               default=WxSubMessageManager.STATUS_DEFAULT,
                                               verbose_name='已发送')
-    # data = JSONField(default='{}', blank=True, verbose_name='post.body')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     objects = WxSubMessageManager()
