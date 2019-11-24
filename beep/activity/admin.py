@@ -7,6 +7,7 @@ class ActivityAdmin(admin.ModelAdmin):
     list_display = ['user', 'title', 'cover', 'activity_type', 'start_at', 'end_at', 'is_recommand', 'status']
     search_fields = ['title']
     list_filter = ['activity_type', 'status', 'is_recommand']
+    ordering = ['-create_at']
 
 
 @admin.register(Registration)
