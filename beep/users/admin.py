@@ -52,6 +52,7 @@ class UserCreationForm(forms.ModelForm):
 class MyUserAdmin(UserAdmin):
     form = MyUserChangeForm
     add_form = UserCreationForm
+    ordering = ('-id', )
 
     # parent_fields = {f.name for f in models.User._meta.fields}
     # extra_fields = {f.name for f in User._meta.fields} - {f.name for f in models.User._meta.fields}
