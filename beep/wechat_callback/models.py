@@ -257,8 +257,8 @@ class WxMessage(models.Model):
 
     msg_id = models.CharField(max_length=200, verbose_name='msg_id')
     msg_timestamp = models.BigIntegerField(default=0, verbose_name='时间戳(毫秒)')
-    msg_type = models.CharField(max_length=200, blank=True, null=True, verbose_name='类型')
-    room_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='群wxid')
+    msg_type = models.CharField(max_length=200, blank=True, null=True, db_index=True, verbose_name='类型') # 10000 普通聊天消息， 10001 提问消息
+    room_wxid = models.CharField(max_length=200, blank=True, null=True, db_index=True, verbose_name='群wxid')
     wxid_from = models.CharField(max_length=200, blank=True, null=True, verbose_name='发送人')
     wxid_to = models.CharField(max_length=200, blank=True, null=True, verbose_name='接收人')
     atUserList = JSONField(default='[]', blank=True, verbose_name='@用户列表')
@@ -276,9 +276,9 @@ class WxMessage(models.Model):
     link_url = models.CharField(max_length=500, blank=True, null=True, verbose_name='链接')
     link_img_url = models.CharField(max_length=500, blank=True, null=True, verbose_name='链接所列图地址')
     sub_type = models.IntegerField(default=0, blank=True, verbose_name='/链接消息的子类型')
-    bot_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='bot_wxid')
-    user_id = models.IntegerField(default=0, blank=True, verbose_name='平台用户user_id')
-    user_type = models.IntegerField(default=0, blank=True, verbose_name='用户类型：0:微信用户， 1:平台用户, 2:系统消息')
+    bot_wxid = models.CharField(max_length=200, blank=True, null=True, db_index=True, verbose_name='bot_wxid')
+    user_id = models.IntegerField(default=0, blank=True, db_index=True, verbose_name='平台用户user_id')
+    user_type = models.IntegerField(default=0, blank=True, db_index=True, verbose_name='用户类型：0:微信用户， 1:平台用户, 2:系统消息')
     create_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='创建时间')
 
     objects = WxMessageManager()

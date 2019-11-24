@@ -83,4 +83,9 @@
 - [ ] 快讯支持设置是否自动同步
 - [ ] celery worker 计算热搜会失效
 - [x] 博文列表返回create_at
-- [ ] useradmin 屏蔽username
+- [x] useradmin 屏蔽username
+
+
+# 2019-11-24
+
+- [x] wehub消息增加类型区分微信/平台消息/提问消息/

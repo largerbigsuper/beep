@@ -9,13 +9,15 @@ from .models import mm_WxUser, mm_WxMessage
 
 """消息格式
 msg_type
-1: 弹幕
-2：微信消息
+admin: 系统消息
+user：普通消息
+wechat：微信消息
 
 {
-    "msg_type": "聊天消息| 弹幕",
+    "msg_type": "",
     "msg_dict": {
-
+        "msg": "消息text",
+        "msg_type": 0 # 0：普通消息 1:提问
     },
     "user": { 
         "id": "",
@@ -75,19 +77,8 @@ class LiveConsumer(AsyncWebsocketConsumer):
             'msg_dict': message,
             'user': user
         }
+
         room_wxid = self.room_name + '@chatroom'
-        wxmessage_dict = {
-            'user_type': user['user_type'],
-            'user_id': user['id'],
-            'msg': message['msg'],
-            'raw_msg': message,
-            'room_wxid': room_wxid,
-            'wxid_from': str(self.user.id),
-            'wxid_to': room_wxid,
-            'msg_timestamp': int(round(time.time() * 1000))
-        }
-        # 记录
-        await  database_sync_to_async(mm_WxMessage.create)(**wxmessage_dict)
         # 群发
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -96,8 +87,12 @@ class LiveConsumer(AsyncWebsocketConsumer):
                 'message': user_message
             }
         )
+        
         # 提问需要推送到wehub
-        if message.get('msg_type', 0) != 0:
+        # 普通聊天为 0
+        # 提问消息类型为 1
+        user_msg_type = message.get('msg_type', 0)
+        if user_msg_type == 1:
             await self.channel_layer.group_send(
                 'wehub',
                 {
@@ -106,6 +101,25 @@ class LiveConsumer(AsyncWebsocketConsumer):
                     'room_wxid': room_wxid
                 }
             )
+
+        # 记录
+        # '10000' 普通聊天消息， '10001' 提问消息
+        saved_msg_type = '10000'
+        if user_msg_type == 1:
+            saved_msg_type = '10001'
+        wxmessage_dict = {
+            'user_type': user['user_type'],
+            'user_id': user['id'],
+            'msg': message['msg'],
+            'raw_msg': message,
+            'room_wxid': room_wxid,
+            'wxid_from': str(self.user.id),
+            'wxid_to': room_wxid,
+            'msg_timestamp': int(round(time.time() * 1000)),
+            'msg_type': saved_msg_type
+        }
+
+        await  database_sync_to_async(mm_WxMessage.create)(**wxmessage_dict)
 
     # Receive message from room group
     async def chat_message(self, event):
