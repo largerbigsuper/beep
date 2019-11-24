@@ -16,7 +16,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = 'wehub'
         self.room_group_name = self.room_name
-
+        self.logger.info('WebSocket CONNECT {} {}'.format(self.scope['path'], self.scope['client']))
         # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -30,11 +30,12 @@ class WehubConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
+        self.logger.info('WebSocket DISCONNECT {} {}'.format(self.scope['path'], self.scope['client']))
 
     # Receive message from WebSocket
     async def receive(self, text_data):
         message = text_data
-        self.logger.info('raw data: {}'.format(message))
+        # self.logger.info('raw data: {}'.format(message))
         try:
             if message:
                 request_dict = json.loads(str(message), strict=False)
