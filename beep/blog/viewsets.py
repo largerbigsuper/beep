@@ -1,3 +1,4 @@
+import datetime
 from collections import defaultdict, OrderedDict
 
 from django.db import transaction
@@ -122,7 +123,10 @@ class BlogViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = mm_user_Blog.all().order_by('-is_top', '-id')
-        if self.action in ['index']:
+        if self.action == 'index':
+            create_at_after = datetime.datetime.today() - datetime.timedelta(days=2)
+            queryset = queryset.filter(create_at__gt=create_at_after)
+        if self.action in ['index', 'search']:
             # FIXME 
             # 搜索关联话题表
             # 后台修改博文关联的话题，但不修改话题内容导致搜索入口有搜索相关话题时，可能导致改博文不能被检索到
@@ -174,7 +178,7 @@ class BlogViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=False)
-    def index(self, request):
+    def search(self, request):
         """返回增加搜素用户
         """
         q = request.query_params.get('q', '')
@@ -210,7 +214,12 @@ class BlogViewSet(viewsets.ModelViewSet):
             ('users', user_data),
         ]))
 
+    @action(detail=False, methods=['get'])
+    def index(self, request):
+        """我的博文列表
+        """
 
+        return self.search(request)
 
     @action(detail=False, methods=['get'])
     def mine(self, request):
