@@ -119,11 +119,14 @@ class ActivityViewSet(viewsets.ModelViewSet):
         """获取空投详情
         """
         activity = self.get_object()
-        applys_qs = mm_RewardPlanApply.filter(activity=activity)
-        applyer_serializer = RewardPlanApplyListSerializer(applys_qs, many=True)
-        rewardplan_serizlizer = RewardPlanSerializer(activity.rewardplan, context={'request': request})
-        data = rewardplan_serizlizer.data
-        data['applyers'] = applyer_serializer.data
+        if activity.rewardplan:
+            applys_qs = mm_RewardPlanApply.filter(pk=activity.rewardplan.id)
+            applyer_serializer = RewardPlanApplyListSerializer(applys_qs, many=True)
+            rewardplan_serizlizer = RewardPlanSerializer(activity.rewardplan, context={'request': request})
+            data = rewardplan_serizlizer.data
+            data['applyers'] = applyer_serializer.data
+        else:
+            data = {}
         return Response(data=data)
 
     @action(detail=False, methods=['get'])
