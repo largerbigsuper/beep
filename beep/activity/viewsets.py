@@ -111,7 +111,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         activity = self.get_object()
         data = []
         if activity.rewardplan:
-            data = activity.rewardplan.get_rewardplan_result
+            data = activity.rewardplan.result
         return Response(data=data)
 
     @action(detail=True, methods=['get'])
