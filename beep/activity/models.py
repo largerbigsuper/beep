@@ -277,7 +277,7 @@ class RewardPlan(models.Model):
         if self.total_luckyuser >= len(applys):
             selected_apply = applys
         else:
-            selected_apply = choices(self.total_luckyuser, applys)
+            selected_apply = choices(applys, k=self.total_luckyuser)
         result = []
         selected_pks = []
         for apply in selected_apply:
