@@ -45,7 +45,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
         self.user = self.scope["user"]
         # await login(self.scope, user)
         # await database_sync_to_async(self.scope["session"].save)()
-        self.logger.info('WebSocket CONNECT {} {} {}'.format(self.scope["user"], self.scope['path'], self.scope['client']))
+        self.logger.info('+ WebSocket CONNECT {} {} {}'.format(self.scope["user"], self.scope['path'], self.scope['client']))
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -54,7 +54,7 @@ class LiveConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-        self.logger.info('WebSocket CONNECT {} {} {}'.format(self.scope["user"], self.scope['path'], self.scope['client']))
+        self.logger.info('- WebSocket DISCONNECT {} {} {}'.format(self.scope["user"], self.scope['path'], self.scope['client']))
 
     # Receive message from WebSocket
     async def receive(self, text_data):
