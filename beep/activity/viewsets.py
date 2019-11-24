@@ -120,7 +120,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         """
         activity = self.get_object()
         if activity.rewardplan:
-            applys_qs = mm_RewardPlanApply.filter(pk=activity.rewardplan.id)
+            applys_qs = mm_RewardPlanApply.filter(rewardplan=activity.rewardplan)
             applyer_serializer = RewardPlanApplyListSerializer(applys_qs, many=True)
             rewardplan_serizlizer = RewardPlanSerializer(activity.rewardplan, context={'request': request})
             data = rewardplan_serizlizer.data
