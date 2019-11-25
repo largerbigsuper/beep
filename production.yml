@@ -69,7 +69,7 @@ services:
       context: .
       dockerfile: ./compose/dev/django/Dockerfile
     image: beep_dev_django
-    command: flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True 
+    command: flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True --basic_auth=admin:88888 --log-file-prefix=logs/flower.log
     ports:
       - 5555:5555
     volumes:
