@@ -6,4 +6,4 @@ set -o nounset
 
 # celery -A config multi restart 4 --pidfile=logs/celery%n.pid -l info --logfile=logs/%n%I.log
 # flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True --pidfile=logs/celery%n.pid -l info --logfile=logs/%n%I.log
-flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True --loglevel=INFO
+celery -A config worker --loglevel=INFO --logfile=logs/%n%I.log

@@ -1,4 +1,4 @@
-version: '2'
+version: '2.2'
 
 volumes:
   dev_mysql_data: {}
@@ -53,6 +53,7 @@ services:
     depends_on:
       - redis
       - django
+    scale: 2
 
   celery_beat:
     build:
