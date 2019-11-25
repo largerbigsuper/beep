@@ -68,13 +68,11 @@ services:
       - django
       - celery
 
-  flower:
+  celery_flower:
     build:
       context: .
       dockerfile: ./compose/dev/django/Dockerfile
     image: beep_dev_django
-    # command: celery flower -A config --address=0.0.0.0 --port=5555 --auto_refresh=True --logging=info --log-file-prefix=logs/flower.log
-    # command: celery flower --help
     command: flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True 
     ports:
       - 5555:5555

@@ -38,7 +38,7 @@ services:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
     image: beep_production_django
-    command: celery -A config worker -l info -f logs/celery.log
+    command: celery -A config worker --concurrency=2 -l info -f logs/celery.log
     volumes:
       - .:/app
     env_file:
@@ -54,6 +54,24 @@ services:
       dockerfile: ./compose/production/django/Dockerfile
     image: beep_production_django
     command: celery -A config beat -l info -f logs/celery_beat.log
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.mysql
+    depends_on:
+      - redis
+      - django
+      - celery
+
+  celery_flower:
+    build:
+      context: .
+      dockerfile: ./compose/dev/django/Dockerfile
+    image: beep_dev_django
+    command: flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True 
+    ports:
+      - 5555:5555
     volumes:
       - .:/app
     env_file:
