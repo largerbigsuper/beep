@@ -37,12 +37,14 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
 
-  celery:
+  celery_worker:
     build:
       context: .
       dockerfile: ./compose/dev/django/Dockerfile
     image: beep_dev_django
-    command: celery -A config worker --concurrency=2 -l info -f logs/celery.log
+    # command: celery -A config worker --concurrency=2 -l info -f logs/celery.log
+    # command: celery -A config multi restart 4 --pidfile=logs/celery%n.pid -l info --logfile=logs/%n%I.log
+    command: ["/app/compose/production/django/celery/woker/start"]
     volumes:
       - .:/app
     env_file:
@@ -57,7 +59,8 @@ services:
       context: .
       dockerfile: ./compose/dev/django/Dockerfile
     image: beep_dev_django
-    command: celery -A config beat -l info -f logs/celery_beat.log
+    # command: celery -A config beat -l info -f logs/celery_beat.log
+    command: ["/app/compose/production/django/celery/beat/start"]
     volumes:
       - .:/app
     env_file:
@@ -66,14 +69,15 @@ services:
     depends_on:
       - redis
       - django
-      - celery
+      - celery_worker
 
   celery_flower:
     build:
       context: .
       dockerfile: ./compose/dev/django/Dockerfile
     image: beep_dev_django
-    command: flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True 
+    # command: flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True 
+    command: ["/app/compose/production/django/celery/flower/start"]
     ports:
       - 5555:5555
     volumes:
@@ -84,4 +88,4 @@ services:
     depends_on:
       - redis
       - django
-      - celery
+      - celery_worker
