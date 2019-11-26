@@ -2,6 +2,9 @@ import base64
 import json
 from Crypto.Cipher import AES
 
+import logging
+logger = logging.getLogger('api_weixin')
+
 class WXBizDataCrypt:
     def __init__(self, appId, sessionKey):
         self.appId = appId
@@ -16,7 +19,7 @@ class WXBizDataCrypt:
         cipher = AES.new(sessionKey, AES.MODE_CBC, iv)
 
         decrypted = json.loads(self._unpad(cipher.decrypt(encryptedData)))
-
+        logger.info('decrypted: {}'.format(decrypted))
         if decrypted['watermark']['appid'] != self.appId:
             raise Exception('Invalid Buffer')
 

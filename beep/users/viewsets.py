@@ -78,7 +78,10 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         name = serializer.validated_data['name']
         encryptedData = serializer.validated_data['encryptedData']
         iv = serializer.validated_data['iv']
-
+        logger.info('code: {}'.format(code))
+        logger.info('encryptedData: {}'.format(encryptedData))
+        logger.info('iv: {}'.format(iv))
+        
         wx_res = requests.get(settings.MINI_PRAGRAM_LOGIN_URL + code)
         ret_json = wx_res.json()
         logger.info('code: {}, name: {}'.format(code, name))
