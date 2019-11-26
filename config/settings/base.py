@@ -285,8 +285,11 @@ DEFAULT_FILE_STORAGE = 'utils.qiniucloud.StorageObject'
 
 # ALL SETTINGS MAST BE UPPERCASE
 
-MINI_PROGRAM_APP_ID = 'wx1743dc274cf46871'
-MINI_PROGRAM_APP_SECRET = '648a7ae2cbf66aa7e48992d76f46e621'
+# MINI_PROGRAM_APP_ID = 'wx1743dc274cf46871'
+# MINI_PROGRAM_APP_SECRET = '648a7ae2cbf66aa7e48992d76f46e621'
+
+MINI_PROGRAM_APP_ID = 'wx300f2f1d32b30613'
+MINI_PROGRAM_APP_SECRET = '2d6b9fef49827381af8dd26b4b66f5e5'
 MINI_PROGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=userization_code&js_code='.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
 MINI_PROGRAM_ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={}&secret={}'.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
 
