@@ -4,4 +4,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-celery -A config beat -l info -f logs/celery_beat.log 
+# 先删除logs/celery_beat.log
+rm logs/celery_beat.log
+
+celery -A config beat -l info --logfile=logs/celery_beat.log --pidfile=logs/celery_beat.pid
