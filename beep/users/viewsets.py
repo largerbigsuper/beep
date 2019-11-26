@@ -94,7 +94,8 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         pc = WXBizDataCrypt(settings.MINI_PROGRAM_APP_ID, session_key)
         decrypt_dict = pc.decrypt(encryptedData, iv)
         logger.info('decrypt_dict : {}'.format(decrypt_dict))
-        unionid = decrypt_dict['unionId']
+        # unionid不一定存在
+        unionid = decrypt_dict.get('unionId')
         # openid = decrypt_dict['openId']
         # avatarUrl = decrypt_dict['avatarUrl']
         # nickName = decrypt_dict['nickName']
