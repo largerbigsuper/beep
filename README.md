@@ -19,7 +19,6 @@ docker-compose -f dev.yml run --rm  django python manage.py runscript init_area
 ```shell
 django-admin startapp --template ../templates/app_template appname
 
-
 ```
 
 **管理命令**
@@ -27,6 +26,24 @@ django-admin startapp --template ../templates/app_template appname
 ```
 docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 ```
+
+**启动命令**
+
+```
+docker-compose -f dev.yml build
+
+docker-compose -f dev.yml up -d
+
+docker-compose -f dev.yml stop
+```
+
+**服务缩放**
+
+```
+docker-compose -f dev.yml scale celery_worker=4 django=2
+```
+
+
 
 ## TODO LIST
 
