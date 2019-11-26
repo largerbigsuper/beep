@@ -11,7 +11,7 @@ class BlogAdmin(admin.ModelAdmin):
     list_filter = ['topic__topic_type', 'topic', 'is_top']
     list_editable = ['order_num']
     search_fields = ['title', 'content']
-    autocomplete_fields = ['topic']
+    autocomplete_fields = ['user', 'topic']
 
     def get_queryset(self, request):
         return mm_Blog.select_related('topic', 'user').all()
