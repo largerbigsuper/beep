@@ -10,4 +10,4 @@ then
     rm logs/celery_beat.log
 fi
 
-celery -A config beat -l info --logfile=logs/celery_beat.log --pidfile=logs/celery_beat.pid
+celery -A config beat -l info --logfile=logs/celery_beat.log --pidfile=
