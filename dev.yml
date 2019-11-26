@@ -1,8 +1,8 @@
-version: '2.2'
+version: "2"
 
-volumes:
-  dev_mysql_data: {}
-  dev_mysql_data_backups: {}
+# volumes:
+#   dev_mysql_data: {}
+#   dev_mysql_data_backups: {}
 
 services:
   django:
@@ -53,7 +53,9 @@ services:
     depends_on:
       - redis
       - django
-    scale: 2
+    # deploy:
+    #   mode: replicated
+    #   replicas: 2
 
   celery_beat:
     build:

@@ -1,4 +1,4 @@
-version: '2.2'
+version: '2'
 
 services:
   django:
@@ -48,7 +48,7 @@ services:
     depends_on:
       - redis
       - django
-    scale: 4
+    # scale: 4
 
   celery_beat:
     build:
