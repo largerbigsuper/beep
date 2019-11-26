@@ -50,13 +50,15 @@ class ActivityViewSet(viewsets.ModelViewSet):
             WeiXinOpenApi().check_content(serializer.validated_data)
 
             # rewardplan
-            rewardplan_dict = serializer.validated_data.pop('rewardplan')
-            coin_logo = rewardplan_dict.pop('coin_logo_url', None)
+            rewardplan_dict = serializer.validated_data.pop('rewardplan', None)
             if rewardplan_dict:
+                coin_logo = rewardplan_dict.pop('coin_logo_url', None)
                 serializer_rewardplan = RewardPlanCreateSerializer(data=rewardplan_dict)
                 serializer_rewardplan.is_valid()
                 serializer_rewardplan.validated_data['coin_logo'] = coin_logo
                 rewardplan = serializer_rewardplan.save()
+            else:
+                rewardplan = None
             cover_url = serializer.validated_data.pop('cover_url', None)
             serializer.validated_data['cover'] = cover_url
             activity = serializer.save(user=self.request.user, rewardplan=rewardplan)
