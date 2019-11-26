@@ -72,6 +72,8 @@ class MiniprogramLoginSerializer(serializers.Serializer):
     code = serializers.CharField()
     avatar_url = serializers.CharField()
     name = serializers.CharField()
+    encryptedData = serializers.CharField()
+    iv = serializers.CharField()
 
 
 class UserSerializer(serializers.ModelSerializer):

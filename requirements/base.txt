@@ -31,3 +31,4 @@ daphne==2.3.0
 kombu==4.6.3
 celery==4.3.0
 flower==0.9.3
+pycryptodome==3.9.4

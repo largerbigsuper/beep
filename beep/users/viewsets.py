@@ -31,6 +31,7 @@ from .serializers import (UserSerializer,
 from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
 from utils.sms import smsserver
+from utils.wechat.WXBizDataCrypt import WXBizDataCrypt
 from .models import mm_User, mm_CheckIn, mm_Point, mm_RelationShip, mm_LableApply
 from .filters import UserFilter
 from beep.blog.models import mm_AtMessage, mm_Comment, mm_Like
@@ -75,14 +76,26 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         code = serializer.validated_data['code']
         avatar_url = serializer.validated_data['avatar_url']
         name = serializer.validated_data['name']
+        encryptedData = serializer.validated_data['encryptedData']
+        iv = serializer.validated_data['iv']
+
         wx_res = requests.get(settings.MINI_PRAGRAM_LOGIN_URL + code)
         ret_json = wx_res.json()
         logger.info('code: {}, name: {}'.format(code, name))
         logger.info('wechat resp: {}'.format(ret_json))
         if 'openid' not in ret_json:
             return Response(data=ret_json, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 处理unionid
+        session_key = ret_json['session_key']
+        pc = WXBizDataCrypt(settings.MINI_PROGRAM_APP_ID, session_key)
+        decrypt_dict = pc.decrypt(encryptedData, iv)
+        unionid = decrypt_dict['unionId']
+        # openid = decrypt_dict['openId']
+        # avatarUrl = decrypt_dict['avatarUrl']
+        # nickName = decrypt_dict['nickName']
         openid = ret_json['openid']
-        user = mm_User.get_customer_by_miniprogram(openid, avatar_url, name)
+        user = mm_User.get_user_by_miniprogram(openid, avatar_url, name, unionid)
         process_login(request, user)
         respone_serailizer = MyUserProfileSerializer(user)
         data = respone_serailizer.data
