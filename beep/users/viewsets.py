@@ -1,3 +1,5 @@
+import logging
+
 import requests
 from django.db import IntegrityError, transaction
 from django.db.models import Sum
@@ -33,7 +35,7 @@ from .models import mm_User, mm_CheckIn, mm_Point, mm_RelationShip, mm_LableAppl
 from .filters import UserFilter
 from beep.blog.models import mm_AtMessage, mm_Comment, mm_Like
 
-
+logger = logging.getLogger('api_weixin')
 
 class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin, mixins.ListModelMixin,):
@@ -75,6 +77,8 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         name = serializer.validated_data['name']
         wx_res = requests.get(settings.MINI_PRAGRAM_LOGIN_URL + code)
         ret_json = wx_res.json()
+        logger.info('code: {}, name: {}'.format(code, name))
+        logger.info('wechat resp: {}'.format(ret_json))
         if 'openid' not in ret_json:
             return Response(data=ret_json, status=status.HTTP_400_BAD_REQUEST)
         openid = ret_json['openid']
