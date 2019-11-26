@@ -120,7 +120,7 @@ class Blog(models.Model):
                               blank=True,
                               null=True,
                               verbose_name='话题')
-    is_anonymous = models.BooleanField(default=False, verbose_name='是否匿名')
+    is_anonymous = models.BooleanField(default=False, db_index=True, verbose_name='是否匿名')
     # content = RichTextUploadingField(blank=True, default='', verbose_name='内容')
     content = models.TextField(blank=True, default='', verbose_name='内容')
     img_list = JSONField(default='[]', blank=True, verbose_name='图片列表')
@@ -150,12 +150,12 @@ class Blog(models.Model):
     origin_blog = models.ForeignKey('self', on_delete=models.SET_NULL, related_name='origin_blogs', null=True, blank=True, verbose_name='转发原始blog_id')
     total_forward = models.PositiveIntegerField(default=0, verbose_name='转发次数')
     video = models.CharField(max_length=200, blank=True, null=True, verbose_name='视频地址')
-    is_top = models.BooleanField(default=False, verbose_name='是否置顶')
+    is_top = models.BooleanField(default=False, db_index=True, verbose_name='是否置顶')
     title = models.CharField(max_length=200, blank=True, null=True, verbose_name='文章标题')
     cover = models.ImageField(max_length=200, blank=True, null=True, verbose_name='文章封面图')
     activity = models.ForeignKey('activity.Activity', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='活动')
-    is_summary = models.BooleanField(default=False, verbose_name='活动总结博文')
-    is_delete = models.BooleanField(default=False, verbose_name='是否删除')
+    is_summary = models.BooleanField(default=False, db_index=True, verbose_name='活动总结博文')
+    is_delete = models.BooleanField(default=False, db_index=True, verbose_name='是否删除')
     order_num = models.IntegerField(default=0, verbose_name='排序值[越小越靠前]')
 
 

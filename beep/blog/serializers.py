@@ -113,18 +113,18 @@ class BlogCreateSerializer(BaseBlogSerializer):
         instance.topic = topic
         instance.save()
         # 更新博文数量
-        if topic:
-            mm_Topic.update_data(topic.id, 'total_blog')
+        # if topic:
+        #     mm_Topic.update_data(topic.id, 'total_blog')
         # deal at message
         at_message_list = []
         for user_info in at_list:
             msg = AtMessage(blog=instance, user_id=user_info['id'])
             at_message_list.append(msg)
         mm_AtMessage.bulk_create(at_message_list)
-        mm_User.update_data(user.id, 'total_blog')
-        # 更新转发
-        if forward_blog:
-            mm_Blog.update_data(forward_blog.id, 'total_forward')
+        # mm_User.update_data(user.id, 'total_blog')
+        # # 更新转发
+        # if forward_blog:
+        #     mm_Blog.update_data(forward_blog.id, 'total_forward')
         return instance
 
 

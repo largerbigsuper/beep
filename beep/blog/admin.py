@@ -17,7 +17,10 @@ class BlogAdmin(admin.ModelAdmin):
         return mm_Blog.select_related('topic', 'user').all()
 
     def delete_queryset(self, request, queryset):
-        queryset.update(is_delete=True)
+        # FIXME 需要产生post_save信号
+        for obj in queryset:
+            obj.is_delete = True
+            obj.save(update_fields=['is_delete'])
 
     def get_content(self, obj):
         return obj.content[:100]

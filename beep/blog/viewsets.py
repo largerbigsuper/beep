@@ -104,7 +104,6 @@ class BlogViewSet(viewsets.ModelViewSet):
     filter_class = BlogFilter
 
     def get_permissions(self):
-
         permissions = []
         if self.action in ['add_like', 'remove_like', 'add_share', 'mine', 'create']:
             permissions.append(IsAuthenticated())
@@ -142,7 +141,7 @@ class BlogViewSet(viewsets.ModelViewSet):
                     user_id = self.request.user.id
                 mm_SearchHistory.add_history(content=content, user_id=user_id)
         elif self.action in ['mine', 'set_top']:
-            queryset = queryset.select_related('topic')
+            queryset = queryset.filter(user=self.request.user).select_related('user', 'topic')
         elif self.action in ['following']:
             following_ids = self.request.user.following_set.values_list('following_id', flat=True)
             queryset = queryset.exclude(is_anonymous=True).filter(user_id__in=following_ids).select_related('user', 'topic')
@@ -158,13 +157,9 @@ class BlogViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_destroy(self, instance):
-        # 更新我的博客个数
-        mm_User.update_data(instance.user.id, 'total_blog', -1)
-        # 跟新博文转发个数
-        if instance.forward_blog:
-            mm_Blog.update_data(instance.forward_blog.id, 'total_forward', -1)
+        # FIXME 数据同步在signals.py中
         instance.is_delete = True
-        instance.save()
+        instance.save(update_fields=['is_delete'])
 
     def retrieve(self, request, *args, **kwargs):
         """博客详情
@@ -218,21 +213,18 @@ class BlogViewSet(viewsets.ModelViewSet):
     def index(self, request):
         """我的博文列表
         """
-
         return self.search(request)
 
     @action(detail=False, methods=['get'])
     def mine(self, request):
         """我的博文列表
         """
-
         return super().list(request)
 
     @action(detail=False, methods=['get'])
     def lookup(self, request):
         """某人博文列表
         """
-
         return super().list(request)
 
     @action(detail=False, methods=['get'])
