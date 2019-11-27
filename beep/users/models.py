@@ -84,8 +84,8 @@ class UserManager(AuthUserManager, ModelManager):
             user = self.filter(unionid=unionid).first()
             if user:
                 return user
-        else:
-            user = self.filter(mini_openid=mini_openid).first()
+            else:
+                user = self.filter(mini_openid=mini_openid).first()
         if user:
             user.unionid = unionid
             user.save(update_fields=['unionid'])
