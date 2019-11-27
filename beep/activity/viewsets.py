@@ -25,7 +25,7 @@ from utils.serializers import NoneParamsSerializer
 class ActivityViewSet(viewsets.ModelViewSet):
 
 
-    queryset = mm_Activity.valid().select_related('user')
+    queryset = mm_Activity.valid().select_related('user', 'rewardplan')
     filter_class = ActivityFilter
     pagination_class = Size_12_Pagination
 

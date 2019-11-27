@@ -12,6 +12,7 @@ from beep.users.models import mm_User
 def post_save_blog(instance, raw, created, using, update_fields, **kwargs):
     """api调用"""
     _post_save_blog(instance, created)
+    _post_save_blog_admin(instance, created)
 
 @receiver(post_save, sender=Blog_Blog)
 def post_save_blog_blog(instance, raw, created, using, update_fields, **kwargs):
