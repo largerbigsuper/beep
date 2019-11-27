@@ -92,7 +92,10 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         # 处理unionid
         session_key = ret_json['session_key']
         pc = WXBizDataCrypt(settings.MINI_PROGRAM_APP_ID, session_key)
-        decrypt_dict = pc.decrypt(encryptedData, iv)
+        try:
+            decrypt_dict = pc.decrypt(encryptedData, iv)
+        except Exception as e:
+            return Response(status=status.HTTP_401_UNAUTHORIZED) 
         logger.info('decrypt_dict : {}'.format(decrypt_dict))
         # unionid不一定存在
         unionid = decrypt_dict.get('unionId')
