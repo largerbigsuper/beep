@@ -30,6 +30,7 @@ DATABASES = {
         'OPTIONS': {
             'init_command': 'SET CHARACTER SET utf8mb4',
             'charset': 'utf8mb4',
+            'timeout': 20,
         }
     }
 
