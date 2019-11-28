@@ -71,27 +71,43 @@ class UserManager(AuthUserManager, ModelManager):
         return info
 
 
-    def _create_miniprogram_account(self, mini_openid, avatar_url, name, unionid=None):
-        account = 'wx_' + ''.join([random.choice(string.ascii_lowercase) for _ in range(8)])
+    def _create_miniprogram_account(self, avatar_url, name, openid=None, mini_openid=None, unionid=None):
+        account = 'bp_' + ''.join([random.choice(string.ascii_lowercase) for _ in range(8)])
         password = self.Default_Password
-        name = 'wx' + account[-2:] + '_' + name
-        user = self.add(account, password, mini_openid=mini_openid, avatar_url=avatar_url, name=name, unionid=unionid)
+        name = 'bp' + account[-2:] + '_' + name
+        user = self.add(account, password, mini_openid=mini_openid, openid=openid, unionid=unionid, avatar_url=avatar_url, name=name)
         return user
 
-    def get_user_by_miniprogram(self, mini_openid, avatar_url, name, unionid=None):
-        """通过小程序获取User"""
+    def get_user_by_miniprogram(self, avatar_url, name, openid=None, mini_openid=None, unionid=None):
+        """通过小程序获取User
+        前期有小程序登陆用户，但是没有unionid， 需要同步小程序应用与微信网页应用
+        """
+        user = None
         if unionid:
             user = self.filter(unionid=unionid).first()
             if user:
+                if mini_openid:
+                    user.mini_openid = mini_openid
+                if openid:
+                    user.openid = openid
+                user.save()
                 return user
-            else:
-                user = self.filter(mini_openid=mini_openid).first()
+
+        if mini_openid:
+            user = self.filter(mini_openid=mini_openid).first()
+        if openid:
+            user = self.filter(openid=openid).first()
+            
         if user:
             user.unionid = unionid
-            user.save(update_fields=['unionid'])
+            if mini_openid:
+                user.mini_openid = mini_openid
+            if openid:
+                user.openid = openid
+            user.save()
             return user
         else:
-            user = self._create_miniprogram_account(mini_openid, avatar_url, name, unionid)
+            user = self._create_miniprogram_account(avatar_url, name, openid, mini_openid, unionid)
             if user:
                 return user
             else:
@@ -132,6 +148,7 @@ class User(AbstractUser):
 
     account = models.CharField(max_length=40, unique=True, verbose_name='账号')
     mini_openid = models.CharField(max_length=64, unique=True, null=True, blank=True, verbose_name='小程序账号')
+    openid = models.CharField(max_length=64, unique=True, null=True, blank=True, verbose_name='微信账号')
     unionid = models.CharField(max_length=64, unique=True, null=True, blank=True, verbose_name='微信unionid')
     name = models.CharField(max_length=30, blank=True, unique=True, verbose_name='昵称')
     age = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='年龄')

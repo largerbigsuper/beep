@@ -19,3 +19,8 @@ class ContentException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = _('内容违规')
     default_code = '内容违规'
+
+class BeepException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _('未知错误')
+    default_code = '未知错误'

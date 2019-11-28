@@ -1,3 +1,4 @@
+import json
 import logging
 
 import requests
@@ -32,6 +33,8 @@ from utils.common import process_login, process_logout
 from utils.qiniucloud import QiniuService
 from utils.sms import smsserver
 from utils.wechat.WXBizDataCrypt import WXBizDataCrypt
+from utils.wechat.api import WeChatApi
+from utils.exceptions import BeepException
 from .models import mm_User, mm_CheckIn, mm_Point, mm_RelationShip, mm_LableApply
 from .filters import UserFilter
 from beep.blog.models import mm_AtMessage, mm_Comment, mm_Like
@@ -99,15 +102,62 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         logger.info('decrypt_dict : {}'.format(decrypt_dict))
         # unionid不一定存在
         unionid = decrypt_dict.get('unionId')
-        # openid = decrypt_dict['openId']
-        # avatarUrl = decrypt_dict['avatarUrl']
-        # nickName = decrypt_dict['nickName']
-        openid = ret_json['openid']
-        user = mm_User.get_user_by_miniprogram(openid, avatar_url, name, unionid)
+        mini_openid = ret_json['openid']
+        user = mm_User.get_user_by_miniprogram(avatar_url, name,  mini_openid=mini_openid, unionid=unionid)
         process_login(request, user)
         respone_serailizer = MyUserProfileSerializer(user)
         data = respone_serailizer.data
         return Response(data=data)
+
+    @action(detail=False, methods=['get'], permission_classes=[], authentication_classes=[])
+    def login_weixin(self, request):
+        """微信扫码登陆
+        微信服务器回调处理接口
+        # redirect_uri?code=CODE&state=STATE
+        # 绑定手机号会有user_id参数
+        """
+        code = request.query_params.get('code')
+        user_id = request.query_params.get('user_id')
+        if not code:
+            data = {
+                'detail': '获取微信授权失败'
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        # 获取access_token
+        # https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html
+        # resp example
+        # { 
+        #     "access_token":"ACCESS_TOKEN", 
+        #     "expires_in":7200, 
+        #     "refresh_token":"REFRESH_TOKEN",
+        #     "openid":"OPENID", 
+        #     "scope":"SCOPE",
+        #     "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+        # }
+        resp = requests.get(settings.WX_WEB_APP_ACCESS_TOKEN_URL + code)
+        if resp.status_code == 200:
+            resp_dict = resp.json()
+            if resp_dict.get('errcode', 0) != 0:
+                msg = json.dumps(resp_dict, ensure_ascii=False)
+                raise BeepException(msg)
+            access_token = resp_dict['access_token']
+            openid = resp_dict['openid']
+            unionid = resp_dict['unionid']
+            user_info = WeChatApi(access_token, openid).get_user_info()
+            avatar_url = user_info['headimgurl']
+            name = user_info['nickname']
+            user = mm_User.get_user_by_miniprogram(avatar_url, name,  openid=openid, unionid=unionid)
+
+            process_login(request, user)
+            respone_serailizer = MyUserProfileSerializer(user)
+            data = respone_serailizer.data
+            return Response(data=data)
+        else:
+            data = {
+                'detail': '获取微信信息错误'
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
 
     @action(detail=False, methods=['post'], serializer_class=LoginSerializer, permission_classes=[], authentication_classes=[])
     def login(self, request):

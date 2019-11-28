@@ -293,6 +293,13 @@ MINI_PROGRAM_APP_SECRET = '2d6b9fef49827381af8dd26b4b66f5e5'
 MINI_PROGRAM_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&grant_type=userization_code&js_code='.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
 MINI_PROGRAM_ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={}&secret={}'.format(MINI_PROGRAM_APP_ID, MINI_PROGRAM_APP_SECRET)
 
+WX_WEB_APP_ID = 'wx69969d53697f5fdb'
+WX_WEB_APP_SECRET = '7b571b1b70c7329e7f87a4e5147a7241'
+# WX_WEB_APP_REDIRECT_URL = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid={}&secret={}&grant_type=authorization_code&code='.format(WX_WEB_APP_ID, WX_WEB_APP_SECRET)
+WX_WEB_APP_ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid={}&secret={}&grant_type=authorization_code&code='.format(WX_WEB_APP_ID, WX_WEB_APP_SECRET)
+WX_USER_INFO_URL = 'https://api.weixin.qq.com/sns/userinfo?access_token={}&openid={}'
+
+
 QINIU_ACCESS_KEY = 'r9Wn86UUlqWqRbt1E4Mvl8lPXPcZpSSH1t2n0MR6'
 QINIU_SECRET_KEY = 'OdRXdCnUSpDdkY5n4-PUQT3psAm2zJMiHvgNfU_S'
 QINIU_BUCKET_NAME_DICT = {
