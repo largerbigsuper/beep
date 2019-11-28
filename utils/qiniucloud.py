@@ -68,7 +68,7 @@ class QiniuService:
     def upload_data(cls, file_data, save_name):
         """上传内存文件
         """
-        cls.logger.error('save_name: {}'.format(save_name))
+        cls.logger.info('save_name: {}'.format(save_name))
         # 构建鉴权对象
         token = cls.gen_app_upload_token(QiniuService.get_bucket_name('image'))
         ret, info = put_data(token, save_name, file_data.read(), fname=save_name)
@@ -76,7 +76,7 @@ class QiniuService:
         if info.status_code == 200:
             base_url = '%s%s' % (QiniuService.bucket_domain_dict['image'], ret.get("key"))
             # 表示上传成功, 返回文件名
-            cls.logger.error('base_url: {}'.format(base_url))
+            cls.logger.info('base_url: {}'.format(base_url))
             return base_url
 
         else:
