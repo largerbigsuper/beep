@@ -1,6 +1,9 @@
 from itertools import chain
 
 from django.db.models import Sum
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -65,6 +68,8 @@ class HotSearchViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     def get_queryset(self):
         return mm_HotSearch.all().order_by('-is_top', '-task_id', '-frequency')
 
+    # FIXME 增加缓存一分钟
+    @method_decorator(cache_page(60))
     def list(self, request, *args, **kwargs):
         """去除置顶重复的内容
         """
