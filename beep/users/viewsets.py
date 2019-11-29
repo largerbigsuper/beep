@@ -159,7 +159,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def bind_weixin(self, request):
         """绑定微信
         code 前端通过微信回调地址获得
