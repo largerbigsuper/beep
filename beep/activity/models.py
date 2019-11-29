@@ -396,46 +396,6 @@ class Schedule(models.Model):
         ordering = ['-plan_datetime', '-id']
 
 
-class WxFormManager(ModelManager):
-
-    def valid(self):
-        create_at = datetime.datetime.now() - timedelta(days=7)
-        qs = self.filter(create_at__gt=create_at, published=False)
-        return qs
-
-    
-    def add_form(self, user_id, activity_id, wxform_id):
-        """添加记录
-        """
-        defaults = {
-            'wxform_id': wxform_id
-        }
-        obj, created = self.update_or_create(user_id=user_id, activity_id=activity_id, defaults=defaults)
-        return obj
-
-
-class WxForm(models.Model):
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, verbose_name='用户')
-    activity = models.ForeignKey(Activity, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='活动')
-    wxform_id = models.CharField(max_length=32, verbose_name='wxform_id')
-    published = models.BooleanField(default=False, blank=True, verbose_name='已推送')
-    create_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='创建时间')
-
-    objects = WxFormManager()
-
-    class Meta:
-        db_table = 'activity_wxform'
-        unique_together = [
-            ['user', 'activity']
-        ]
-        ordering = ['-id']
-        verbose_name = '微信form'
-        verbose_name_plural = '微信form'
-
-
-mm_WxForm = WxForm.objects
-
 
 mm_Schedule = Schedule.objects
 mm_Activity = Activity.objects

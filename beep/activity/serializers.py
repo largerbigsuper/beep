@@ -8,7 +8,7 @@ from .models import (Activity, mm_Activity,
                      Collect, mm_Collect,
                      RewardPlan, mm_RewardPlan,
                      RewardPlanApply, mm_RewardPlanApply,
-                     Schedule, WxForm
+                     Schedule,
                      )
 
 
@@ -190,10 +190,3 @@ class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
         fields = ['id', 'plan_datetime', 'content', 'create_at', 'activity']
-
-class WxFormSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = WxForm
-        fields = ['id', 'wxform_id']
-    

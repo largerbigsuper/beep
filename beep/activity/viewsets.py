@@ -10,9 +10,8 @@ from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           CollectCreateSerializer, CollectListSerializer, MyCollectListSerializer,
                           RewardPlanApplyCreateSerializer, RewardPlanApplySerializer, RewardPlanApplyListSerializer,
                           RewardPlanSerializer, RewardPlanCreateSerializer, ScheduleSerializer,
-                          WxFormSerializer,
                           )
-from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply, mm_Schedule, mm_WxForm
+from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply, mm_Schedule
 from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter, RegistrationFilter, ScheduleFilter
 from .tasks import send_rewardplan_start
 
@@ -293,16 +292,3 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     def perform_create(self, serailizer):
         serailizer.save(user=self.request.user)
 
-
-class WxFormViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """用户行程表
-    """
-
-    permission_classes = [IsAuthenticated]
-    serializer_class = WxFormSerializer
-
-    def get_queryset(self):
-        return mm_WxForm.valid().filter(user=self.request.user)
-
-    def perform_create(self, serailizer):
-        serailizer.save(user=self.request.user)
