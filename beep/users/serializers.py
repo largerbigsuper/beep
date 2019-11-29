@@ -4,16 +4,7 @@ from .models import User, CheckIn, Point, RelationShip, LableApply
 
 base_user_fields = ['id',
                     'last_login',
-                    'is_superuser',
-                    'username',
-                    'first_name',
-                    'last_name',
                     'email',
-                    'is_staff',
-                    'is_active',
-                    'date_joined',
-                    'account',
-                    'mini_openid',
                     'name',
                     'age',
                     'gender',
@@ -29,19 +20,14 @@ user_data_fields = [
     'total_followers'
 ]
 user_readonly_fields = [
-    'username',
-    'account',
     'last_login',
-    'is_superuser',
-    'first_name',
-    'last_name',
-    'is_staff',
-    'is_active',
-    'date_joined',
-    'mini_openid',
     'create_at',
     'update_at',
     'label_type',
+]
+user_import_info_fields = [
+    'account',
+    'date_joined',
 ]
 
 
@@ -100,10 +86,14 @@ class MyUserProfileSerializer(serializers.ModelSerializer):
 
     avatar_url_url = serializers.CharField(
         write_only=True, allow_blank=True, required=False)
+    weixin_bind = serializers.SerializerMethodField()
+
+    def get_weixin_bind(self, obj):
+        return True if obj.openid else False
 
     class Meta:
         model = User
-        fields = base_user_fields + ['avatar_url_url'] + user_data_fields
+        fields = base_user_fields + ['avatar_url_url'] + user_data_fields + ['weixin_bind'] + user_import_info_fields
         read_only_fields = user_readonly_fields + user_data_fields + ['avatar_url']
 
 
@@ -124,6 +114,7 @@ class SendCodeSerializer(serializers.Serializer):
         ('enroll', '注册'),
         ('password', '重置密码'),
         ('login', '登陆'),
+        ('bind_phone', '绑定手机'),
     )
     account = serializers.CharField(max_length=11)
     code_type = serializers.ChoiceField(
@@ -206,7 +197,3 @@ class LabelApplySerializer(serializers.ModelSerializer):
                   'data_dict', 'status', 'create_at']
         read_only_fields = ['status']
 
-
-# =======================================
-# ========= Admin Serializers  ==========
-# =======================================
