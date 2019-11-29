@@ -113,6 +113,12 @@ class UserManager(AuthUserManager, ModelManager):
             else:
                 raise IntegrityError('注册用户失败')
 
+    def get_user_by_unionid(self, unionid):
+        """通过unionid获取用户，忽略小程序未绑定主体的用户
+        """
+        user = self.filter(unionid=unionid).first()
+        return user
+
     def reset_password(self, account, password):
         """重置密码
         Arguments:

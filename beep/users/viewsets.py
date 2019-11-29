@@ -158,6 +158,40 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def bind_weixin(self, request):
+        """绑定微信
+        code 前端通过微信回调地址获得
+        """
+        code = request.query_params.get('code')
+        if not code:
+            data = {
+                'detail': '缺少参数{}'.format('code')
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        
+        resp = requests.get(settings.WX_WEB_APP_ACCESS_TOKEN_URL + code)
+        if resp.status_code == 200:
+            resp_dict = resp.json()
+            if resp_dict.get('errcode', 0) != 0:
+                msg = json.dumps(resp_dict, ensure_ascii=False)
+                raise BeepException(msg)
+            access_token = resp_dict['access_token']
+            openid = resp_dict['openid']
+            unionid = resp_dict['unionid']
+            user = mm_User.get_user_by_unionid(unionid)
+            if not user:
+                user = request.user
+            user.openid = openid
+            user.unionid = unionid
+            user.save()
+            return Response(data=data)
+        else:
+            data = {
+                'detail': '获取微信信息错误'
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
 
     @action(detail=False, methods=['post'], serializer_class=LoginSerializer, permission_classes=[], authentication_classes=[])
     def login(self, request):
