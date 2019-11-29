@@ -14,8 +14,6 @@ class WxMessageSerializer(serializers.ModelSerializer):
             info = mm_User.get_info(obj.user_id)
         return info
 
-
-
     class Meta:
         model = WxMessage
         wxmessage_fields = [f.name for f in WxMessage._meta.get_fields()]
