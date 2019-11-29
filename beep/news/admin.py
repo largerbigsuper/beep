@@ -28,5 +28,5 @@ class CrawledDocumentAdmin(admin.ModelAdmin):
 
 @admin.register(SpiderConfig)
 class SpiderConfigAdmin(admin.ModelAdmin):
-    list_display = ['id', 'site_name', 'auto_news']
+    list_display = ['site_name', 'auto_news']
     list_editable = ['auto_news']
