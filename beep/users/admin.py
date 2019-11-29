@@ -63,7 +63,7 @@ class MyUserAdmin(UserAdmin):
     #         (None, {'fields': tuple(extra_fields)}),
     # )
 
-    user_info = ('name', 'mini_openid', 'age', 'gender', 'desc', 'email')
+    user_info = ('name', 'age', 'gender', 'desc', 'email', 'mini_openid', 'openid', 'unionid')
     data_info = ('total_blog', 'total_following', 'total_followers', 'label_type')
     user_info_tuple = user_info + data_info 
     fieldsets = (
@@ -76,6 +76,7 @@ class MyUserAdmin(UserAdmin):
     )
 
     list_display = ['id', 'name', 'account', 'gender', 'avatar_url', 'label_type']
+    search_fields = ['name', 'account']
     
     add_fieldsets = (
         (None, {
