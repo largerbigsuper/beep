@@ -52,6 +52,10 @@ CACHES = {
     }
 }
 
+# session 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_COOKIE_AGE = 365 * 24 * 60 * 60
+
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
