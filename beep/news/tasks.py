@@ -1,7 +1,7 @@
 from config.celery import app
 
 from utils.post.gen_poster import Post
-from .models import News, mm_News, mm_CrawledDocument
+from .models import News, mm_News, mm_CrawledDocument, mm_SpiderConfig
 
 
 @app.task(queue='news')
@@ -12,13 +12,15 @@ def update_news_from_crawler():
     updates = mm_CrawledDocument.filter(is_news=False).order_by('crawled_at')[:10]
     updates_id = []
     objs = []
+    auto_news_sites = set(mm_SpiderConfig.filter(auto_news=True).values_list('site_name', flat=True))
     for doc in updates:
         updates_id.append(doc.id)
+        status = mm_News.STATUS_PUBLISHED if doc.site_name in auto_news_sites else mm_News.STATUS_EDITING
         obj = News(title=doc.title,
                    content=doc.content,
                    origin='' if doc.source == '币世界' else  doc.source,
                    published_at=doc.crawled_at,
-                   status=mm_News.STATUS_EDITING)
+                   status=status)
         objs.append(obj)
     mm_CrawledDocument.filter(pk__in=updates_id).update(is_news=True)
     mm_News.bulk_create(objs)

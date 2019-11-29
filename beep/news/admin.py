@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import News, CrawledDocument, mm_News
+from .models import News, CrawledDocument, mm_News, SpiderConfig
 
 
 def make_news_published(modeladmin, request, queryset):
@@ -24,3 +24,9 @@ class NewsAdmin(admin.ModelAdmin):
 class CrawledDocumentAdmin(admin.ModelAdmin):
     
     list_display = [f.name for f in CrawledDocument._meta.get_fields()]
+
+
+@admin.register(SpiderConfig)
+class SpiderConfigAdmin(admin.ModelAdmin):
+    list_display = ['id', 'site_name', 'auto_news']
+    list_editable = ['auto_news']

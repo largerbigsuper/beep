@@ -78,3 +78,22 @@ class CrawledDocument(models.Model):
         ordering = ['-published_at']
 
 mm_CrawledDocument = CrawledDocument.objects
+
+
+class SpiderConfigManager(ModelManager):
+    pass
+
+class SpiderConfig(models.Model):
+    """爬虫配置
+    """
+  
+    site_name = models.CharField(max_length=120, verbose_name='网站名')
+    auto_news = models.BooleanField(default=False, verbose_name='自动同步')
+
+    objects = SpiderConfigManager()
+
+    class Meta:
+        db_table = 'spider_config'
+        ordering = ['-id']
+
+mm_SpiderConfig = SpiderConfig.objects
