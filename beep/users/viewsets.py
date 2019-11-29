@@ -192,6 +192,32 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=False, methods=['post'], serializer_class=LoginSerializer)
+    def bind_phone(self, request):
+        """绑定手机号
+        """
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        account = serializer.validated_data['account']
+        code = serializer.validated_data['code']
+        _code = mm_User.cache.get(account)
+        if not code or _code != code:
+            data = {
+                'detail': '验证码不存在或错误'
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        user = mm_User.get_by_account(account)
+        if user != request.user:
+            data = {
+                'detail': '手机号已被绑定，请联系管理员。'
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            user = request.user
+        user.account = account
+        user.save()
+        return Response()
+
 
     @action(detail=False, methods=['post'], serializer_class=LoginSerializer, permission_classes=[], authentication_classes=[])
     def login(self, request):
@@ -332,8 +358,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         self.queryset = mm_User.filter(pk__in=user_ids)
         return super().list(request)
 
-    @action(detail=False, methods=['post'], permission_classes=[],
-            authentication_classes=[], serializer_class=SendCodeSerializer)
+    @action(detail=False, methods=['post'], permission_classes=[], authentication_classes=[], serializer_class=SendCodeSerializer)
     def send_code(self, request):
         """发送验证码"""
 
@@ -342,7 +367,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         account = serializer.validated_data['account']
         code_type = serializer.validated_data['code_type']
         cache_key = account
-        if code_type in ['enroll', 'password']:
+        if code_type in ['enroll', 'password', 'bind_phone']:
             code = smsserver.send_enroll_or_password(account)
         else:
             code = smsserver.send_login(account)

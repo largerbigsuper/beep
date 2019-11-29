@@ -119,6 +119,11 @@ class UserManager(AuthUserManager, ModelManager):
         user = self.filter(unionid=unionid).first()
         return user
 
+    def get_by_account(self, account):
+        user = self.filter(account=account).first()
+        return user
+
+
     def reset_password(self, account, password):
         """重置密码
         Arguments:
