@@ -271,7 +271,9 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
             serializer = self.serializer_class(
                 request.user, data=request.data, partial=True)
             if serializer.is_valid():
-                serializer.validated_data['avatar_url'] = serializer.validated_data.pop('avatar_url_url', '')
+                avatar_url = serializer.validated_data.pop('avatar_url_url', '')
+                if avatar_url:
+                    serializer.validated_data['avatar_url'] = avatar_url
                 serializer.save()
                 return Response(data=serializer.data)
             else:
