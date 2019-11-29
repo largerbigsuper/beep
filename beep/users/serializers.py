@@ -97,15 +97,16 @@ class MyUserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = user_readonly_fields + user_data_fields + ['avatar_url']
 
 
-class ResetPasswordSerializer(serializers.ModelSerializer):
+class ResetPasswordSerializer(serializers.Serializer):
 
     account = serializers.CharField()
     password = serializers.CharField()
     code = serializers.CharField()
 
-    class Meta:
-        model = User
-        fields = ['account', 'password', 'code']
+class ResetPasswordSerializerV2(serializers.Serializer):
+
+    raw_password = serializers.CharField()
+    password = serializers.CharField()
 
 
 class SendCodeSerializer(serializers.Serializer):

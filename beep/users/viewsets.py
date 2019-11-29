@@ -19,6 +19,7 @@ from .serializers import (UserSerializer,
                           MiniprogramLoginSerializer,
                           MyUserProfileSerializer,
                           ResetPasswordSerializer,
+                          ResetPasswordSerializerV2,
                           UserBaseSerializer,
                           CheckInSerializer,
                           PointSerializer,
@@ -298,6 +299,24 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         mm_User.reset_password(account, password)
         return Response()
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated], serializer_class=ResetPasswordSerializerV2)
+    def rest_password_v2(self, request):
+        """登陆状态下的重置密码
+        """
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        raw_password = serializer.validated_data['raw_password']
+        password = serializer.validated_data['password']
+        if not request.user.check_password(raw_password):
+            data = {
+                'detail': '原始密码错误'
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            request.user.set_password(password)
+            request.user.save()
+            return Response()
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, ])
     def qiniutoken(self, request):
