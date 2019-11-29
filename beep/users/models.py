@@ -13,7 +13,7 @@ from django.contrib.auth.models import UserManager as AuthUserManager
 from django_extensions.db.fields.json import JSONField
 
 
-
+from utils.exceptions import BeepException
 from utils.modelmanager import ModelManager
 
 
@@ -133,6 +133,8 @@ class UserManager(AuthUserManager, ModelManager):
         if user:
             user.set_password(password)
             user.save()
+        else:
+            raise BeepException('账号不存在')
 
     def update_data(self, pk, field_name, amount=1):
         if amount > 0: 

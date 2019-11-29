@@ -240,7 +240,9 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         user = mm_User.filter(account=account).first()
         if user:
             if not code_login:
-                user = authenticate(request, username=account, password=password)
+                user = authenticate(request, account=account, password=password)
+                if not user:
+                    user = authenticate(request, username=account, password=password)
             if user:
                 process_login(request, user)
                 serailizer = MyUserProfileSerializer(user)
