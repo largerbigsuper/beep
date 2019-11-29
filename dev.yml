@@ -49,9 +49,6 @@ services:
     depends_on:
       - redis
       - django
-    deploy:
-      mode: replicated
-      replicas: 2
 
   celery_beat:
     build:
