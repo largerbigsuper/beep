@@ -186,7 +186,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
             user.openid = openid
             user.unionid = unionid
             user.save()
-            return Response(data=data)
+            return Response()
         else:
             data = {
                 'detail': '获取微信信息错误'
