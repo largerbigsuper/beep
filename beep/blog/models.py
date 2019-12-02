@@ -165,7 +165,7 @@ class Blog(models.Model):
     class Meta:
         db_table = 'blogs'
         ordering = ['is_delete', '-create_at']
-        verbose_name = verbose_name_plural = '博文'
+        verbose_name = verbose_name_plural = '文章&博文'
 
     def __str__(self):
         return self.title if self.title else self.content[:50]

@@ -35,7 +35,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('api-user/', include(router_user.urls)),
-    path('api-admin/', include(router_admin.urls)),
+    # path('api-admin/', include(router_admin.urls)),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('socket/', wehub_views.socket_test),
     path('wehub_api/', wehub_views.wehub_api),

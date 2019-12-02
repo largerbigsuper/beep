@@ -75,6 +75,7 @@ LOCAL_APPS = [
     "beep.search",
     "beep.wechat_callback",
     "beep.wechat",
+    "beep.ad",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -206,33 +207,6 @@ ADMINS = [("""frankie""", "admin@beep.com")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
 
-# LOGGING
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#logging
-# See https://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
-# LOGGING = {
-#     "version": 1,
-#     "disable_existing_loggers": False,
-#     "formatters": {
-#         "verbose": {
-#             "format": "%(levelname)s %(asctime)s %(module)s "
-#             "%(process)d %(thread)d %(message)s"
-#         }
-#     },
-#     "handlers": {
-#         "console": {
-#             "level": "DEBUG",
-#             "class": "logging.StreamHandler",
-#             "formatter": "verbose",
-#         }
-#     },
-#     "root": {"level": "INFO", "handlers": ["console"]},
-# }
-
-# django-compressor
-# ------------------------------------------------------------------------------
-# https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
 INSTALLED_APPS += ["compressor"]
 # STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
 # Your stuff...
@@ -413,6 +387,14 @@ LOGGING = {
             "backupCount": 10,
             "formatter": "verbose"
         },
+        "api_error_file": {
+            "level": LOG_LEVEL_WARNING,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "./logs/api_error.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10MB
+            "backupCount": 10,
+            "formatter": "verbose"
+        },
     },
     'loggers': {
         'django': {
@@ -441,6 +423,11 @@ LOGGING = {
         },
         'api_weixin': {
             'handlers': ['api_weixin_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'api_error': {
+            'handlers': ['api_error_file', 'console'],
             'level': 'INFO',
             'propagate': True,
         },

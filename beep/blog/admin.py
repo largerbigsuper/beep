@@ -5,7 +5,7 @@ from .forms import Blog_ArticleAdminForm
 
 from django.db import models
 
-# @admin.register(Blog)
+@admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'user', 'topic', 'get_content', 'is_anonymous', 'create_at', 'order_num']
     list_filter = ['topic__topic_type', 'topic', 'is_top']

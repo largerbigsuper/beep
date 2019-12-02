@@ -8,6 +8,7 @@ from beep.news import viewsets as news_viewsets
 from beep.search import viewsets as search_viewsets
 from beep.wechat_callback import viewsets as wechat_callback_viewsets
 from beep.wechat import viewsets as wechat_viewsets
+from beep.ad import viewsets as ad_viewsets
 
 router_user = routers.DefaultRouter()
 
@@ -33,3 +34,4 @@ router_user.register('search-history', search_viewsets.SearchHistoryViewSet, bas
 router_user.register('hot', search_viewsets.HotSearchViewSet, base_name='user-hot')
 router_user.register('wxmessage', wechat_callback_viewsets.WxMessageViewSet, base_name='user-wehub-wxmessge')
 router_user.register('subscribe', wechat_viewsets.WxSubscriptionViewSet, base_name='user-subscribe')
+router_user.register('ad', ad_viewsets.AdViewSet, base_name='user-ad')

@@ -22,6 +22,7 @@ from .filters import CommentFilter, LikeFilter, BlogFilter, TopicFilter
 from beep.search.models import mm_SearchHistory
 from beep.users.models import mm_User
 from beep.users.serializers import UserBaseSerializer
+from beep.ad.models import mm_Ad
 from utils.pagination import ReturnAllPagination
 
 
@@ -196,8 +197,23 @@ class BlogViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
+        ad_blog_dict = mm_Ad.get_blog_hot_ad()
+        if page_num == 1 and self.action == 'index':
+            ad_blog_dict = mm_Ad.get_blog_hot_ad()
+            if ad_blog_dict:
+                ad_blog_ids = {ad_blog.id for ad_blog in ad_blog_dict.values()}
+                _page = [obj for obj in page if obj.id not in ad_blog_ids]
+                ads = sorted(ad_blog_dict.items())
+                for index, blog in ads:
+                    if index < 1:
+                        continue
+                    idx = index - 1
+                    if len(_page) >= index:
+                        _page.insert(idx, blog)
+                page = _page
+            
         serializer = self.get_serializer(page, many=True)
-        # return self.get_paginated_response(serializer.data)
+
         # 自定义返回
         data = serializer.data
         return Response(OrderedDict([
@@ -278,8 +294,18 @@ class BlogViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, )
     def following(self, request):
-        return super().list(request)
-
+        """我的关注博文列表
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        page_num = int(request.query_params.get('page', 1))
+        if page_num == 1:
+            ad_blog = mm_Ad.get_blog_following_ad(request.user.id)
+            if ad_blog:
+                _page = [obj for obj in page if obj.id != ad_blog.id]
+                page = [ad_blog] + _page
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
     
     @action(detail=True, methods=['post'])
     def set_top(self, request, pk=None):

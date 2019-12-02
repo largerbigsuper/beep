@@ -14,6 +14,7 @@ from .models import mm_SearchHistory, mm_SearchKeyWord, mm_HotSearch
 from .serializers import SearchHistorySerializer, SearchKeyWordSerializer, HotSearchSerializer
 from .filters import SearchKeyWordFilter
 from utils.pagination import Size_15_Pagination
+from beep.ad.models import mm_Ad
 
 
 
@@ -79,8 +80,20 @@ class HotSearchViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         for hot in normal_list:
             if hot.keyword in hot_names_set:
                 normal_list.remove(hot)
-        result_list = list(chain(hot_list, normal_list))[:15]
-        serializer = HotSearchSerializer(result_list, many=True)
+        page = list(chain(hot_list, normal_list))[:15]
+        ad_hotSearch_dict = mm_Ad.get_hot_search_ad()
+        if ad_hotSearch_dict:
+            ad_blog_ids = {ad_blog.id for ad_blog in ad_hotSearch_dict.values()}
+            _page = [obj for obj in page if obj.id not in ad_blog_ids]
+            ads = sorted(ad_hotSearch_dict.items())
+            for index, blog in ads:
+                if index < 1:
+                    continue
+                idx = index - 1
+                if len(_page) >= index:
+                    _page.insert(idx, blog)
+            page = _page
+        serializer = HotSearchSerializer(page, many=True)
         data = {
             'results': serializer.data
         }
