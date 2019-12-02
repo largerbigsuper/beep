@@ -29,7 +29,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     pagination_class = Size_12_Pagination
 
     def get_permissions(self):
-        if self.action in ['create', 'put', 'delete']:
+        if self.action in ['create', 'put', 'delete', 'set_live_start', 'set_live_end']:
             return [IsAuthenticated()]
         else:
             return []
@@ -37,7 +37,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'put']:
             return ActivityCreateSerializer
-        elif self.action in ['remove_registration', 'remove_collect', 'delete']:
+        elif self.action in ['remove_registration', 'remove_collect', 'delete', 'set_live_start', 'set_live_end']:
             return NoneParamsSerializer
         else:
             return ActivityListSerializer            
@@ -137,6 +137,48 @@ class ActivityViewSet(viewsets.ModelViewSet):
         queryset = mm_Activity.recommand()[:5]
         serializer = ActivityListSerializer(queryset, many=True, context={'request': request})
         return Response(data=serializer.data)
+
+
+    @action(detail=True, methods=['post'])
+    def set_live_start(self, request, pk=None):
+        """设置活动直播开始
+        """
+        activity = self.get_object()
+        if activity.wx_groupwxid:
+            live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
+            live_rooms.add(activity.wx_groupwxid)
+            mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*10)
+
+        return Response()
+
+
+    @action(detail=True, methods=['post'])
+    def set_live_end(self, request, pk=None):
+        """设置活动直播结束
+        """
+        activity = self.get_object()
+        if activity.wx_groupwxid:
+            live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
+            live_rooms.remove(activity.wx_groupwxid)
+            mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*10)
+
+        return Response()
+
+    @action(detail=True, methods=['get'])
+    def get_live_status(self, request, pk=None):
+        """获取活动直播状态
+        """
+        activity = self.get_object()
+        live = False
+        if activity.wx_groupwxid:
+            live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
+            if activity.wx_groupwxid in live_rooms:
+                live = True
+        data = {
+            'live': live
+        }
+        return Response(data=data)
+
 
 
 class RegistrationViewSet(mixins.ListModelMixin,

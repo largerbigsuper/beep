@@ -56,9 +56,16 @@ class WehubConsumer(AsyncWebsocketConsumer):
         if appid is None or action is None or wxid is None:
             self.logger.info("invalid param")
             return
+        
+        save_msg = False
+        if action == 'report_new_msg':
+            msg_dict = req_data_dict['msg']
+            room_wxid = msg_dict.get('room_wxid')
+            live_rooms = mm_WxUser.cache.get(mm_WxUser.key_live_rooms, set())
+            if room_wxid in live_rooms:
+                save_msg = True
 
-        error_code, error_reason, ack_data, ack_type = self.main_process(
-            wxid, action, req_data_dict)
+        error_code, error_reason, ack_data, ack_type = self.main_process(wxid, action, req_data_dict, save_msg)
         ack_dict = {
             'error_code': error_code,
             'error_reason': error_reason,
@@ -71,7 +78,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         await self.send(ack_data_text)
 
         # 讲消息转发到对应的群
-        if action == 'report_new_msg':
+        if save_msg and action == 'report_new_msg':
             msg_dict = req_data_dict['msg']
             room_wxid = msg_dict.get('room_wxid')
             if room_wxid:
@@ -154,7 +161,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         wxmessage_dict = data_dict['msg']
         mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
 
-    def main_process(self, wxid, action, request_data_dict):
+    def main_process(self, wxid, action, request_data_dict, save_msg):
         self.logger.info("action = {0},data = {1}".format(
             action, request_data_dict))
         ack_type = 'common_ack'
@@ -200,24 +207,25 @@ class WehubConsumer(AsyncWebsocketConsumer):
         if action == 'report_room_member_change':
             pass
         if action == 'report_new_msg':
-            # 如果是系统消息，则更新群信息
-            self.process_report_new_msg(wxid, request_data_dict)
-            # 处理文件回调
-            msg_dict = request_data_dict['msg']
-            msg_type = msg_dict['msg_type']
-            if msg_type in [const.MSG_TYPE_IMAGE, const.MSG_TYPE_VOICE]:
-                reply_task_list = []
-                task = {
-                    'task_type': const.TASK_TYPE_UPLOAD_FILE,
-                    'task_dict': {
-                        'file_index': msg_dict['file_index']
+            if save_msg:
+                # 如果是系统消息，则更新群信息
+                self.process_report_new_msg(wxid, request_data_dict)
+                # 处理文件回调
+                msg_dict = request_data_dict['msg']
+                msg_type = msg_dict['msg_type']
+                if msg_type in [const.MSG_TYPE_IMAGE, const.MSG_TYPE_VOICE]:
+                    reply_task_list = []
+                    task = {
+                        'task_type': const.TASK_TYPE_UPLOAD_FILE,
+                        'task_dict': {
+                            'file_index': msg_dict['file_index']
+                        }
                     }
-                }
-                reply_task_list.append(task)
-                ack_data = {
-                    'reply_task_list': reply_task_list
-                }
-                return 0, 'no error', ack_data, ack_type
+                    reply_task_list.append(task)
+                    ack_data = {
+                        'reply_task_list': reply_task_list
+                    }
+                    return 0, 'no error', ack_data, ack_type
         return 0, 'no error', {}, ack_type
 
     async def live_message(self, event):
