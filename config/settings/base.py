@@ -76,6 +76,7 @@ LOCAL_APPS = [
     "beep.wechat_callback",
     "beep.wechat",
     "beep.ad",
+    "beep.cfg",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
