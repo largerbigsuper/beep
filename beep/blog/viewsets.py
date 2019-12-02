@@ -14,16 +14,16 @@ from utils.permissions import IsOwerPermission
 from .serializers import (TopicSerializer,
                           BlogCreateSerializer, BlogListSerialzier,
                           AtMessageSerializer,
-                          CommentCreateSerializer, CommentListSerializer,
+                          CommentCreateSerializer, CommentSerializer, CommentListSerializer,
                           LikeCreateSerializer, LikeListSerializer, MyLikeListSerializer,
                           CommentLikeCreateSerializer)
 from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment, mm_user_Blog
 from .filters import CommentFilter, LikeFilter, BlogFilter, TopicFilter
 from beep.search.models import mm_SearchHistory
-from beep.users.models import mm_User
+from beep.users.models import mm_User   
 from beep.users.serializers import UserBaseSerializer
 from beep.ad.models import mm_Ad
-from utils.pagination import ReturnAllPagination
+from utils.pagination import ReturnAllPagination, Size_10_Pagination
 
 
 
@@ -368,8 +368,10 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'update']:
             return CommentCreateSerializer
-        else:
+        elif self.action in ['received']:
             return CommentListSerializer
+        else:
+            return CommentSerializer
 
     def get_queryset(self):
         queryset = mm_Comment.all().select_related(
@@ -377,20 +379,20 @@ class CommentViewSet(viewsets.ModelViewSet):
 
         if self.action in ('mine'):
             queryset = queryset.filter(user=self.request.user)
-        elif self.action in ('received'):
+        elif self.action in ['received']:
             queryset = queryset.filter(to_user=self.request.user)
         elif self.action in ('all'):
             queryset = queryset.filter(parent=None)
         return queryset
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], pagination_class=Size_10_Pagination)
     def mine(self, request):
         """发出的评论
         """
 
         return super().list(request)
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], pagination_class=Size_10_Pagination)
     def received(self, request):
         """收到的评论
         """

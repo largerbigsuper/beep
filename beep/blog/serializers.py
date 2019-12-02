@@ -57,6 +57,27 @@ class BlogSimpleSerializer(BaseBlogSerializer):
         model = Blog
         fields = blog_base_fields + ['user']
 
+class BlogBaseCommentSerializer(BaseBlogSerializer):
+    
+    class Meta:
+        model = Blog
+        fields = blog_base_fields + ['user']
+
+class BlogCommentSerializer(BaseBlogSerializer):
+    
+    origin_blog = BlogBaseCommentSerializer()
+    content = serializers.SerializerMethodField(method_name='get_content')
+
+    def get_content(self, obj):
+        if obj.content:
+            return obj.content[:100]
+        else:
+            return ''
+
+    class Meta:
+        model = Blog
+        fields = blog_base_fields + ['user']
+
 class BlogCreateSerializer(BaseBlogSerializer):
 
     topic_str = serializers.CharField(write_only=True, allow_blank=True, required=False)
@@ -203,13 +224,23 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         return instance
 
 
+class CommentSerializer(serializers.ModelSerializer):
+    """评论列表
+    """
+
+    user = UserBaseSerializer()
+    to_user = UserBaseSerializer()
+    class Meta:
+        model = Comment
+        fields = ('id', 'user', 'to_user', 'reply_to', 'text', 'create_at', 'parent', 'total_like', 'blog', 'status')
+
 class CommentListSerializer(serializers.ModelSerializer):
     """评论列表
     """
 
     user = UserBaseSerializer()
     to_user = UserBaseSerializer()
-    blog = BlogSimpleSerializer()
+    blog = BlogCommentSerializer()
 
     class Meta:
         model = Comment
