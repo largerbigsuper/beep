@@ -48,7 +48,17 @@ class WxUserManager(ModelManager):
     
     def update_user(self, bot_wxid, userinfo_dict):
         wxid = userinfo_dict.pop('wxid')
-        self.update_or_create(bot_wxid=bot_wxid, wxid=wxid, defaults=userinfo_dict)
+        defaults = {
+            'wx_alias': userinfo_dict.get('wx_alias'),
+            'nickname': userinfo_dict.get('nickname'),
+            'remark_name': userinfo_dict.get('remark_name'),
+            'head_img': userinfo_dict.get('head_img'),
+            'sex': userinfo_dict.get('sex'),
+            'country': userinfo_dict.get('country'),
+            'province': userinfo_dict.get('province'),
+            'city': userinfo_dict.get('city'),
+        }
+        self.update_or_create(bot_wxid=bot_wxid, wxid=wxid, defaults=defaults)
 
     def get_info(self, wxid):
         """获取用户信息
