@@ -35,7 +35,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
     # Receive message from WebSocket
     async def receive(self, text_data):
         message = text_data
-        # self.logger.info('raw data: {}'.format(message))
+        self.logger.info('raw data: {}'.format(message))
         try:
             if message:
                 request_dict = json.loads(str(message), strict=False)
@@ -90,6 +90,36 @@ class WehubConsumer(AsyncWebsocketConsumer):
                         'message': msg_dict
                     }
                 )
+        # 更新群成员变化
+        if action == 'report_room_member_change':
+            # 发送上传群成员信息任务
+            wxid_list = []
+            if req_data_dict['flag']:
+                wxid_list = req_data_dict['wxid_list']
+            ack_type = 'common_ack'
+            for wxid in wxid_list:
+                reply_task_list = []
+                task = {
+                    'task_type': const.TASK_TYPE_REPORT_USER_INFO,
+                    'task_dict': {
+                        'wxid': wxid
+                    }
+                }
+                reply_task_list.append(task)
+                ack_data = {
+                    'reply_task_list': reply_task_list
+                }
+                ack_dict = {
+                    'error_code': 0,
+                    'error_reason': "no error",
+                    'data': ack_data,
+                    'ack_type': ack_type
+                    }
+                # 回调wehub
+                ack_data_text = json.dumps(ack_dict)
+                self.logger.info('===ack_data==: {}'.format(ack_data_text))
+                await self.send(ack_data_text)
+
 
     def process_login(self, wxid, data_dict):
         """微信机器人
@@ -145,8 +175,32 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
     def process_report_room_member_change(self, bot_wxid, data_dict):
         """上报群成员变化
+        request
+        {
+            "action":"report_room_member_change",
+            "appid":"xxxxxxx",
+            "wxid": "wxid_xxxxxxx",
+            "data":{
+                "room_wxid":"xxxxxxx@chatroom",
+                "owner_wxid":"xxxxx",	//群主wxid, 0.3.8版本中加入
+                "wxid_list";["xxxxxx","xxxxx"],  //变化的成员的wxid列表
+                "flag": flag //0,群成员减少;1,群成员增加
+            }
+        }
+        {
+            "action":"report_room_member_change",
+            "appid":"xxxxxxx",
+            "wxid": "wxid_xxxxxxx",
+            "data":{
+                "room_wxid":"21746845232@chatroom",
+                "owner_wxid":"yueguixiang888",
+                "wxid_list":["wxid_motqmk6dfsd122"],  
+                "flag": 1
+            }
+        }
         """
         pass
+
 
     def process_report_new_room(self, bot_wxid, data_dict):
         """上报新群
@@ -160,10 +214,36 @@ class WehubConsumer(AsyncWebsocketConsumer):
         # 存储消息
         wxmessage_dict = data_dict['msg']
         mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
+    
+    def process_report_user_info(self, bot_wxid, data_dict):
+        """上报具体某个微信的详情 request格式
+        {
+        "action":"report_user_info",
+        "appid": "xxxxxxx",         
+        "wxid" : "wxid_xxxxxxxx"
+        "data":
+        {
+            "wxid":  "xxxxx",               //wxid
+            "wx_alias": "xxxxx",            //有可能为空
+            "nickname":"xxxxx",             //微信昵称
+            "remark_name" :"xxxx",          //好友备注
+            "head_img":"http://xxxxxxxx"    //头像的url地址(有可能获取不到为空)
+            "head_img_data":"xxxxxxxxxx"    //头像的二进制数据(jpg格式)经过base64编码后的字符串
+            "sex" : xx ,            //性别:0未知,1 男， 2 女
+            "country":"xxx",        //祖国(可能为空)
+            "province":"xxxx",      //省份(可能为空)
+            "city":"xxxxx"          //城市(可能为空)
+            "is_friend": x              //是否是我的好友,0:不是;1:是
+            "room_list":["xx","xxx"]    //该微信号所在的群的列表
+        }
+        }
+        """
+        mm_WxUser.update_user(bot_wxid, data_dict)
+
 
     def main_process(self, wxid, action, request_data_dict, save_msg):
-        self.logger.info("action = {0},data = {1}".format(
-            action, request_data_dict))
+        # self.logger.info("action = {0},data = {1}".format(
+        #     action, request_data_dict))
         ack_type = 'common_ack'
         if action in const.FIX_REQUEST_TYPES:
             ack_type = str(action)+'_ack'
@@ -206,6 +286,10 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         if action == 'report_room_member_change':
             pass
+    
+        if action == 'report_user_info':
+            self.process_report_user_info(wxid, request_data_dict)
+
         if action == 'report_new_msg':
             if save_msg:
                 # 如果是系统消息，则更新群信息
