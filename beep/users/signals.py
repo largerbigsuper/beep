@@ -18,7 +18,7 @@ def add_auto_following(user):
     """
     followings = mm_AutoFollowingCfg.get_users()
     relations = []
-    relations.append(user)
+    followings.append(user)
     for following in followings:
         relation = mm_RelationShip.model(user=user, following=following)
         relations.append(relation)
