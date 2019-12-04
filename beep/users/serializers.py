@@ -165,7 +165,7 @@ class UserBaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'name', 'age', 'gender', 'avatar_url', 'is_following']
+        fields = ['id', 'name', 'age', 'gender', 'avatar_url',  'label_type', 'desc', 'is_following']
 
 
 class MyFollowingSerializer(serializers.ModelSerializer):
