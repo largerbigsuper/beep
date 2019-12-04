@@ -16,8 +16,9 @@ def update_news_from_crawler():
     for doc in updates:
         updates_id.append(doc.id)
         status = mm_News.STATUS_PUBLISHED if doc.site_name in auto_news_sites else mm_News.STATUS_EDITING
+        title = doc.title.replace('币世界', '币扑')
         content = doc.content.replace('币世界', '币扑')
-        obj = News(title=doc.title,
+        obj = News(title=title,
                    content=content,
                    origin='' if doc.source == '币世界' else  doc.source,
                    published_at=doc.crawled_at,
