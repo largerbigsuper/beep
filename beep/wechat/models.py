@@ -46,6 +46,8 @@ class WxSubscriptionManager(ModelManager):
             obj, created = self.get_or_create(user=user, wx_template=wx_template)
             return obj
 
+    def is_subscried(self, user, code):
+        return self.filter(user=user, wx_template__code=code).exists()
 
 class WxSubscription(models.Model):
 

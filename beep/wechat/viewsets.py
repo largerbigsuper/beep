@@ -26,3 +26,13 @@ class WxSubscriptionViewSet(mixins.CreateModelMixin,
             return Response()
         else:
             raise ParseError('未知模版id: {}'.format(code))
+
+    @action(detail=False, methods=['get'])
+    def status(self, request):
+        code = request.query_params.get('code')
+        is_subscried = mm_WxSubscription.is_subscried(request.user, code)
+        data = {
+            'is_subscried': is_subscried
+        }
+        return Response(data=data)
+        
