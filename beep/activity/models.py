@@ -192,7 +192,7 @@ class Collect(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE, verbose_name='用户')
     activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, verbose_name='博客')
+        Activity, on_delete=models.CASCADE, verbose_name='活动')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
     objects = CollectManager()
