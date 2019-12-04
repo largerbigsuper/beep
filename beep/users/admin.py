@@ -54,16 +54,7 @@ class MyUserAdmin(UserAdmin):
     add_form = UserCreationForm
     ordering = ('-id', )
 
-    # parent_fields = {f.name for f in models.User._meta.fields}
-    # extra_fields = {f.name for f in User._meta.fields} - {f.name for f in models.User._meta.fields}
-    # extra_fields.remove('create_at')
-    # extra_fields.remove('update_at')
-    # 
-    # fieldsets = UserAdmin.fieldsets + (
-    #         (None, {'fields': tuple(extra_fields)}),
-    # )
-
-    user_info = ('name', 'age', 'gender', 'desc', 'email', 'mini_openid', 'openid', 'unionid')
+    user_info = ('name', 'age', 'gender', 'desc', 'email', 'mini_openid', 'openid', 'unionid', 'avatar_url')
     data_info = ('total_blog', 'total_following', 'total_followers', 'label_type')
     user_info_tuple = user_info + data_info 
     fieldsets = (
