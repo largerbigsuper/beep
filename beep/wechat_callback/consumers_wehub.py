@@ -132,7 +132,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         # 1. 更新好友列表
         friend_list = data_dict['friend_list']
         for friend in friend_list:
-            mm_WxUser.update_user(bot_wxid, friend)
+            mm_WxUser.update_user(friend)
 
         # 2. 更新群列表
         group_list = data_dict['group_list']
@@ -157,7 +157,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
             else:
                 groupinfo_list.append(info)
         for info in userinfo_list:
-            mm_WxUser.update_user(bot_wxid, info)
+            mm_WxUser.update_user(info)
         for info in groupinfo_list:
             mm_WxGroup.update_group(bot_wxid, info)
 
@@ -170,7 +170,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
             memberInfo_list = room['memberInfo_list']
             for info in memberInfo_list:
                 info.pop('room_nickname')
-                mm_WxUser.update_user(bot_wxid, info)
+                mm_WxUser.update_user(info)
 
     def process_report_room_member_change(self, bot_wxid, data_dict):
         """上报群成员变化
@@ -236,7 +236,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         }
         }
         """
-        mm_WxUser.update_user(bot_wxid, data_dict)
+        mm_WxUser.update_user(data_dict)
 
     def main_process(self, wxid, action, request_data_dict, save_msg):
         # self.logger.info("action = {0},data = {1}".format(

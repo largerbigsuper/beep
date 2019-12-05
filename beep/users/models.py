@@ -55,7 +55,8 @@ class UserManager(AuthUserManager, ModelManager):
     def get_info(self, user_id):
         """获取用户信息
         """
-        info = self.cache.get(user_id)
+        cache_key = self.key_user_info.format(user_id)
+        info = self.cache.get(cache_key)
         if not info:
             user = self.filter(pk=user_id).first()
             if user:
@@ -65,7 +66,7 @@ class UserManager(AuthUserManager, ModelManager):
                     'avatar_url': user.avatar_url_url,
                     'user_type': 'user'
                 }
-                self.cache.set(user_id, info)
+                self.cache.set(cache_key, info, self.TIME_OUT_USER_INFO)
             else:
                 info = {}
         return info
