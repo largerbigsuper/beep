@@ -46,7 +46,7 @@ mm_WxBot = WxBot.objects
 
 class WxUserManager(ModelManager):
     
-    def update_user(self, bot_wxid, userinfo_dict):
+    def update_user(self, userinfo_dict):
         wxid = userinfo_dict.pop('wxid')
         defaults = {
             'wx_alias': userinfo_dict.get('wx_alias'),
@@ -58,12 +58,14 @@ class WxUserManager(ModelManager):
             'province': userinfo_dict.get('province'),
             'city': userinfo_dict.get('city'),
         }
-        self.update_or_create(bot_wxid=bot_wxid, wxid=wxid, defaults=defaults)
+        self.update_or_create(wxid=wxid, defaults=defaults)
+        self.cache.delete(self.key_user_info.format(wxid))
 
     def get_info(self, wxid):
         """获取用户信息
         """
-        info = self.cache.get(wxid)
+        cache_key = self.key_user_info.format(wxid)
+        info = self.cache.get(cache_key)
         if not info:
             wxuser = self.filter(wxid=wxid).first()
             if wxuser:
@@ -73,7 +75,7 @@ class WxUserManager(ModelManager):
                     'avatar_url': wxuser.head_img,
                     'user_type': 'wechat'
                 }
-                self.cache.set(wxid, info)
+                self.cache.set(cache_key, info, self.TIME_OUT_USER_INFO)
             else:
                 info = {}
         return info
@@ -106,7 +108,7 @@ class WxUser(models.Model):
     "wxid": "hehaifeng4235"
     }
     """
-    wxid = models.CharField(max_length=200, verbose_name='wxid')
+    wxid = models.CharField(db_index=True, unique=True, max_length=200, verbose_name='wxid')
     wx_alias = models.CharField(max_length=200, blank=True, null=True, verbose_name='微信号')
     nickname = models.CharField(max_length=200, blank=True, null=True, verbose_name='微信昵称')
     remark_name = models.CharField(max_length=200, blank=True, null=True, verbose_name='好友备注')
@@ -115,16 +117,12 @@ class WxUser(models.Model):
     country = models.CharField(max_length=200, blank=True, null=True, verbose_name='祖国')
     province = models.CharField(max_length=200, blank=True, null=True, verbose_name='省份')
     city = models.CharField(max_length=200, blank=True, null=True, verbose_name='城市')
-    bot_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='bot_wxid')
+    # bot_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='bot_wxid')
 
     objects = WxUserManager()
 
     class Meta:
         db_table = 'wx_user'
-        unique_together = [
-            ['wxid', 'bot_wxid']
-        ]
-        
 
 
 mm_WxUser = WxUser.objects
