@@ -137,12 +137,12 @@ class WehubConsumer(AsyncWebsocketConsumer):
         # 2. 更新群列表
         group_list = data_dict['group_list']
         my_groups = [group for group in group_list]
-        self.room_wxid_list = [group['wxid'] for group in my_groups]
+        room_wxid_list = [group['wxid'] for group in my_groups]
         for group in my_groups:
             mm_WxGroup.update_group(bot_wxid, group)
 
         # 3. 返回需要上传群信息的群wxid列表
-        return self.room_wxid_list
+        return room_wxid_list
 
     def process_report_contact_update(self, bot_wxid, data_dict):
         """群成员变化
@@ -254,8 +254,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         elif action == 'report_contact':
             # 处理群信息
-            room_wxid_list = self.process_report_contact(
-                wxid, request_data_dict)
+            room_wxid_list = self.process_report_contact(wxid, request_data_dict)
             # 发送上传群成员信息任务
             # room_wxid_list = []
             reply_task_list = []
@@ -342,4 +341,14 @@ class WehubConsumer(AsyncWebsocketConsumer):
             'ack_type': 'common_ack'
         }
         # 回调wehub
+        await self.send(json.dumps(ack_dict))
+
+    async def wehub_task(self, event):
+        """自定义命令
+        """
+        ack_dict = event['message']
+        for f in ['error_code', 'error_reason', 'data', 'ack_type']:
+            if f not in ack_dict:
+                return
+        
         await self.send(json.dumps(ack_dict))
