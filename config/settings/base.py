@@ -364,6 +364,14 @@ LOGGING = {
             "backupCount": 10,
             "formatter": "verbose"
         },
+        "wehub_task_file": {
+            "level": LOG_LEVEL_INFO,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "./logs/wehub_task.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10MB
+            "backupCount": 10,
+            "formatter": "verbose"
+        },
         "qiniu_file": {
             "level": LOG_LEVEL_INFO,
             "class": "logging.handlers.RotatingFileHandler",
@@ -409,6 +417,11 @@ LOGGING = {
         },
         'wehub': {
             'handlers': ['wehub_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'wehub_task': {
+            'handlers': ['wehub_task_file', 'console'],
             'level': 'INFO',
             'propagate': True,
         },
