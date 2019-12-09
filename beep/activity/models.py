@@ -84,7 +84,7 @@ class Activity(models.Model):
     live_plateform = models.CharField(
         max_length=120, blank=True, verbose_name='直播平台')
     live_address = models.CharField(
-        max_length=20, blank=True, verbose_name='直播地址|微信群名')
+        max_length=200, blank=True, verbose_name='直播地址|微信群名')
     total_user = models.PositiveIntegerField(default=0, blank=True, verbose_name='活动人数')
     contact_name = models.CharField(max_length=100, blank=True, verbose_name='联系人')
     contact_info = models.CharField(max_length=100, blank=True, verbose_name='联系人电话|微信')
