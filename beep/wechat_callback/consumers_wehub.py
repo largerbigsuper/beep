@@ -146,8 +146,9 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         # 3. 返回需要上传群信息的群wxid列表
         # 去除已经同步的群
-        saved_groups = set(mm_WxGroup.all().values_list('room_wxid', flat=True))
-        room_wxid_list = [group['wxid'] for group in my_groups if group['wxid'] not in saved_groups]
+        # saved_groups = set(mm_WxGroup.all().values_list('room_wxid', flat=True))
+        # room_wxid_list = [group['wxid'] for group in my_groups if group['wxid'] not in saved_groups]
+        room_wxid_list = [group['wxid'] for group in my_groups]
         
         return room_wxid_list
 
