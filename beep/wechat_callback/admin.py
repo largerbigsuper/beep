@@ -11,7 +11,7 @@ class WxBotAdmin(admin.ModelAdmin):
 @admin.register(WxUser)
 class WxUserAdmin(admin.ModelAdmin):
     
-    list_display = ['wxid', 'wx_alias', 'nickname']
+    list_display = ['wxid', 'wx_alias', 'nickname', 'head_img']
     search_fields = ['wxid', 'nickname']
 
 @admin.register(WxGroup)
