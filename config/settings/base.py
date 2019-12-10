@@ -364,6 +364,22 @@ LOGGING = {
             "backupCount": 10,
             "formatter": "verbose"
         },
+        "wehub_user_file": {
+            "level": LOG_LEVEL_INFO,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "./logs/wehub_user.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10MB
+            "backupCount": 10,
+            "formatter": "verbose"
+        },
+        "wehub_group_file": {
+            "level": LOG_LEVEL_INFO,
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "./logs/wehub_group.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10MB
+            "backupCount": 10,
+            "formatter": "verbose"
+        },
         "wehub_task_file": {
             "level": LOG_LEVEL_INFO,
             "class": "logging.handlers.RotatingFileHandler",
@@ -417,6 +433,16 @@ LOGGING = {
         },
         'wehub': {
             'handlers': ['wehub_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'wehub_user': {
+            'handlers': ['wehub_user_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'wehub_group': {
+            'handlers': ['wehub_group_file', 'console'],
             'level': 'INFO',
             'propagate': True,
         },

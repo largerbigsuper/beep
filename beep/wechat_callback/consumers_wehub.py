@@ -7,6 +7,7 @@ from django.core.cache import cache
 
 from . import const
 from .models import mm_WxUser, mm_WxGroup, mm_WxBot, mm_WxMessage
+from .tasks import update_or_create_wxuser, update_or_create_wxgroup
 
 
 class WehubConsumer(AsyncWebsocketConsumer):
@@ -132,16 +133,22 @@ class WehubConsumer(AsyncWebsocketConsumer):
         # 1. 更新好友列表
         friend_list = data_dict['friend_list']
         for friend in friend_list:
-            mm_WxUser.update_user(friend)
+            # mm_WxUser.update_user(friend)
+            update_or_create_wxuser.delay(friend)
 
         # 2. 更新群列表
         group_list = data_dict['group_list']
         my_groups = [group for group in group_list]
-        room_wxid_list = [group['wxid'] for group in my_groups]
+
         for group in my_groups:
-            mm_WxGroup.update_group(bot_wxid, group)
+            # mm_WxGroup.update_group(bot_wxid, group)
+            update_or_create_wxgroup.delay(bot_wxid, group)
 
         # 3. 返回需要上传群信息的群wxid列表
+        # 去除已经同步的群
+        saved_groups = set(mm_WxGroup.all().values_list('room_wxid', flat=True))
+        room_wxid_list = [group['wxid'] for group in my_groups if group['wxid'] not in saved_groups]
+        
         return room_wxid_list
 
     def process_report_contact_update(self, bot_wxid, data_dict):
@@ -152,25 +159,30 @@ class WehubConsumer(AsyncWebsocketConsumer):
         userinfo_list = []
         groupinfo_list = []
         for info in update_list:
-            if 'owner_wxid' not in info:
-                userinfo_list.append(info)
-            else:
+            wxid = info['wxid']
+            if wxid.endswith('chatroom'):
                 groupinfo_list.append(info)
+            else:
+                userinfo_list.append(info)
         for info in userinfo_list:
-            mm_WxUser.update_user(info)
+            # mm_WxUser.update_user(info)
+            update_or_create_wxuser.delay(info)
         for info in groupinfo_list:
-            mm_WxGroup.update_group(bot_wxid, info)
+            # mm_WxGroup.update_group(bot_wxid, info)
+            update_or_create_wxgroup.delay(bot_wxid, info)
 
     def process_report_room_member_info(self, bot_wxid, data_dict):
         """上报群成员信息
         """
         room_data_list = data_dict['room_data_list']
         for room in room_data_list:
-            mm_WxGroup.update_group(bot_wxid, room)
+            # mm_WxGroup.update_group(bot_wxid, room)
+            update_or_create_wxgroup.delay(bot_wxid, room)
             memberInfo_list = room['memberInfo_list']
             for info in memberInfo_list:
                 info.pop('room_nickname')
-                mm_WxUser.update_user(info)
+                # mm_WxUser.update_user(info)
+                update_or_create_wxuser.delay(info)
 
     def process_report_room_member_change(self, bot_wxid, data_dict):
         """上报群成员变化

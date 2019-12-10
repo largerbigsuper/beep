@@ -1,8 +1,14 @@
-from django.db import models
+import logging
 
+from django.db import models
 from django_extensions.db.fields.json import JSONField
 
 from utils.modelmanager import ModelManager
+
+
+wehub_user_logger = logging.getLogger('wehub_user')
+wehub_group_logger = logging.getLogger('wehub_group')
+
 
 class WxBotManager(ModelManager):
     
@@ -47,6 +53,9 @@ mm_WxBot = WxBot.objects
 class WxUserManager(ModelManager):
     
     def update_user(self, userinfo_dict):
+
+        wehub_user_logger.info('Raw user data: {}'.format(userinfo_dict))
+
         wxid = userinfo_dict.pop('wxid')
         defaults = {
             'wx_alias': userinfo_dict.get('wx_alias'),
@@ -131,14 +140,24 @@ mm_WxUser = WxUser.objects
 class WxGroupManager(ModelManager):
     
     def update_group(self, bot_wxid, groupinfo_dict):
-        
+
+        wehub_group_logger.info('Raw group data: {}'.format(groupinfo_dict))
+
         if 'room_wxid' in groupinfo_dict:
-            wxid = groupinfo_dict['room_wxid']
+            room_wxid = groupinfo_dict['room_wxid']
         else:
             # 上报新群的接口数据中没有room_wxid字段
-            wxid = groupinfo_dict.pop('wxid')
-            groupinfo_dict['room_wxid'] = wxid
-        self.update_or_create(bot_wxid=bot_wxid, wxid=wxid, defaults=groupinfo_dict)
+            room_wxid = groupinfo_dict.pop('wxid')
+            # groupinfo_dict['room_wxid'] = wxid
+        defaults = {}
+        defaults['head_img'] = groupinfo_dict.get('head_img')
+        defaults['member_count'] = groupinfo_dict.get('member_count')
+        defaults['member_nickname_list'] = groupinfo_dict.get('member_nickname_list')
+        defaults['member_wxid_list'] = groupinfo_dict.get('member_wxid_list')
+        defaults['name'] = groupinfo_dict.get('name')
+        defaults['owner_wxid'] = groupinfo_dict.get('owner_wxid')
+        defaults['memberInfo_list'] = groupinfo_dict.get('memberInfo_list')
+        self.update_or_create(bot_wxid=bot_wxid, room_wxid=room_wxid, defaults=defaults)
 
 
 class WxGroup(models.Model):
@@ -172,7 +191,7 @@ class WxGroup(models.Model):
     name = models.CharField(max_length=200, blank=True, null=True, verbose_name='群名称')
     owner_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='群主wxid')
     room_wxid = models.CharField(max_length=200, unique=True, db_index=True, blank=True, null=True, verbose_name='群wxid')
-    wxid = models.CharField(max_length=200, verbose_name='wxid')
+    # wxid = models.CharField(max_length=200, verbose_name='wxid')
     bot_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='bot_wxid')
     memberInfo_list = JSONField(default='[]', verbose_name='当前群的成员信息列表')
 
@@ -181,7 +200,7 @@ class WxGroup(models.Model):
     class Meta:
         db_table = 'wx_group'
         unique_together = [
-            ['wxid', 'bot_wxid']
+            ['room_wxid', 'bot_wxid']
         ]
 
 
