@@ -257,18 +257,18 @@ class WehubConsumer(AsyncWebsocketConsumer):
             room_wxid_list = self.process_report_contact(wxid, request_data_dict)
             # 发送上传群成员信息任务
             # room_wxid_list = []
-            # reply_task_list = []
-            # task = {
-            #     'task_type': const.TASK_TYPE_REPORT_ROOMMEMBER,
-            #     'task_dict': {
-            #         'room_wxid_list': room_wxid_list
-            #     }
-            # }
-            # reply_task_list.append(task)
-            # ack_data = {
-            #     'reply_task_list': reply_task_list
-            # }
-            # return 0, "no error", ack_data, ack_type
+            reply_task_list = []
+            task = {
+                'task_type': const.TASK_TYPE_REPORT_ROOMMEMBER,
+                'task_dict': {
+                    'room_wxid_list': room_wxid_list
+                }
+            }
+            reply_task_list.append(task)
+            ack_data = {
+                'reply_task_list': reply_task_list
+            }
+            return 0, "no error", ack_data, ack_type
 
         elif action == 'report_contact_update':
             self.process_report_contact_update(wxid, request_data_dict)
