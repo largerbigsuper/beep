@@ -1,7 +1,12 @@
 from celery import shared_task
 
-from .models import mm_WxUser, mm_WxGroup
+from .models import mm_WxUser, mm_WxGroup, mm_WxBot
 
+@shared_task
+def update_or_create_wxbot(wxid, botinfo_dict):
+    """更新机器人账号信息
+    """
+    mm_WxBot.update_bot(wxid=wxid, data=botinfo_dict)
 
 @shared_task
 def update_or_create_wxuser(userinfo_dict):

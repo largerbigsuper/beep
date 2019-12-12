@@ -55,8 +55,13 @@ class WxUserManager(ModelManager):
     def update_user(self, userinfo_dict):
 
         wehub_user_logger.info('Raw user data: {}'.format(userinfo_dict))
-
+        saved_wxid = self.cache.get(self.key_wxid_set)
+        if saved_wxid is None:
+            saved_wxid = self.get_saved_wxid_set()
         wxid = userinfo_dict.pop('wxid')
+        if wxid in saved_wxid:
+            return
+        
         defaults = {
             'wx_alias': userinfo_dict.get('wx_alias'),
             'nickname': userinfo_dict.get('nickname'),
@@ -88,6 +93,13 @@ class WxUserManager(ModelManager):
             else:
                 info = {}
         return info
+
+    def get_saved_wxid_set(self):
+        """获取上一次wehub上传的用户wxid
+        """
+        saved_wxid_set = set(self.all().values_list('wxid', flat=True))
+        self.cache.set(self.key_wxid_set, saved_wxid_set, self.TIME_OUT_WXID_SET)
+        return saved_wxid_set
 
 
 class WxUser(models.Model):

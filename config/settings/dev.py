@@ -27,6 +27,7 @@ DATABASES = {
         'HOST': env('DB_HOST'),
         'PORT': env('DB_PORT'),
         'ATOMIC_REQUESTS': True,
+        'CONN_MAX_AGE': 10,
         'OPTIONS': {
             'init_command': 'SET CHARACTER SET utf8mb4',
             'charset': 'utf8mb4',
