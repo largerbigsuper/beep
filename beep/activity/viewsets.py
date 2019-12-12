@@ -16,7 +16,7 @@ from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter, Regis
 from .tasks import send_rewardplan_start
 
 from beep.blog.models import mm_Blog
-from utils.permissions import IsOwerPermission
+from utils.permissions import IsOwerPermission, IsOwnerOrAdminPermission
 from utils.pagination import Size_200_Pagination, Size_12_Pagination
 from utils.wexin_api import WeiXinOpenApi
 from utils.serializers import NoneParamsSerializer
@@ -29,8 +29,10 @@ class ActivityViewSet(viewsets.ModelViewSet):
     pagination_class = Size_12_Pagination
 
     def get_permissions(self):
-        if self.action in ['create', 'put', 'delete', 'set_live_start', 'set_live_end']:
+        if self.action in ['create', 'put', 'delete']:
             return [IsAuthenticated()]
+        elif self.action in ['set_live_start', 'set_live_end']:
+            return [IsOwnerOrAdminPermission()]
         else:
             return []
 
@@ -314,7 +316,7 @@ class RewardPlanViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def set_rewardplan_start(self, request, pk=None):
         """发送开奖信息到频道
-        """
+        """ 
         # obj = self.get_object()
         send_rewardplan_start(int(pk))
         return Response()
