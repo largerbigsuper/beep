@@ -67,7 +67,7 @@ class WxUserManager(ModelManager):
             'nickname': userinfo_dict.get('nickname'),
             'remark_name': userinfo_dict.get('remark_name'),
             'head_img': userinfo_dict.get('head_img'),
-            'sex': userinfo_dict.get('sex'),
+            'sex': userinfo_dict.get('sex', 1),
             'country': userinfo_dict.get('country'),
             'province': userinfo_dict.get('province'),
             'city': userinfo_dict.get('city'),
@@ -163,7 +163,7 @@ class WxGroupManager(ModelManager):
             # groupinfo_dict['room_wxid'] = wxid
         defaults = {}
         defaults['head_img'] = groupinfo_dict.get('head_img')
-        defaults['member_count'] = groupinfo_dict.get('member_count')
+        defaults['member_count'] = groupinfo_dict.get('member_count', 0)
         defaults['member_nickname_list'] = groupinfo_dict.get('member_nickname_list')
         defaults['member_wxid_list'] = groupinfo_dict.get('member_wxid_list')
         defaults['name'] = groupinfo_dict.get('name')

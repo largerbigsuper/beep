@@ -127,6 +127,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         # mm_WxBot.update_bot(wxid=wxid, data=data_dict)
         update_or_create_wxbot.delay(wxid, data_dict)
+        # 更新缓存
+        mm_WxUser.get_saved_wxid_set()
 
     def process_report_contact(self, bot_wxid, data_dict):
         """上报好友与群列表
