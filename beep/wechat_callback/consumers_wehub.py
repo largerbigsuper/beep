@@ -7,7 +7,7 @@ from django.core.cache import cache
 
 from . import const
 from .models import mm_WxUser, mm_WxGroup, mm_WxBot, mm_WxMessage
-from .tasks import update_or_create_wxuser, update_or_create_wxgroup
+from .tasks import update_or_create_wxuser, update_or_create_wxgroup, update_or_create_wxbot
 
 
 class WehubConsumer(AsyncWebsocketConsumer):
@@ -125,7 +125,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
         """微信机器人
         """
 
-        mm_WxBot.update_bot(wxid=wxid, data=data_dict)
+        # mm_WxBot.update_bot(wxid=wxid, data=data_dict)
+        update_or_create_wxbot.delay(wxid, data_dict)
 
     def process_report_contact(self, bot_wxid, data_dict):
         """上报好友与群列表
