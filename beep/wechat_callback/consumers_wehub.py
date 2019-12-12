@@ -133,11 +133,19 @@ class WehubConsumer(AsyncWebsocketConsumer):
     def process_report_contact(self, bot_wxid, data_dict):
         """上报好友与群列表
         """
+        saved_wxid = mm_WxUser.cache.get(self.key_wxid_set)
+        if saved_wxid is None:
+            saved_wxid = self.get_saved_wxid_set()
+
         # 1. 更新好友列表
         friend_list = data_dict['friend_list']
-        for friend in friend_list:
+        for info in friend_list:
             # mm_WxUser.update_user(friend)
-            update_or_create_wxuser.delay(friend)
+            # 去除已更新的wxid
+            wxid = info['wxid']
+            if wxid in saved_wxid:
+                continue
+            update_or_create_wxuser.delay(info)
 
         # 2. 更新群列表
         group_list = data_dict['group_list']
@@ -149,9 +157,9 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         # 3. 返回需要上传群信息的群wxid列表
         # 去除已经同步的群
-        # saved_groups = set(mm_WxGroup.all().values_list('room_wxid', flat=True))
-        # room_wxid_list = [group['wxid'] for group in my_groups if group['wxid'] not in saved_groups]
-        room_wxid_list = [group['wxid'] for group in my_groups]
+        saved_groups = set(mm_WxGroup.all().values_list('room_wxid', flat=True))
+        room_wxid_list = [group['wxid'] for group in my_groups if group['wxid'] not in saved_groups]
+        # room_wxid_list = [group['wxid'] for group in my_groups]
         
         return room_wxid_list
 
@@ -168,8 +176,15 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 groupinfo_list.append(info)
             else:
                 userinfo_list.append(info)
+        saved_wxid = mm_WxUser.cache.get(self.key_wxid_set)
+        if saved_wxid is None:
+            saved_wxid = self.get_saved_wxid_set()
+
         for info in userinfo_list:
             # mm_WxUser.update_user(info)
+            wxid = info['wxid']
+            if wxid in saved_wxid:
+                continue
             update_or_create_wxuser.delay(info)
         for info in groupinfo_list:
             # mm_WxGroup.update_group(bot_wxid, info)
@@ -178,12 +193,19 @@ class WehubConsumer(AsyncWebsocketConsumer):
     def process_report_room_member_info(self, bot_wxid, data_dict):
         """上报群成员信息
         """
+        saved_wxid = mm_WxUser.cache.get(self.key_wxid_set)
+        if saved_wxid is None:
+            saved_wxid = self.get_saved_wxid_set()
+            
         room_data_list = data_dict['room_data_list']
         for room in room_data_list:
             # mm_WxGroup.update_group(bot_wxid, room)
             update_or_create_wxgroup.delay(bot_wxid, room)
             memberInfo_list = room['memberInfo_list']
             for info in memberInfo_list:
+                wxid = info['wxid']
+                if wxid in saved_wxid:
+                    continue
                 info.pop('room_nickname')
                 # mm_WxUser.update_user(info)
                 update_or_create_wxuser.delay(info)

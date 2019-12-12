@@ -55,12 +55,12 @@ class WxUserManager(ModelManager):
     def update_user(self, userinfo_dict):
 
         wehub_user_logger.info('Raw user data: {}'.format(userinfo_dict))
-        saved_wxid = self.cache.get(self.key_wxid_set)
-        if saved_wxid is None:
-            saved_wxid = self.get_saved_wxid_set()
+        # saved_wxid = self.cache.get(self.key_wxid_set)
+        # if saved_wxid is None:
+            # saved_wxid = self.get_saved_wxid_set()
         wxid = userinfo_dict.pop('wxid')
-        if wxid in saved_wxid:
-            return
+        # if wxid in saved_wxid:
+        #     return
         
         defaults = {
             'wx_alias': userinfo_dict.get('wx_alias'),
@@ -202,7 +202,7 @@ class WxGroup(models.Model):
     member_wxid_list = JSONField(default='[]', verbose_name='当前群的成员wxid的列表')
     name = models.CharField(max_length=200, blank=True, null=True, verbose_name='群名称')
     owner_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='群主wxid')
-    room_wxid = models.CharField(max_length=200, unique=True, db_index=True, blank=True, null=True, verbose_name='群wxid')
+    room_wxid = models.CharField(max_length=200, db_index=True, blank=True, null=True, verbose_name='群wxid')
     # wxid = models.CharField(max_length=200, verbose_name='wxid')
     bot_wxid = models.CharField(max_length=200, blank=True, null=True, verbose_name='bot_wxid')
     memberInfo_list = JSONField(default='[]', verbose_name='当前群的成员信息列表')
