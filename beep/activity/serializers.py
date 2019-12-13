@@ -100,7 +100,7 @@ class ActivityListSerializer(ActivityCreateSerializer):
                   'province_code', 'province_name',
                   'city_code', 'city_name',
                   'district_code', 'district_name', 'blog_id', 'wx_groupname', 'wx_groupwxid', 'wx_botwxid',
-                  'ask_allowed', 'rewardplan', 'summary_id'
+                  'ask_allowed', 'rewardplan', 'summary_id', 'poster'
                   )
 
 

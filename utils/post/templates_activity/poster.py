@@ -91,6 +91,8 @@ class Template_Activity:
     def _get_text_im(self, text, font, max_width, fill, padding=0, align='left'):
         """获取文本图片
         """
+        if not text:
+            text = '     '
         lines = self._get_lines(text, font=font, max_width=max_width - self.padding_content * 2)
         _width, _height = font.getsize('我')
         title_height = len(lines) * _height + (len(lines) - 1) * self.default_line_height

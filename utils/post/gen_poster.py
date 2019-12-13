@@ -27,7 +27,7 @@ class Post:
     def generate_post_activity(self, user_cover, user_name, user_desc, title, logo, qrcode_path):
         """活动海报
         """
-        path = Template_Activity.generate_post(user_cover, user_name, user_desc, title, logo, qrcode_path)
+        path = Template_Activity().generate_post(user_cover, user_name, user_desc, title, logo, qrcode_path)
         return self._upload(path)
 
     def _upload(self, path):
