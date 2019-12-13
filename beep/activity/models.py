@@ -112,6 +112,7 @@ class Activity(models.Model):
     status = models.PositiveSmallIntegerField(choices=ActivityManager.STATUS_CHOICE,
                                               default=ActivityManager.STATUS_CREATED,
                                               verbose_name='审核状态')
+    poster = models.ImageField(blank=True, null=True, verbose_name='海报')
 
     objects = ActivityManager()
 

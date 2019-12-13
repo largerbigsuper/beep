@@ -4,7 +4,6 @@ from django.db.models.signals import pre_delete
 from beep.blog.models import mm_Blog
 from beep.activity.models import Activity
 
-__all__ = ['delete_activity_blogs']
 
 @receiver(pre_delete, sender=Activity)
 def delete_activity_blogs(instance, using, **kwargs):

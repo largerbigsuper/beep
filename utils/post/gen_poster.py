@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from .poster_tpl_1 import Template_V1
 from .poster_tpl_2 import Template_V2
+from .templates_activity.poster import Template_Activity
 
 from ..qiniucloud import QiniuService
 
@@ -20,6 +21,13 @@ class Post:
         else:
             path = Template_V2().generate_post(title, date, content)
         
+        return self._upload(path)
+
+
+    def generate_post_activity(self, user_cover, user_name, user_desc, title, logo, qrcode_path):
+        """活动海报
+        """
+        path = Template_Activity().generate_post(user_cover, user_name, user_desc, title, logo, qrcode_path)
         return self._upload(path)
 
     def _upload(self, path):
