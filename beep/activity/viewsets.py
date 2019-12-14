@@ -14,7 +14,7 @@ from .serializers import (ActivityCreateSerializer, ActivityListSerializer,
                           )
 from .models import mm_Activity, mm_Registration, mm_Collect, mm_RewardPlan, mm_RewardPlanApply, mm_Schedule
 from .filters import ActivityFilter, CollectFilter, RewardPlanApplyFilter, RegistrationFilter, ScheduleFilter
-from .tasks import send_rewardplan_start
+from .tasks import send_rewardplan_start, generate_activity_poster
 
 from beep.blog.models import mm_Blog
 from utils.permissions import IsOwerPermission, IsOwnerOrAdminPermission
@@ -33,7 +33,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['create', 'put', 'delete']:
             return [IsAuthenticated()]
-        elif self.action in ['set_live_start', 'set_live_end', 'create_poster']:
+        elif self.action in ['set_live_start', 'set_live_end']:
             return [IsOwnerOrAdminPermission()]
         else:
             return []
@@ -41,7 +41,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'put']:
             return ActivityCreateSerializer
-        elif self.action in ['remove_registration', 'remove_collect', 'delete', 'set_live_start', 'set_live_end', 'create_poster']:
+        elif self.action in ['remove_registration', 'remove_collect', 'delete', 'set_live_start', 'set_live_end']:
             return NoneParamsSerializer
         else:
             return ActivityListSerializer            
@@ -65,7 +65,13 @@ class ActivityViewSet(viewsets.ModelViewSet):
             cover_url = serializer.validated_data.pop('cover_url', None)
             serializer.validated_data['cover'] = cover_url
             activity = serializer.save(user=self.request.user, rewardplan=rewardplan)
+            # 生成海报
+            generate_activity_poster.delay(activity.id)
 
+    def perform_update(self, serializer):
+        # 生成海报
+        activity = serializer.save()
+        generate_activity_poster.delay(activity.id)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -183,32 +189,32 @@ class ActivityViewSet(viewsets.ModelViewSet):
         }
         return Response(data=data)
 
-    @action(detail=True, methods=['post'])
-    def create_poster(self, request, pk=None):
-        """生成海报
-        """
-        activity = self.get_object()
-        user_cover = activity.user.avatar_url
-        user_name = activity.user.name
-        user_desc = activity.user.desc[:30] if activity.user.desc else ''
-        title = activity.title
-        logo = activity.cover
-        qrcode_path = 'https://beepcrypto.com/activity/detail?id={}&articleId={}'.format(activity.id, activity.blog_id)
+    # @action(detail=True, methods=['post'])
+    # def create_poster(self, request, pk=None):
+    #     """生成海报
+    #     """
+    #     activity = self.get_object()
+    #     user_cover = activity.user.avatar_url
+    #     user_name = activity.user.name
+    #     user_desc = activity.user.desc[:30] if activity.user.desc else ''
+    #     title = activity.title
+    #     logo = activity.cover
+    #     qrcode_path = 'https://beepcrypto.com/activity/detail?id={}&articleId={}'.format(activity.id, activity.blog_id)
 
-        detail = ''
-        if not user_cover:
-            detail = '用户头像未设置'
-        if not logo:
-            detail = '活动封面图未设置'
-        if detail:
-            return Response(data={'detail': detail}, status=status.HTTP_400_BAD_REQUEST)
+    #     detail = ''
+    #     if not user_cover:
+    #         detail = '用户头像未设置'
+    #     if not logo:
+    #         detail = '活动封面图未设置'
+    #     if detail:
+    #         return Response(data={'detail': detail}, status=status.HTTP_400_BAD_REQUEST)
         
-        poster = Post().generate_post_activity(user_cover, user_name, user_desc, title, logo, qrcode_path)
-        mm_Activity.filter(pk=activity.id).update(poster=poster)
-        data = {
-            'poster': poster
-        }
-        return Response(data)
+    #     poster = Post().generate_post_activity(user_cover, user_name, user_desc, title, logo, qrcode_path)
+    #     mm_Activity.filter(pk=activity.id).update(poster=poster)
+    #     data = {
+    #         'poster': poster
+    #     }
+    #     return Response(data)
 
     @action(detail=True)
     def get_poster(self, request, pk=None):
