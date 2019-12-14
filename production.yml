@@ -1,22 +1,11 @@
 version: '2'
 
 services:
-  django:
-    build:
-      context: .
-      dockerfile: ./compose/production/django/Dockerfile
-    image: beep_production_django
-    depends_on:
-      - mysql
-      - redis
-    volumes:
-      - .:/app
-    env_file:
-      - ./.envs/.production/.django
-      - ./.envs/.production/.mysql
-    ports:
-      - 9000:8000
-    command: ["/start"]
+  
+  redis:
+    image: redis:5.0
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
 
   mysql:
     image: mysql:5.7
@@ -27,11 +16,26 @@ services:
       - 3307:3306
     env_file:
       - ./.envs/.production/.mysql
-  
-  redis:
-    image: redis:5.0
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    image: beep_production_django
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.mysql
+    ports:
+      - 9000:8000
+    command: ["/start"]
+    depends_on:
+      - mysql
+      - redis
+      - celery_worker
+      - celery_beat
+      - celery_flower
 
   celery_worker:
     build:
@@ -47,8 +51,7 @@ services:
       - ./.envs/.production/.mysql
     depends_on:
       - redis
-      - django
-    # scale: 4
+      - mysql
 
   celery_beat:
     build:
@@ -64,13 +67,13 @@ services:
       - ./.envs/.production/.mysql
     depends_on:
       - redis
-      - django
+      - mysql
       - celery_worker
 
   celery_flower:
     build:
       context: .
-      dockerfile: ./compose/dev/django/Dockerfile
+      dockerfile: ./compose/production/django/Dockerfile
     image: beep_production_django
     # command: flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True --basic_auth=admin:888888 --log-file-prefix=logs/flower.log
     command: ["/app/compose/production/django/celery/flower/start"]
@@ -83,5 +86,6 @@ services:
       - ./.envs/.production/.mysql
     depends_on:
       - redis
-      - django
+      - mysql
       - celery_worker
+      - celery_beat

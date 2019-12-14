@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import Activity, Registration, RewardPlan, RewardPlanApply
+from .tasks import generate_activity_poster
 
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
@@ -8,6 +9,12 @@ class ActivityAdmin(admin.ModelAdmin):
     search_fields = ['title']
     list_filter = ['activity_type', 'status', 'is_recommand']
     ordering = ['-create_at']
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        # 生成海报
+        generate_activity_poster.delay(obj.id)
+
 
 
 @admin.register(Registration)

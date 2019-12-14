@@ -4,12 +4,12 @@ import datetime
 
 # from __future__ import absolute_import, unicode_literals
 from celery import shared_task
-
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-
 from django.conf import settings
 from django.core.cache import cache
+
+from utils.post.gen_poster import Post
 
 logger = logging.getLogger('celery')
 
@@ -92,3 +92,29 @@ def send_rewardplan_start(rewardplan_id):
     logger.info(msg_done)
 
 
+
+@shared_task
+def generate_activity_poster(pk):
+    """生成活动海报
+    """
+    from .models import mm_Activity
+    activity = mm_Activity.get(pk=pk)
+    user_cover = activity.user.avatar_url
+    user_name = activity.user.name
+    user_desc = activity.user.desc[:30] if activity.user.desc else ''
+    title = activity.title
+    logo = activity.cover
+    qrcode_path = 'https://beepcrypto.com/activity/detail?id={}&articleId={}'.format(activity.id, activity.blog_id)
+
+    detail = ''
+    if not user_cover:
+        detail = '用户头像未设置'
+    if not logo:
+        detail = '活动封面图未设置'
+    if detail:
+        return 
+    
+    poster = Post().generate_post_activity(user_cover, user_name, user_desc, title, logo, qrcode_path)
+
+
+    mm_Activity.filter(pk=activity.id).update(poster=poster)

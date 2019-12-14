@@ -1,22 +1,11 @@
 version: "2"
 
 services:
-  django:
-    build:
-      context: .
-      dockerfile: ./compose/dev/django/Dockerfile
-    image: beep_dev_django
-    depends_on:
-      - mysql
-      - redis
-    volumes:
-      - .:/app
-    env_file:
-      - ./.envs/.dev/.django
-      - ./.envs/.dev/.mysql
-    ports:
-      - 9000:8000
-    command: ["/start"]
+  
+  redis:
+    image: redis:5.0
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
 
   mysql:
     image: mysql:5.7
@@ -27,11 +16,26 @@ services:
       - 3307:3306
     env_file:
       - ./.envs/.dev/.mysql
-  
-  redis:
-    image: redis:5.0
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/dev/django/Dockerfile
+    image: beep_dev_django
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.dev/.django
+      - ./.envs/.dev/.mysql
+    ports:
+      - 9000:8000
+    command: ["/start"]
+    depends_on:
+      - mysql
+      - redis
+      - celery_worker
+      - celery_beat
+      - celery_flower
 
   celery_worker:
     build:
@@ -39,8 +43,7 @@ services:
       dockerfile: ./compose/dev/django/Dockerfile
     image: beep_dev_django
     # command: celery -A config worker --concurrency=2 -l info -f logs/celery.log
-    # command: celery -A config multi restart 4 --pidfile=logs/celery%n.pid -l info --logfile=logs/%n%I.log
-    command: ["/app/compose/production/django/celery/woker/start"]
+    command: ["/app/compose/production/django/celery/woker/start"]    
     volumes:
       - .:/app
     env_file:
@@ -48,7 +51,7 @@ services:
       - ./.envs/.dev/.mysql
     depends_on:
       - redis
-      - django
+      - mysql
 
   celery_beat:
     build:
@@ -56,7 +59,7 @@ services:
       dockerfile: ./compose/dev/django/Dockerfile
     image: beep_dev_django
     # command: celery -A config beat -l info -f logs/celery_beat.log
-    command: ["/app/compose/production/django/celery/beat/start"]
+    command: ["/app/compose/production/django/celery/beat/start"]    
     volumes:
       - .:/app
     env_file:
@@ -64,7 +67,7 @@ services:
       - ./.envs/.dev/.mysql
     depends_on:
       - redis
-      - django
+      - mysql
       - celery_worker
 
   celery_flower:
@@ -72,7 +75,7 @@ services:
       context: .
       dockerfile: ./compose/dev/django/Dockerfile
     image: beep_dev_django
-    # command: flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True 
+    # command: flower -A config  --address=0.0.0.0 --port=5555 --auto_refresh=True --basic_auth=admin:888888 --log-file-prefix=logs/flower.log
     command: ["/app/compose/production/django/celery/flower/start"]
     ports:
       - 5555:5555
@@ -83,5 +86,6 @@ services:
       - ./.envs/.dev/.mysql
     depends_on:
       - redis
-      - django
+      - mysql
       - celery_worker
+      - celery_beat
