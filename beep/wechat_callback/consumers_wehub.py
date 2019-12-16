@@ -133,7 +133,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
     def process_report_contact(self, bot_wxid, data_dict):
         """上报好友与群列表
         """
-        saved_wxid = mm_WxUser.cache.get(self.key_wxid_set)
+        saved_wxid = mm_WxUser.cache.get(mm_WxUser.key_wxid_set)
         if saved_wxid is None:
             saved_wxid = self.get_saved_wxid_set()
 
@@ -176,7 +176,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 groupinfo_list.append(info)
             else:
                 userinfo_list.append(info)
-        saved_wxid = mm_WxUser.cache.get(self.key_wxid_set)
+        saved_wxid = mm_WxUser.cache.get(mm_WxUser.key_wxid_set)
         if saved_wxid is None:
             saved_wxid = self.get_saved_wxid_set()
 
@@ -193,7 +193,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
     def process_report_room_member_info(self, bot_wxid, data_dict):
         """上报群成员信息
         """
-        saved_wxid = mm_WxUser.cache.get(self.key_wxid_set)
+        saved_wxid = mm_WxUser.cache.get(mm_WxUser.key_wxid_set)
         if saved_wxid is None:
             saved_wxid = self.get_saved_wxid_set()
             
