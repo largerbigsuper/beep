@@ -163,6 +163,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     def bind_weixin(self, request):
         """绑定微信
         code 前端通过微信回调地址获得
+        只保留手机号登陆的账户
         """
         code = request.query_params.get('code')
         if not code:
@@ -181,11 +182,23 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
             openid = resp_dict['openid']
             unionid = resp_dict['unionid']
             user = mm_User.get_user_by_unionid(unionid)
-            if not user:
-                user = request.user
-            user.openid = openid
-            user.unionid = unionid
-            user.save()
+            if not user:#1.未绑定过微信
+                request.user.openid = openid
+                request.user.unionid = unionid
+                request.user.save()
+            elif user.id == request.user.id:#2.已绑定过同一微信
+                pass
+            else:#3. 存在两个不同账号，保留手机账号
+                # 删除原有微信号
+                user.openid = openid + '_bak'
+                user.unionid = unionid + '_bak'
+                if user.mini_openid:
+                    user.mini_openid = user.mini_openid + '_bak'
+                user.save()
+                # 将微信绑定到手机账号上
+                request.user.openid = openid
+                request.user.unionid = unionid
+                request.user.save()
             return Response()
         else:
             data = {
