@@ -274,7 +274,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
         }
         }
         """
-        mm_WxUser.update_user(data_dict)
+        # mm_WxUser.update_user(data_dict)
+        update_or_create_wxuser.delay(data_dict)
 
     def main_process(self, wxid, action, request_data_dict, save_msg):
         # self.logger.info("action = {0},data = {1}".format(
