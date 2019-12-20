@@ -22,11 +22,12 @@ def update_ticker_cache():
         "Accept": "application/json",
     }
     data = {}
-    response = requests.get(api_url, headers=headers)
+    response = requests.get(api_url, headers=headers, timeout=10)
     if response.status_code == 200:
         all_data = response.json()['data']
         for market_key in market_key_list:
             data[market_key] = all_data[market_key]
-    cache.set(cache_key, data, 60 * 60)
+        cache.set(cache_key, data, 60 * 60)
+
 
 
