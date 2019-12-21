@@ -157,7 +157,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         if activity.wx_groupwxid:
             live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
             live_rooms.add(activity.wx_groupwxid)
-            mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*10)
+            mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*24*3)
 
         return Response()
 
@@ -170,7 +170,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         if activity.wx_groupwxid:
             live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
             live_rooms.remove(activity.wx_groupwxid)
-            mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*10)
+            mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*24*3)
 
         return Response()
 
