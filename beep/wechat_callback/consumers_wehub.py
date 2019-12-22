@@ -147,19 +147,21 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 continue
             update_or_create_wxuser.delay(info)
 
-        # 2. 更新群列表
+        # 2返回需要上传群信息的群wxid列表
+        # 去除已经同步的群
+        saved_groups = set(mm_WxGroup.all().values_list('room_wxid', flat=True))
+        room_wxid_list = [group['wxid'] for group in my_groups if group['wxid'] not in saved_groups]
+
+        # 3. 更新群列表
         group_list = data_dict['group_list']
         my_groups = [group for group in group_list]
 
         for group in my_groups:
+            group_wxid = group['wxid']
+            if group_wxid in saved_groups:
+                continue
             # mm_WxGroup.update_group(bot_wxid, group)
             update_or_create_wxgroup.delay(bot_wxid, group)
-
-        # 3. 返回需要上传群信息的群wxid列表
-        # 去除已经同步的群
-        saved_groups = set(mm_WxGroup.all().values_list('room_wxid', flat=True))
-        room_wxid_list = [group['wxid'] for group in my_groups if group['wxid'] not in saved_groups]
-        # room_wxid_list = [group['wxid'] for group in my_groups]
         
         return room_wxid_list
 
