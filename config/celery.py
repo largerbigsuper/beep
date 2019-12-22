@@ -30,9 +30,9 @@ app.conf.beat_schedule = {
         'args': (),
     },
     # 每周一清除上周热搜
-    'clear-hotsearch-very-day': {
+    'clear-hotsearch-very-monday': {
         'task': 'beep.search.tasks.clear_hotsearch',
-        'schedule': crontab(hour=6, minute=0),
+        'schedule': crontab(day_of_week=1, hour=0, minute=0),
         'args': (),
     },
     'update-ticker-cache-every-30-seconds': {
