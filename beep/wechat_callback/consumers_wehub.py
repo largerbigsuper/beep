@@ -7,7 +7,7 @@ from django.core.cache import cache
 
 from . import const
 from .models import mm_WxUser, mm_WxGroup, mm_WxBot, mm_WxMessage
-from .tasks import update_or_create_wxuser, update_or_create_wxgroup, update_or_create_wxbot
+from .tasks import update_or_create_wxuser, update_or_create_wxgroup, update_or_create_wxbot, save_wxmessage
 
 
 class WehubConsumer(AsyncWebsocketConsumer):
@@ -244,14 +244,17 @@ class WehubConsumer(AsyncWebsocketConsumer):
         """上报新群
         """
 
-        mm_WxGroup.update_group(bot_wxid, data_dict)
+        # mm_WxGroup.update_group(bot_wxid, data_dict)
+        update_or_create_wxgroup.delay(bot_wxid, data_dict)
 
     def process_report_new_msg(self, bot_wxid, data_dict):
         """上报新的聊天消息
         """
         # 存储消息
         wxmessage_dict = data_dict['msg']
-        mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
+        # mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
+        save_wxmessage.delay(bot_wxid, wxmessage_dict)
+
 
     def process_report_user_info(self, bot_wxid, data_dict):
         """上报具体某个微信的详情 request格式

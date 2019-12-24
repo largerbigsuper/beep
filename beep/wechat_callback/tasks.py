@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from .models import mm_WxUser, mm_WxGroup, mm_WxBot
+from .models import mm_WxUser, mm_WxGroup, mm_WxBot, mm_WxMessage
 
 @shared_task
 def update_or_create_wxbot(wxid, botinfo_dict):
@@ -21,3 +21,9 @@ def update_or_create_wxgroup(bot_wxid, groupinfo_dict):
     """
     mm_WxGroup.update_group(bot_wxid, groupinfo_dict)
 
+
+@shared_task
+def save_wxmessage(bot_wxid, wxmessage_dict):
+    """保存微信信息
+    """
+    mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
