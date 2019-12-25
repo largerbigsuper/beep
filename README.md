@@ -1,5 +1,22 @@
 # beep project
 
+## 配置文件
+
+- `dev.yml` 测试环境部署
+- `production.yml` 正式环境部署
+
+## 重要文件
+
+```
+# .env 需添加至项目根目录，没有版本跟踪
+# 数据库信息
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=beep_db_local
+DB_USER=root
+DB_PASSWORD=Password123/
+```
+
 ## 初始化项目
 
 ```
@@ -8,18 +25,10 @@ docker-compose -f dev.yml run --rm  django python manage.py createsuperuser
 
 # 初始化地区
 docker-compose -f dev.yml run --rm  django python manage.py runscript init_area
-
 ```
 
 ## 常用命令
 
-
-**工程相关**
-
-```shell
-django-admin startapp --template ../templates/app_template appname
-
-```
 
 **管理命令**
 
@@ -40,17 +49,13 @@ docker-compose -f dev.yml stop
 **服务缩放**
 
 ```
-docker-compose -f dev.yml scale celery_worker=4 django=2
+docker-compose -f dev.yml scale celery_worker=4
 ```
-
-
 
 ## TODO LIST
 
 - [x] 评论分级列表
-- [ ] es搜索功能
 - [x] 微信信息回调
-- [ ] 聊天服务器搭建
 - [x] 活动查看详情增加浏览次数
 - [x] 活动报名增加到行程表中
 - [x] 活动收藏
@@ -71,27 +76,21 @@ docker-compose -f dev.yml scale celery_worker=4 django=2
 - [x] 发短信接口[登陆| 注册| 找回密码]
 - [x] 短信登陆
 - [x] 短信注册
-
-
-
 - [x] 快讯分享图片动态生成
-
 - [x] 博文转发功能
 - [x] 博文话题 拓展新人榜，专题榜
-
 - [x] 我的粉丝/关注列表搜索报错
 
 
 ## 2019-10-20
 
-- [ ] 博文搜索
-- [ ] 微信服务号 直播推送
+- [x] 微信服务号 直播推送
 - [x] 群直播接入
 - [x] 小程序授权登陆
 - [x] 红V蓝V身份设置
 - [x] 图片加水印
 - [x] 站点支持https
-- [ ] 活动增加审核状态
+- [x] 活动增加审核状态
 
 
 ## 2019-10-23 为题汇总
@@ -144,19 +143,15 @@ docker-compose -f dev.yml scale celery_worker=4 django=2
 ## 2019-10-31
 
 - [x] 收到的评论| @我的 |收到的赞 返回原始博文信息
-- [ ] 博文搜索
 
 
 ## 2019-11-01
 
 - [x] 搜索记录不加分词
-- [ ] 搜索功能
 - [x] 专题增加sub_title
 - [x] 增加抽奖功能
-- [ ] 名字不能有空格
 - [x] 通过用户名查用户信息
 
 ## 2019-11-05
 
-- [ ] 爬虫
 - [x] 评论用户存储数据错误
