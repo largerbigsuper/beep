@@ -158,8 +158,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         for group in my_groups:
             group_wxid = group['wxid']
-            if group_wxid in saved_groups:
-                continue
+            # if group_wxid in saved_groups:
+            #     continue
             # mm_WxGroup.update_group(bot_wxid, group)
             update_or_create_wxgroup.delay(bot_wxid, group)
         
