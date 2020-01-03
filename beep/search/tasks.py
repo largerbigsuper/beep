@@ -52,7 +52,8 @@ def caculate_hotsearch():
     
     # 处理【新】标签
     for d in sorted_data_list[:20]:
-        if d['topic__create_at'] + timedelta(hours=2) > dt_end:
+        # 热搜有效时长
+        if d['topic__create_at'] + timedelta(hours=6) > dt_end:
             d['lable_type'] = 2
 
     hotsearch_list = []

@@ -125,7 +125,7 @@ class BlogViewSet(viewsets.ModelViewSet):
         queryset = mm_user_Blog.all().order_by('-is_top', '-id')
         if self.action == 'index':
             create_at_after = datetime.datetime.today() - datetime.timedelta(days=2)
-            queryset = queryset.filter(create_at__gt=create_at_after)
+            queryset = queryset.filter(create_at__gt=create_at_after).exclude(activity__isnull=False)
         if self.action in ['index', 'search']:
             # FIXME 
             # 搜索关联话题表
