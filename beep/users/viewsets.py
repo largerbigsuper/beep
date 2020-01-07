@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 
-
 from .serializers import (UserSerializer,
                           RegisterSerializer,
                           LoginSerializer,
@@ -66,8 +65,11 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
                     'detail': '验证码不存在或错误'
                 }
                 return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-        user = mm_User.add(account=account, password=password)
-        mm_User.cache.delete(account)
+        with transaction.atomic():
+            user = mm_User.add(account=account, password=password)
+            mm_User.cache.delete(account)
+            # 注册赠送积分
+            mm_Point.add_action(user_id=user.id, action=mm_Point.ACTION_USER_ENROLL)
         return Response(data={'account': account})
 
     @action(detail=False, methods=['post'], serializer_class=MiniprogramLoginSerializer, permission_classes=[], authentication_classes=[])
