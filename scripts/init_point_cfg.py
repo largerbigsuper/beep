@@ -6,7 +6,7 @@ def init_action_point_cfg():
     """
     cfg_list = []
     for code, name in mm_Point.ACTION_CHOICE:
-        cfg = mm_ActionPointCfg.model(code=code, name=name)
+        cfg = mm_ActionPointCfg.model(code=code, name=name, point=10)
         cfg_list.append(cfg)
 
     mm_ActionPointCfg.bulk_create(cfg_list)
