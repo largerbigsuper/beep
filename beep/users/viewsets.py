@@ -475,7 +475,7 @@ class CheckInViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Crea
         with transaction.atomic():
             serializer.save(user=self.request.user)
             mm_Point.add_action(user_id=self.request.user.id,
-                                action=mm_Point.ATION_CHECK_IN)
+                                action=mm_Point.ACTION_CHECK_IN)
 
 
 class PointViewSet(viewsets.ReadOnlyModelViewSet):

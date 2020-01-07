@@ -205,14 +205,24 @@ class PointManager(ModelManager):
         (POINT_IN, '增加'),
     )
 
-    ATION_CHECK_IN = 0
+    ACTION_CHECK_IN = 0
+    ACTION_SKU_EXCHANGE_PAY = 1
+    ACTION_SKU_EXCHANGE_REFOUND = 2
 
     ACTION_CHOICE = (
-        (ATION_CHECK_IN, '每日签到'),
+        (ACTION_CHECK_IN, '每日签到'),
+        (ACTION_SKU_EXCHANGE_PAY, '兑换商品消费'),
+        (ACTION_SKU_EXCHANGE_REFOUND, '兑换商品退回'),
     )
+    ACTION_IN_OR_OUT_MAPPING = {
+        ACTION_CHECK_IN: POINT_IN,
+        ACTION_SKU_EXCHANGE_PAY: POINT_OUT,
+        ACTION_SKU_EXCHANGE_REFOUND: POINT_IN,
+
+    }
 
     Action_Point_Mapping = {
-        ATION_CHECK_IN: 30,
+        ACTION_CHECK_IN: 30,
     }
 
     Action_Desc = {action: msg for action, msg in ACTION_CHOICE}
@@ -233,7 +243,7 @@ class PointManager(ModelManager):
         :param operator_id: 操作人auth_user.id
         :return:
         """
-        in_or_out = self.POINT_IN
+        in_or_out = self.ACTION_IN_OR_OUT_MAPPING[action]
         self.create(user_id=user_id,
                     in_or_out=in_or_out,
                     amount=amount,
@@ -243,15 +253,19 @@ class PointManager(ModelManager):
                     operator_id=operator_id,
                     )
 
-    def add_action(self, user_id, action):
+    def add_action(self, user_id, action, amount=None):
         """
         增加积分记录
         :param customer_id:
         :param action:
         :return:
         """
-        amount = self.Action_Point_Mapping[action]
-        total_left = self.get_total_point(user_id) + amount
+        if amount is None:
+            amount = self.Action_Point_Mapping[action]
+        if self.ACTION_IN_OR_OUT_MAPPING[action]:
+            total_left = self.get_total_point(user_id) + amount
+        else:
+            total_left = self.get_total_point(user_id) - amount
         self._add_action(user_id=user_id,
                          action=action,
                          amount=amount,
@@ -282,6 +296,8 @@ class Point(models.Model):
     class Meta:
         db_table = 'user_points'
         ordering = ['-create_at']
+        verbose_name = '用户积分'
+        verbose_name_plural = '用户积分'
 
 
 mm_Point = Point.objects

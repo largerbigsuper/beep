@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserChangeForm
 from django.utils.translation import gettext, gettext_lazy as _
 from django.utils.html import mark_safe
 
-from .models import User, mm_User, LableApply, mm_LableApply
+from .models import User, mm_User, LableApply, mm_LableApply, Point, mm_Point
 
 class MyUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
@@ -112,3 +112,11 @@ class LableApplyAdmin(admin.ModelAdmin):
         return mark_safe('<img src="{}" width="150" height="150" />'.format(obj.image))
 
     image_tag.short_description = '图片'
+
+
+@admin.register(Point)
+class PointAdmin(admin.ModelAdmin):
+    
+    list_display = ['user', 'in_or_out', 'amount', 'total_left', 'action', 'desc', 'create_at']
+    autocomplete_fields = ['user']
+    list_filter = ['in_or_out']
