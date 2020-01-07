@@ -12,7 +12,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager as AuthUserManager
 from django_extensions.db.fields.json import JSONField
 
-
+from beep.cfg.models import mm_ActionPointCfg
 from utils.exceptions import BeepException
 from utils.modelmanager import ModelManager
 
@@ -208,17 +208,38 @@ class PointManager(ModelManager):
     ACTION_CHECK_IN = 0
     ACTION_SKU_EXCHANGE_PAY = 1
     ACTION_SKU_EXCHANGE_REFOUND = 2
+    ACTION_USER_ENROLL = 1001
+    ACTION_USER_PROFILE = 1002
+    ACTION_USER_FIRST_COMMENT_EVERYDAY = 2001
+    ACTION_USER_ADD_BLOG = 2002
+    ACTION_USER_ADD_TOPIC = 2003
+    ACTION_USER_JOIN_TOPIC = 2004
+    ACTION_USER_INVITE_ENROLL = 3001
 
     ACTION_CHOICE = (
         (ACTION_CHECK_IN, '每日签到'),
         (ACTION_SKU_EXCHANGE_PAY, '兑换商品消费'),
         (ACTION_SKU_EXCHANGE_REFOUND, '兑换商品退回'),
+        (ACTION_USER_ENROLL, '用户注册'),
+        (ACTION_USER_PROFILE, '用户完善个人信息'),
+        (ACTION_USER_FIRST_COMMENT_EVERYDAY, '每日首评'),
+        (ACTION_USER_ADD_BLOG, '发表博文'),
+        (ACTION_USER_ADD_TOPIC, '发布话题'),
+        (ACTION_USER_JOIN_TOPIC, '参与话题'),
+        (ACTION_USER_INVITE_ENROLL, '邀请用户注册'),
     )
+
     ACTION_IN_OR_OUT_MAPPING = {
         ACTION_CHECK_IN: POINT_IN,
         ACTION_SKU_EXCHANGE_PAY: POINT_OUT,
         ACTION_SKU_EXCHANGE_REFOUND: POINT_IN,
-
+        ACTION_USER_ENROLL: POINT_IN,
+        ACTION_USER_PROFILE: POINT_IN,
+        ACTION_USER_FIRST_COMMENT_EVERYDAY: POINT_IN,
+        ACTION_USER_ADD_BLOG: POINT_IN,
+        ACTION_USER_ADD_TOPIC: POINT_IN,
+        ACTION_USER_JOIN_TOPIC: POINT_IN,
+        ACTION_USER_INVITE_ENROLL: POINT_IN,
     }
 
     Action_Point_Mapping = {
@@ -261,11 +282,14 @@ class PointManager(ModelManager):
         :return:
         """
         if amount is None:
-            amount = self.Action_Point_Mapping[action]
+            # amount = self.Action_Point_Mapping[action]
+            amount = mm_ActionPointCfg.get_action_point_mapping().get(action, 0)
         if self.ACTION_IN_OR_OUT_MAPPING[action]:
             total_left = self.get_total_point(user_id) + amount
         else:
             total_left = self.get_total_point(user_id) - amount
+        if amount <= 0:
+            return
         self._add_action(user_id=user_id,
                          action=action,
                          amount=amount,
