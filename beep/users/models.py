@@ -176,6 +176,7 @@ class User(AbstractUser):
     total_followers = models.PositiveIntegerField(default=0, verbose_name='粉丝数量')
     label_type = models.PositiveIntegerField(choices=UserManager.LABEL_TYPE, default=UserManager.LABEL_DEFAULT, verbose_name='普通用户|红V|蓝V')
     completed_profile = models.BooleanField(default=False, verbose_name='完善信息')
+    invite_code = models.CharField(max_length=8, blank=True, null=True, unique=True, verbose_name='邀请码')
 
     objects = UserManager()
 
@@ -429,8 +430,5 @@ class LableApply(models.Model):
 mm_LableApply = LableApply.objects
 
 
-class UserProfileCompleted(models.Model):
-    """用户完善用户信息
-    """
 
 
