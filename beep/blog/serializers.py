@@ -221,6 +221,8 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         instance = Comment(user=request.user,
                            to_user=to_user, **validated_data)
         instance.save()
+        # 第一次评论
+        mm_Comment.update_commnet_point(user_id=request.user.id)
         return instance
 
 
