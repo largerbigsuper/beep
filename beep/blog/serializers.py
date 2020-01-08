@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from beep.users.serializers import UserBaseSerializer
-from beep.users.models import mm_RelationShip, mm_User
+from beep.users.models import mm_RelationShip, mm_User, mm_Point
 from .models import (Topic, mm_Topic, Blog, mm_Blog, AtMessage, mm_AtMessage,
                      Comment, mm_Comment, Like, mm_Like, BlogShare)
 
@@ -113,7 +113,10 @@ class BlogCreateSerializer(BaseBlogSerializer):
             topic_data = {
                 'name': topic_str
             }
-            topic, _ = mm_Topic.get_or_create(**topic_data)
+            topic, created = mm_Topic.get_or_create(**topic_data)
+            # 发起话题赠送积分
+            if created:
+                mm_Point.add_action(user.id, mm_Point.ACTION_USER_ADD_TOPIC)
 
         forward_blog = validated_data.get('forward_blog')
         if forward_blog:
