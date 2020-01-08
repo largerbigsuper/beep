@@ -6,7 +6,7 @@ from beep.blog.models import (
     mm_Topic,
     Comment)
 from beep.activity.models import Activity, mm_Activity
-from beep.users.models import mm_User
+from beep.users.models import mm_User, mm_Point
 
 # FIXME
 # post_save 使用时，其他接口注意保证调用save()的频率
@@ -42,6 +42,10 @@ def _post_save_blog(instance, created):
         # 更新话题
         if instance.topic_id:
             mm_Topic.update_data(instance.topic.id, 'total_blog')
+            # 参加话题赠送积分
+            mm_Point.add_action(instance.user_id, mm_Point.ACTION_USER_JOIN_TOPIC)
+        # 发博文赠送积分
+        mm_Point.add_action(instance.user_id, mm_Point.ACTION_USER_ADD_BLOG)
 
     # 逻辑删除
     if instance.is_delete:
