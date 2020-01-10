@@ -72,6 +72,7 @@ class ActivityListSerializer(ActivityCreateSerializer):
     is_registrated = serializers.SerializerMethodField()
     is_collected = serializers.SerializerMethodField()
     rewardplan = RewardPlanSerializer()
+    total_view = serializers.SerializerMethodField(source='total_view')
 
     def get_is_registrated(self, obj):
         user = self.context['request'].user
@@ -88,6 +89,9 @@ class ActivityListSerializer(ActivityCreateSerializer):
         if not hasattr(user, '_collected_activitys'):
             user._collected_activitys = mm_Collect.filter(user=user).values_list('activity_id', flat=True)
         return 1 if obj.id in user._collected_activitys else 0
+
+    def get_total_view(self, obj):
+        return int(obj.total_view * 11.83)
 
     class Meta:
         model = Activity
