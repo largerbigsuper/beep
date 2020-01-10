@@ -8,4 +8,5 @@ class SkuFilter(filters.FilterSet):
         model = Sku
         fields = {
             'name': ['contains'],
+            'sku_type': ['exact'],
         }

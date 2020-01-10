@@ -4,6 +4,22 @@ from django.conf import settings
 
 from utils.modelmanager import ModelManager
 
+
+class SkuTypeManager(ModelManager):
+    pass
+
+class SkuType(models.Model):
+    
+    name = models.CharField(max_length=20, unique=True, db_index=True, verbose_name='类型')
+    objects = SkuTypeManager()
+    class Meta:
+        db_table = 'beep_sku_type'
+        ordering = ['-id']
+        verbose_name = '商品类型'
+        verbose_name_plural = '商品类型'
+
+mm_SkuType = SkuType.objects
+
 class SkuManager(ModelManager):
 
     STATUS_EDITING = 0
@@ -39,6 +55,7 @@ class SkuManager(ModelManager):
 class Sku(models.Model):
     """积分商品
     """
+    sku_type = models.ForeignKey(SkuType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='类型')
     name = models.CharField(max_length=120, verbose_name='商品名')
     cover = models.ImageField(verbose_name='封面图')
     point = models.PositiveIntegerField(default=0, verbose_name='所需积分')
@@ -108,21 +125,6 @@ class SkuExchange(models.Model):
 mm_SkuExchange = SkuExchange.objects
 
 
-class SkuTypeManager(ModelManager):
-    pass
-
-class SkuType(models.Model):
-    
-    name = models.CharField(max_length=20, unique=True, db_index=True, verbose_name='类型')
-    objects = SkuTypeManager()
-    class Meta:
-        db_table = 'beep_sku_type'
-        ordering = ['-id']
-        verbose_name = '商品类型'
-        verbose_name_plural = '商品类型'
-
-mm_SkuType = SkuType.objects
-
 
 class SkuPropertyNameManager(ModelManager):
     pass
@@ -151,7 +153,7 @@ class SkuPropertyManager(ModelManager):
 class SkuProperty(models.Model):
     """商品属性
     """
-    sku = models.ForeignKey(Sku, on_delete=models.CASCADE, verbose_name='商品')
+    sku = models.ForeignKey(Sku, on_delete=models.CASCADE, related_name='sku_properties', verbose_name='商品')
     property_name_1 = models.CharField(max_length=20, verbose_name='属性名')
     property_value_1 = models.CharField(max_length=20, verbose_name='属性值')
     property_name_2 = models.CharField(max_length=20, null=True, blank=True, verbose_name='属性名2')
