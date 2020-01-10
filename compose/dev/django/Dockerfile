@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED 1
 
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements /requirements
-RUN pip install -r /requirements/dev.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --no-cache-dir
+RUN pip install -r /requirements/dev.txt  --no-cache-dir
 
 COPY ./compose/dev/django/start /start
 RUN chmod +x /start
