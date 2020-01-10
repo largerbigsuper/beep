@@ -15,7 +15,7 @@ def update_ticker_cache():
     
     market_list = ['BTC', 'ETH', 'LTC', 'XRP', 'BCH', 'EOS', 'TRX']
     market_key_list = [x + '_USDT' for x in market_list]
-    api_url = 'https://www.mxc.ceo/open/api/v1/data/ticker?market='
+    api_url = 'https://www.mxcio.co/open/api/v1/data/ticker?market='
     headers = {
         'Content-Type': 'application/json',
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
