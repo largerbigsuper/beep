@@ -44,6 +44,7 @@ class RegisterSerializer(serializers.Serializer):
     account = serializers.CharField()
     password = serializers.CharField()
     code = serializers.CharField(max_length=4)
+    invite_code = serializers.CharField(max_length=6)
 
 
 class LoginSerializer(serializers.Serializer):

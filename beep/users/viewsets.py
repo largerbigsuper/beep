@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 
-
 from .serializers import (UserSerializer,
                           RegisterSerializer,
                           LoginSerializer,
@@ -58,6 +57,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         serializer.is_valid(raise_exception=True)
         account = serializer.validated_data['account']
         password = serializer.validated_data['password']
+        invite_code = serializer.validated_data['invite_code']
         code = serializer.validated_data['code']
         _code = mm_User.cache.get(account)
         if not code == '8888':
@@ -66,8 +66,16 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
                     'detail': '验证码不存在或错误'
                 }
                 return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-        user = mm_User.add(account=account, password=password)
-        mm_User.cache.delete(account)
+        with transaction.atomic():
+            user = mm_User.add(account=account, password=password)
+            mm_User.cache.delete(account)
+            # 注册赠送积分
+            mm_Point.add_action(user_id=user.id, action=mm_Point.ACTION_USER_ENROLL)
+            # 邀请注册赠送积分
+            if invite_code:
+                inviter = mm_User.filter(invite_code=invite_code).first()
+                if inviter:
+                    mm_Point.add_action(user_id=inviter.id, action=mm_Point.ACTION_USER_INVITE_ENROLL)
         return Response(data={'account': account})
 
     @action(detail=False, methods=['post'], serializer_class=MiniprogramLoginSerializer, permission_classes=[], authentication_classes=[])
@@ -475,7 +483,7 @@ class CheckInViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Crea
         with transaction.atomic():
             serializer.save(user=self.request.user)
             mm_Point.add_action(user_id=self.request.user.id,
-                                action=mm_Point.ATION_CHECK_IN)
+                                action=mm_Point.ACTION_CHECK_IN)
 
 
 class PointViewSet(viewsets.ReadOnlyModelViewSet):
