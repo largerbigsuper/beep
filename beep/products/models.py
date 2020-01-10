@@ -80,51 +80,7 @@ class Sku(models.Model):
     def __str__(self):
         return self.name
 
-
-
 mm_Sku = Sku.objects
-
-
-class SkuExchangeManager(ModelManager):
-    
-    STATUS_SUBMITED = 0
-    STATUS_DONE = 1
-    STATUS_REFUSED = 2
-
-    STATUS_EXCHANGE = (
-        (STATUS_SUBMITED, '已提交'),
-        (STATUS_DONE, '审核通过'),
-        (STATUS_REFUSED, '审核拒绝'),
-    )
-
-    def add_exchange(self, user_id, sku_id, point):
-        """增加记录
-        """
-        return self.create(user_id=user_id, sku_id=sku_id, point=point)
-
-class SkuExchange(models.Model):
-    """兑换申请记录
-    """
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='用户')
-    sku = models.ForeignKey(Sku, on_delete=models.CASCADE, verbose_name='积分商品')
-    point = models.PositiveIntegerField(default=0, verbose_name='消耗积分')
-    status = models.PositiveIntegerField(choices=SkuExchangeManager.STATUS_EXCHANGE,
-                                        default=SkuExchangeManager.STATUS_SUBMITED,
-                                        verbose_name='申请状态')
-    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-    update_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
-    objects = SkuExchangeManager()
-
-    class Meta:
-        db_table = 'beep_sku_exchange'
-        ordering = ['-create_at']
-        verbose_name  = '兑换申请'
-        verbose_name_plural  = '兑换申请'
-
-mm_SkuExchange = SkuExchange.objects
-
-
 
 class SkuPropertyNameManager(ModelManager):
     pass
@@ -173,3 +129,106 @@ class SkuProperty(models.Model):
         verbose_name_plural = '商品属性'
 
 mm_SkuProperty = SkuProperty.objects
+
+
+class SkuOrderAddressManager(ModelManager):
+    pass
+
+class SkuOrderAddress(models.Model):
+    """用户收货地址
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='用户')
+    name = models.CharField(max_length=20, verbose_name='收件人')
+    phone = models.CharField(max_length=20, verbose_name='手机号')
+    detail = models.CharField(max_length=200, verbose_name='详细地址')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    update_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    is_del = models.BooleanField(default=False, verbose_name='已删除')
+
+    objects = SkuOrderAddressManager()
+
+    class Meta:
+        db_table = 'beep_sku_order_address'
+        ordering = ['-id']
+        verbose_name = '收货地址'
+        verbose_name_plural = '收货地址'
+
+
+class SkuOrderManager(ModelManager):
+    STATUS_SUBMITED = 0
+    STATUS_VERFIED = 1
+    STATUS_PROCESSING = 2
+    STATUS_DONE = 3
+    STATUS_REFUSED = 4
+
+    STATUS_ORDER = (
+        (STATUS_SUBMITED, '已提交'),
+        (STATUS_VERFIED, '审核通过'),
+        (STATUS_PROCESSING, '审核通过，正在处理'),
+        (STATUS_DONE, '已完成'),
+        (STATUS_REFUSED, '审核拒绝'),
+    )
+
+class SkuOrder(models.Model):
+
+    order_num = models.CharField(max_length=100, db_index=True, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='用户')
+    point = models.PositiveIntegerField(default=0, verbose_name='消耗积分')
+    address = models.ForeignKey(SkuOrderAddress, null=True, on_delete=models.CASCADE, verbose_name='地址信息')
+    status = models.PositiveIntegerField(choices=SkuOrderManager.STATUS_ORDER,
+                                            default=SkuOrderManager.STATUS_SUBMITED,
+                                            verbose_name='申请状态')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    update_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    objects = SkuOrderManager()
+
+    class Meta:
+        db_table = 'beep_sku_order'
+        ordering = ['-create_at']
+        verbose_name  = '订单'
+        verbose_name_plural  = '订单'
+
+mm_SkuOrder = SkuOrder.objects
+
+
+class SkuExchangeManager(ModelManager):
+    
+    STATUS_SUBMITED = 0
+    STATUS_DONE = 1
+    STATUS_REFUSED = 2
+
+    STATUS_EXCHANGE = (
+        (STATUS_SUBMITED, '已提交'),
+        (STATUS_DONE, '审核通过'),
+        (STATUS_REFUSED, '审核拒绝'),
+    )
+
+    def add_exchange(self, user_id, sku_id, point):
+        """增加记录
+        """
+        return self.create(user_id=user_id, sku_id=sku_id, point=point)
+
+class SkuExchange(models.Model):
+    """兑换申请记录
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='用户')
+    sku = models.ForeignKey(Sku, on_delete=models.CASCADE, verbose_name='积分商品')
+    sku_property = models.ForeignKey(SkuProperty, null=True, on_delete=models.CASCADE, verbose_name='商品属性')
+    quantity = models.PositiveIntegerField(default=1, verbose_name='购买数量')
+    order = models.ForeignKey(SkuOrder, null=True, on_delete=models.CASCADE, verbose_name='订单')
+    point = models.PositiveIntegerField(default=0, verbose_name='消耗积分')
+    status = models.PositiveIntegerField(choices=SkuExchangeManager.STATUS_EXCHANGE,
+                                        default=SkuExchangeManager.STATUS_SUBMITED,
+                                        verbose_name='申请状态')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    update_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    objects = SkuExchangeManager()
+
+    class Meta:
+        db_table = 'beep_sku_exchange'
+        ordering = ['-create_at']
+        verbose_name  = '兑换申请'
+        verbose_name_plural  = '兑换申请'
+
+mm_SkuExchange = SkuExchange.objects
+
