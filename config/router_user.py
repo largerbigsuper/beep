@@ -38,3 +38,4 @@ router_user.register('subscribe', wechat_viewsets.WxSubscriptionViewSet, base_na
 router_user.register('ad', ad_viewsets.AdViewSet, base_name='user-ad')
 router_user.register('sku', sku_viewsets.SkuViewSet, base_name='user-sku')
 router_user.register('sku_exchange', sku_viewsets.SkuExchangeViewSet, base_name='user-sku-exchange')
+router_user.register('order_address', sku_viewsets.SkuOrderAddressViewSet, base_name='user-order-address')

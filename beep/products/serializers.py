@@ -1,6 +1,18 @@
 from rest_framework import serializers
 
-from .models import Sku, SkuExchange, SkuProperty
+from .models import Sku, SkuExchange, SkuProperty, SkuOrderAddress
+
+class SkuOrderAddressSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SkuOrderAddress
+        fields = ['id', 'name', 'phone', 'detail', 'create_at']
+    
+    def create(self, validated_data):
+        request = self.context['request']
+        instance = self.Meta.model(user=request.user, **validated_data)
+        instance.save()
+        return instance
 
 class SkuPropertySerializer(serializers.ModelSerializer):
     

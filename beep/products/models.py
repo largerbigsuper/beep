@@ -132,7 +132,11 @@ mm_SkuProperty = SkuProperty.objects
 
 
 class SkuOrderAddressManager(ModelManager):
-    pass
+    
+    def my_address(self, user_id):
+        """我的收货地址
+        """
+        return self.exclude(is_del=True).filter(user_id=user_id)
 
 class SkuOrderAddress(models.Model):
     """用户收货地址
@@ -153,6 +157,7 @@ class SkuOrderAddress(models.Model):
         verbose_name = '收货地址'
         verbose_name_plural = '收货地址'
 
+mm_SkuOrderAddress = SkuOrderAddress.objects
 
 class SkuOrderManager(ModelManager):
     STATUS_SUBMITED = 0

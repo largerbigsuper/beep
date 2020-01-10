@@ -8,9 +8,10 @@ from django.db import transaction
 from utils.serializers import NoneParamsSerializer
 from beep.users.models import mm_Point
 
-from .models import mm_Sku, mm_SkuExchange
+from .models import mm_Sku, mm_SkuExchange, mm_SkuOrderAddress
 from .filters import SkuFilter
-from .serializers import SkuSerializer, SkuExchangeSerializer
+from .serializers import (SkuSerializer, SkuExchangeSerializer,
+        SkuOrderAddressSerializer)
 
 class SkuViewSet(viewsets.ReadOnlyModelViewSet):
 
@@ -50,3 +51,18 @@ class SkuExchangeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return mm_SkuExchange.filter(user=self.request.user)
 
+
+class SkuOrderAddressViewSet(viewsets.ModelViewSet):
+    """收货地址
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = SkuOrderAddressSerializer
+
+    def get_queryset(self):
+        return mm_SkuOrderAddress.my_address(user_id=self.request.user.id)
+
+    def perform_destroy(self, instance):
+        instance.is_del = True
+        instance.save()
+    

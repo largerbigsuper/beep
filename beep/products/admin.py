@@ -4,7 +4,8 @@ from beep.users.models import mm_Point
 from .models import (Sku, SkuExchange, mm_SkuExchange, 
                     SkuType, mm_SkuType, 
                     SkuPropertyName, mm_SkuPropertyName,
-                    SkuProperty, mm_SkuProperty
+                    SkuProperty, mm_SkuProperty,
+                    SkuOrderAddress, mm_SkuOrderAddress
                     )
 from .forms import SkuAdminForm, SkuPropertyForm
 
@@ -64,3 +65,9 @@ class SkuPropertyAdmin(admin.ModelAdmin):
     'total_left', 'total_sales', 'update_at']
 
     form = SkuPropertyForm
+
+
+@admin.register(SkuOrderAddress)
+class SkuOrderAddressAdmin(admin.ModelAdmin):
+    
+    list_display = ['id', 'user', 'name', 'phone', 'detail', 'update_at']
