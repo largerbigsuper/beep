@@ -39,7 +39,7 @@ class SkuManager(ModelManager):
 class Sku(models.Model):
     """积分商品
     """
-    name = models.CharField(max_length=120, verbose_name='产品名')
+    name = models.CharField(max_length=120, verbose_name='商品名')
     cover = models.ImageField(verbose_name='封面图')
     point = models.PositiveIntegerField(default=0, verbose_name='所需积分')
     detail = models.TextField(default='', blank=True, verbose_name='详情')
@@ -90,7 +90,7 @@ class SkuExchange(models.Model):
     """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='用户')
-    sku = models.ForeignKey(Sku, on_delete=models.CASCADE, verbose_name='积分产品')
+    sku = models.ForeignKey(Sku, on_delete=models.CASCADE, verbose_name='积分商品')
     point = models.PositiveIntegerField(default=0, verbose_name='消耗积分')
     status = models.PositiveIntegerField(choices=SkuExchangeManager.STATUS_EXCHANGE,
                                         default=SkuExchangeManager.STATUS_SUBMITED,
@@ -106,3 +106,68 @@ class SkuExchange(models.Model):
         verbose_name_plural  = '兑换申请'
 
 mm_SkuExchange = SkuExchange.objects
+
+
+class SkuTypeManager(ModelManager):
+    pass
+
+class SkuType(models.Model):
+    
+    name = models.CharField(max_length=20, unique=True, db_index=True, verbose_name='类型')
+    objects = SkuTypeManager()
+    class Meta:
+        db_table = 'beep_sku_type'
+        ordering = ['-id']
+        verbose_name = '商品类型'
+        verbose_name_plural = '商品类型'
+
+mm_SkuType = SkuType.objects
+
+
+class SkuPropertyNameManager(ModelManager):
+    pass
+
+class SkuPropertyName(models.Model):
+    """商品属性名称
+    """
+    
+    name = models.CharField(max_length=20, unique=True, db_index=True, verbose_name='熟悉名称')
+
+    objects = SkuPropertyNameManager()
+
+    class Meta:
+        db_table = 'beep_sku_property_name'
+        ordering = ['-id']
+        verbose_name = '商品属性名'
+        verbose_name_plural = '商品属性名'
+
+
+mm_SkuPropertyName = SkuPropertyName.objects
+
+class SkuPropertyManager(ModelManager):
+    pass
+
+
+class SkuProperty(models.Model):
+    """商品属性
+    """
+    sku = models.ForeignKey(Sku, on_delete=models.CASCADE, verbose_name='商品')
+    property_name_1 = models.CharField(max_length=20, verbose_name='属性名')
+    property_value_1 = models.CharField(max_length=20, verbose_name='属性值')
+    property_name_2 = models.CharField(max_length=20, null=True, blank=True, verbose_name='属性名2')
+    property_value_2 = models.CharField(max_length=20, null=True, blank=True, verbose_name='属性值2')
+    property_name_3 = models.CharField(max_length=20, null=True, blank=True, verbose_name='属性名3')
+    property_value_3 = models.CharField(max_length=20,null=True, blank=True, verbose_name='属性值3')
+    total_left = models.PositiveIntegerField(default=0, blank=True, verbose_name='总量')
+    total_sales = models.PositiveIntegerField(default=0, blank=True, verbose_name='销量')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    update_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    objects = SkuPropertyManager()
+
+    class Meta:
+        db_table = 'beep_sku_property'
+        ordering = ['-id']
+        verbose_name = '商品属性'
+        verbose_name_plural = '商品属性'
+
+mm_SkuProperty = SkuProperty.objects

@@ -1,8 +1,18 @@
 from django.contrib import admin
 
 from beep.users.models import mm_Point
-from .models import Sku, SkuExchange, mm_SkuExchange
-from .forms import SkuAdminForm
+from .models import (Sku, SkuExchange, mm_SkuExchange, 
+                    SkuType, mm_SkuType, 
+                    SkuPropertyName, mm_SkuPropertyName,
+                    SkuProperty, mm_SkuProperty
+                    )
+from .forms import SkuAdminForm, SkuPropertyForm
+
+class SkuPropertyInline(admin.TabularInline):
+    model = SkuProperty
+    form = SkuPropertyForm
+    extra = 0
+
 
 @admin.register(Sku)
 class SkuAdmin(admin.ModelAdmin):
@@ -11,6 +21,7 @@ class SkuAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'cover', 'point', 'detail', 'total_left', 'create_at']
     search_fields = ['name']
     ordering = ['order_num', '-create_at']
+    inlines = [SkuPropertyInline]
 
 
 def make_sku_exchange_done(modeladmin, request, queryset):
@@ -36,3 +47,20 @@ class SkuExchangeAdmin(admin.ModelAdmin):
     list_filter = ['status']
     search_fields = ['user']
     actions = [make_sku_exchange_done, make_sku_exchange_refound]
+
+
+@admin.register(SkuType)
+class SkuTypeAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+
+@admin.register(SkuPropertyName)
+class SkuPropertyNameAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+
+@admin.register(SkuProperty)
+class SkuPropertyAdmin(admin.ModelAdmin):
+    list_display = ['id', 'sku', 'property_name_1', 'property_value_1', 
+    'property_name_2', 'property_value_2', 'property_name_3', 'property_value_3',
+    'total_left', 'total_sales', 'update_at']
+
+    form = SkuPropertyForm
