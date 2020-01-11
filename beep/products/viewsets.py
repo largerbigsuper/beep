@@ -8,9 +8,12 @@ from django.db import transaction
 from utils.serializers import NoneParamsSerializer
 from beep.users.models import mm_Point
 
-from .models import (mm_Sku, mm_SkuOrderItem, mm_SkuOrderAddress, SkuOrder, mm_SkuOrder)
+from .models import (mm_Sku, mm_SkuOrderItem, mm_SkuOrderAddress,
+    SkuOrder, mm_SkuOrder, SkuCart, mm_SkuCart)
 from .filters import SkuFilter
-from .serializers import (SkuSerializer, SkuOrderSerializer, SkuOrderListSerializer, SkuOrderItemSerializer, SkuOrderAddressSerializer)
+from .serializers import (SkuSerializer, SkuOrderSerializer, SkuOrderListSerializer,
+    SkuOrderItemSerializer, SkuOrderAddressSerializer,
+    SkuCartSerializer, SkuCartListSerialzier)
 
 class SkuViewSet(viewsets.ReadOnlyModelViewSet):
 
@@ -81,4 +84,19 @@ class SkuOrderAddressViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.is_del = True
         instance.save()
-    
+
+
+class SkuCartViewSet(viewsets.ModelViewSet):
+    """购物车
+    """
+    permission_classes = [IsAuthenticated]
+    # serializer_class = SkuCartListSerialzier
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update']:
+            return SkuCartSerializer
+        else:
+            return SkuCartListSerialzier
+
+    def get_queryset(self):
+        return mm_SkuCart.my_skucart(user_id=self.request.user.id)
