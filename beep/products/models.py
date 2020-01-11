@@ -131,6 +131,14 @@ class SkuProperty(models.Model):
         verbose_name = '商品属性'
         verbose_name_plural = '商品属性'
 
+    def __str__(self):
+        descprition = self.property_name_1 + ': ' + self.property_value_1 + ' '
+        if self.property_name_2 and self.property_value_2:
+            descprition += self.property_name_2 + ': ' + self.property_value_2 + ' '
+        if self.property_name_3 and self.property_value_3:
+            descprition += self.property_name_3 + ': ' + self.property_value_3 + ' '
+        return descprition
+ 
 mm_SkuProperty = SkuProperty.objects
 
 
@@ -159,6 +167,9 @@ class SkuOrderAddress(models.Model):
         ordering = ['-id']
         verbose_name = '收货地址'
         verbose_name_plural = '收货地址'
+    
+    def __str__(self):
+        return '用户名：' + self.user.name + ' ' + '收件人：' + self.name + ' ' + '手机号：' + self.phone + ' '+ '详细地址：' + self.detail
 
 mm_SkuOrderAddress = SkuOrderAddress.objects
 
@@ -188,7 +199,7 @@ class SkuOrderManager(ModelManager):
 
 class SkuOrder(models.Model):
 
-    order_num = models.CharField(max_length=100, db_index=True, unique=True)
+    order_num = models.CharField(max_length=100, db_index=True, unique=True, verbose_name='订单号')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='用户')
     point = models.PositiveIntegerField(default=0, verbose_name='消耗积分')
     address = models.ForeignKey(SkuOrderAddress, null=True, on_delete=models.CASCADE, verbose_name='地址信息')
@@ -204,6 +215,9 @@ class SkuOrder(models.Model):
         ordering = ['-create_at']
         verbose_name  = '订单'
         verbose_name_plural  = '订单'
+
+    def __str__(self):
+        return self.order_num
 
 mm_SkuOrder = SkuOrder.objects
 
