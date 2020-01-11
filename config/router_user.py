@@ -37,6 +37,7 @@ router_user.register('wxmessage', wechat_callback_viewsets.WxMessageViewSet, bas
 router_user.register('subscribe', wechat_viewsets.WxSubscriptionViewSet, base_name='user-subscribe')
 router_user.register('ad', ad_viewsets.AdViewSet, base_name='user-ad')
 router_user.register('sku', sku_viewsets.SkuViewSet, base_name='user-sku')
+router_user.register('sku_cart', sku_viewsets.SkuCartViewSet, base_name='user-sku-cart')
 router_user.register('order', sku_viewsets.SkuOrderViewSet, base_name='user-sku-order')
 router_user.register('order_item', sku_viewsets.SkuOrderItemViewSet, base_name='user-sku-order-item')
 router_user.register('order_address', sku_viewsets.SkuOrderAddressViewSet, base_name='user-order-address')

@@ -4,7 +4,8 @@ from django.db.models import F
 
 
 from .models import (Sku, mm_Sku, SkuOrderItem, mm_SkuOrderItem,
-        SkuProperty, SkuOrderAddress, SkuOrder, mm_SkuOrder, mm_SkuProperty)
+        SkuProperty, SkuOrderAddress, SkuOrder, mm_SkuOrder, mm_SkuProperty,
+        SkuCart, mm_SkuCart)
 
 from utils.exceptions import BeepException
 class SkuOrderAddressSerializer(serializers.ModelSerializer):
@@ -108,4 +109,30 @@ class SkuOrderListSerializer(SkuOrderSerializer):
         model = SkuOrder
         fields = ['id', 'order_num', 'point', 'address', 'status', 'create_at', 'update_at', 'sku_order_items']
         read_only_fields = ['address', 'order_num', 'point', 'status', 'create_at', 'update_at']
-     
+
+
+class SkuCartSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = SkuCart
+        fields = ['id', 'sku', 'sku_property', 'quantity', 'create_at']
+
+    def create(self, validated_data):
+        """创建购物车
+        """
+        request = self.context['request']
+        user_id = request.user.id
+        sku_id = validated_data['sku'].id
+        sku_property_id = validated_data['sku_property'].id
+        quantity = validated_data['quantity']
+        return mm_SkuCart.add_sku(user_id, sku_id, sku_property_id, quantity)
+
+
+class SkuCartListSerialzier(serializers.ModelSerializer):
+
+    sku = SkuSerializer()
+
+    class Meta:
+        model = SkuCart
+        fields = ['id', 'sku', 'sku_property', 'quantity', 'create_at']
+        read_only_fields = ['sku']

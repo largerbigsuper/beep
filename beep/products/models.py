@@ -253,3 +253,42 @@ class SkuOrderItem(models.Model):
 
 mm_SkuOrderItem = SkuOrderItem.objects
 
+
+class SkuCartManager(ModelManager):
+    
+    def my_skucart(self, user_id):
+        return self.filter(user_id=user_id)
+
+    def add_sku(self, user_id, sku_id, sku_property_id, quantity):
+        params = {
+            'user_id': user_id,
+            'sku_id': sku_id,
+            'sku_property_id': sku_property_id
+        }
+        obj = self.filter(**params).first()
+        if obj:
+            obj.quantity += quantity
+            obj.save()
+        else:
+            obj = self.create(quantity=quantity, **params)
+        return obj
+
+class SkuCart(models.Model):
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='用户')
+    sku = models.ForeignKey(Sku, on_delete=models.CASCADE, verbose_name='商品')
+    sku_property = models.ForeignKey(SkuProperty, on_delete=models.CASCADE, verbose_name='商品属性')
+    quantity = models.PositiveIntegerField(default=1, verbose_name='数量')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    update_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+
+    objects = SkuCartManager()
+
+    class Meta:
+        db_table = 'beep_sku_cart'
+        ordering = ['-create_at']
+        unique_together = ['user', 'sku', 'sku_property']
+        verbose_name = '购物车'
+        verbose_name_plural = '购物车'
+
+mm_SkuCart = SkuCart.objects
