@@ -1,3 +1,6 @@
+from datetime import datetime
+from random import random
+
 from django.db import models
 from django.db.models import F
 from django.conf import settings
@@ -174,6 +177,15 @@ class SkuOrderManager(ModelManager):
         (STATUS_REFUSED, '审核拒绝'),
     )
 
+    def get_order_num(self):
+        datetime_prefix = datetime.now().strftime('%Y%m%d%H%M%S%f')
+        random_suffix = str(random())[-8:]
+        order_num = datetime_prefix + random_suffix
+        return order_num
+
+    def my_orders(self, user_id):
+        return self.filter(user_id=user_id)
+
 class SkuOrder(models.Model):
 
     order_num = models.CharField(max_length=100, db_index=True, unique=True)
@@ -196,15 +208,19 @@ class SkuOrder(models.Model):
 mm_SkuOrder = SkuOrder.objects
 
 
-class SkuExchangeManager(ModelManager):
+class SkuOrderItemManager(ModelManager):
     
     STATUS_SUBMITED = 0
-    STATUS_DONE = 1
-    STATUS_REFUSED = 2
+    STATUS_VERFIED = 1
+    STATUS_PROCESSING = 2
+    STATUS_DONE = 3
+    STATUS_REFUSED = 4
 
-    STATUS_EXCHANGE = (
+    STATUS_ORDER = (
         (STATUS_SUBMITED, '已提交'),
-        (STATUS_DONE, '审核通过'),
+        (STATUS_VERFIED, '审核通过'),
+        (STATUS_PROCESSING, '审核通过，正在处理'),
+        (STATUS_DONE, '已完成'),
         (STATUS_REFUSED, '审核拒绝'),
     )
 
@@ -213,27 +229,27 @@ class SkuExchangeManager(ModelManager):
         """
         return self.create(user_id=user_id, sku_id=sku_id, point=point)
 
-class SkuExchange(models.Model):
+class SkuOrderItem(models.Model):
     """兑换申请记录
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='用户')
     sku = models.ForeignKey(Sku, on_delete=models.CASCADE, verbose_name='积分商品')
     sku_property = models.ForeignKey(SkuProperty, null=True, on_delete=models.CASCADE, verbose_name='商品属性')
     quantity = models.PositiveIntegerField(default=1, verbose_name='购买数量')
-    order = models.ForeignKey(SkuOrder, null=True, on_delete=models.CASCADE, verbose_name='订单')
+    order = models.ForeignKey(SkuOrder, null=True, related_name='sku_order_items',on_delete=models.CASCADE, verbose_name='订单')
     point = models.PositiveIntegerField(default=0, verbose_name='消耗积分')
-    status = models.PositiveIntegerField(choices=SkuExchangeManager.STATUS_EXCHANGE,
-                                        default=SkuExchangeManager.STATUS_SUBMITED,
+    status = models.PositiveIntegerField(choices=SkuOrderItemManager.STATUS_ORDER,
+                                        default=SkuOrderItemManager.STATUS_SUBMITED,
                                         verbose_name='申请状态')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
-    objects = SkuExchangeManager()
+    objects = SkuOrderItemManager()
 
     class Meta:
-        db_table = 'beep_sku_exchange'
+        db_table = 'beep_sku_order_item'
         ordering = ['-create_at']
         verbose_name  = '兑换申请'
         verbose_name_plural  = '兑换申请'
 
-mm_SkuExchange = SkuExchange.objects
+mm_SkuOrderItem = SkuOrderItem.objects
 

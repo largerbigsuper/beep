@@ -8,10 +8,9 @@ from django.db import transaction
 from utils.serializers import NoneParamsSerializer
 from beep.users.models import mm_Point
 
-from .models import mm_Sku, mm_SkuExchange, mm_SkuOrderAddress
+from .models import (mm_Sku, mm_SkuOrderItem, mm_SkuOrderAddress, SkuOrder, mm_SkuOrder)
 from .filters import SkuFilter
-from .serializers import (SkuSerializer, SkuExchangeSerializer,
-        SkuOrderAddressSerializer)
+from .serializers import (SkuSerializer, SkuOrderSerializer, SkuOrderListSerializer, SkuOrderItemSerializer, SkuOrderAddressSerializer)
 
 class SkuViewSet(viewsets.ReadOnlyModelViewSet):
 
@@ -33,7 +32,7 @@ class SkuViewSet(viewsets.ReadOnlyModelViewSet):
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         with transaction.atomic():
             # 创建申请记录
-            exchange= mm_SkuExchange.add_exchange(request.user.id, pk, sku.point)
+            exchange= mm_SkuOrderItem.add_exchange(request.user.id, pk, sku.point)
             # 消费积分
             mm_Point.add_action(request.user.id, mm_Point.ACTION_SKU_EXCHANGE_PAY, amount=sku.point)
             # 更新产品数量统计
@@ -41,15 +40,32 @@ class SkuViewSet(viewsets.ReadOnlyModelViewSet):
 
             return Response()
 
-class SkuExchangeViewSet(viewsets.ModelViewSet):
+
+class SkuOrderViewSet(viewsets.ModelViewSet):
+    """订单
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = SkuOrderSerializer
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update']:
+            return SkuOrderSerializer
+        else:
+            return SkuOrderListSerializer
+
+    def get_queryset(self):
+        return mm_SkuOrder.my_orders(user_id=self.request.user.id)
+
+class SkuOrderItemViewSet(viewsets.ModelViewSet):
     """兑换申请
     """
 
     permission_classes = [IsAuthenticated]
-    serializer_class = SkuExchangeSerializer
+    serializer_class = SkuOrderItemSerializer
 
     def get_queryset(self):
-        return mm_SkuExchange.filter(user=self.request.user)
+        return mm_SkuOrderItem.filter(user=self.request.user)
+    
 
 
 class SkuOrderAddressViewSet(viewsets.ModelViewSet):

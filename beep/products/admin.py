@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from beep.users.models import mm_Point
-from .models import (Sku, SkuExchange, mm_SkuExchange, 
+from .models import (Sku, SkuOrderItem, mm_SkuOrderItem, 
                     SkuType, mm_SkuType, 
                     SkuPropertyName, mm_SkuPropertyName,
                     SkuProperty, mm_SkuProperty,
@@ -28,7 +28,7 @@ class SkuAdmin(admin.ModelAdmin):
 def make_sku_exchange_done(modeladmin, request, queryset):
     """审核通过
     """
-    queryset.update(status=mm_SkuExchange.STATUS_DONE)
+    queryset.update(status=mm_SkuOrderItem.STATUS_DONE)
 
 make_sku_exchange_done.short_description = '审核通过'
 
@@ -37,13 +37,13 @@ def make_sku_exchange_refound(modeladmin, request, queryset):
     """
     for obj in queryset:
         mm_Point.add_action(obj.user_id, action=mm_Point.ACTION_SKU_EXCHANGE_REFOUND, amount=obj.point)
-        obj.status = mm_SkuExchange.STATUS_REFUSED
+        obj.status = mm_SkuOrderItem.STATUS_REFUSED
         obj.save()
 
 make_sku_exchange_refound.short_description = '审核拒绝'
 
-@admin.register(SkuExchange)
-class SkuExchangeAdmin(admin.ModelAdmin):
+@admin.register(SkuOrderItem)
+class SkuOrderItemAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'sku', 'point', 'create_at', 'status']
     list_filter = ['status']
     search_fields = ['user']
