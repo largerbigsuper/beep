@@ -77,8 +77,8 @@ class Sku(models.Model):
     class Meta:
         db_table = 'beep_sku'
         ordering = ['order_num', '-create_at']
-        verbose_name  = '兑换商品'
-        verbose_name_plural  = '兑换商品'
+        verbose_name  = '商品'
+        verbose_name_plural  = '商品'
 
     def __str__(self):
         return self.name
@@ -195,7 +195,7 @@ class SkuOrderManager(ModelManager):
         return order_num
 
     def my_orders(self, user_id):
-        return self.filter(user_id=user_id)
+        return self.exclude(user_del=True).filter(user_id=user_id)
 
 class SkuOrder(models.Model):
 
@@ -208,6 +208,7 @@ class SkuOrder(models.Model):
                                             verbose_name='申请状态')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    user_del = models.BooleanField(default=False, verbose_name='已删除[用户]')
     objects = SkuOrderManager()
 
     class Meta:

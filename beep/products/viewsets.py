@@ -59,6 +59,10 @@ class SkuOrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return mm_SkuOrder.my_orders(user_id=self.request.user.id)
 
+    def perform_destroy(self, instance):
+        instance.user_del = True
+        instance.save()
+
 class SkuOrderItemViewSet(viewsets.ModelViewSet):
     """兑换申请
     """
