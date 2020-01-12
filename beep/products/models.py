@@ -87,7 +87,7 @@ class SkuPropertyName(models.Model):
     """商品属性名称
     """
     
-    name = models.CharField(max_length=20, unique=True, db_index=True, verbose_name='熟悉名称')
+    name = models.CharField(max_length=20, unique=True, db_index=True, verbose_name='属性名称')
 
     objects = SkuPropertyNameManager()
 
