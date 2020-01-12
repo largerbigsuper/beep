@@ -40,11 +40,6 @@ class SkuManager(ModelManager):
         """
         return self.filter(status=self.STATUS_PUBLISHED)
 
-    def update_count_data(self, pk):
-        """更新剩余数量与销量
-        """
-        self.filter(pk=pk).update(total_left=F('total_left') - 1, total_sales=F('total_sales') + 1)
-
     def update_data(self, pk, field_name, amount=1):
         if amount > 0: 
             value = F(field_name) + amount
@@ -92,7 +87,7 @@ class SkuPropertyName(models.Model):
     """商品属性名称
     """
     
-    name = models.CharField(max_length=20, unique=True, db_index=True, verbose_name='熟悉名称')
+    name = models.CharField(max_length=20, unique=True, db_index=True, verbose_name='属性名称')
 
     objects = SkuPropertyNameManager()
 
