@@ -158,6 +158,13 @@ class ActivityViewSet(viewsets.ModelViewSet):
             live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
             live_rooms.add(activity.wx_groupwxid)
             mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*24*3)
+            # 2019-01-07版本 以activity_id为频道
+            live_groups_dict = mm_Activity.cache.get(mm_Activity.key_live_rooms_activity_map, {})
+            if activity.wx_groupwxid in live_groups_dict:
+                live_groups_dict[activity.wx_groupwxid].add(activity.id)
+            else:
+                live_groups_dict[activity.wx_groupwxid] = set([activity.id])
+            mm_Activity.cache.set(mm_Activity.key_live_rooms_activity_map, live_groups_dict, 60*60*24*3)
 
         return Response()
 
@@ -171,6 +178,12 @@ class ActivityViewSet(viewsets.ModelViewSet):
             live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
             live_rooms.remove(activity.wx_groupwxid)
             mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*24*3)
+            # 2019-01-07版本 以activity_id为频道
+            # discard
+            live_groups_dict = mm_Activity.cache.get(mm_Activity.key_live_rooms_activity_map, {})
+            if activity.wx_groupwxid in live_groups_dict:
+                live_groups_dict[activity.wx_groupwxid].discard(activity.id)
+            mm_Activity.cache.set(mm_Activity.key_live_rooms_activity_map, live_groups_dict, 60*60*24*3)
 
         return Response()
 

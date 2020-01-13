@@ -57,14 +57,21 @@ class WehubConsumer(AsyncWebsocketConsumer):
         if appid is None or action is None or wxid is None:
             self.logger.info("invalid param")
             return
-
+        
+        live_activitys = set()
         save_msg = False
         if action == 'report_new_msg':
             msg_dict = req_data_dict['msg']
             room_wxid = msg_dict.get('room_wxid')
-            live_rooms = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms, set())
-            if room_wxid in live_rooms:
+            # live_rooms = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms, set())
+            # if room_wxid in live_rooms:
+            #     save_msg = True
+            #FIXME 
+            # 2019-01-07版本 以activity_id为频道
+            live_groups_dict = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms_activity_map, {})
+            if room_wxid in live_groups_dict:
                 save_msg = True
+                live_activitys = live_groups_dict[room_wxid]
 
         error_code, error_reason, ack_data, ack_type = self.main_process(wxid, action, req_data_dict, save_msg)
         ack_dict = {
@@ -84,13 +91,15 @@ class WehubConsumer(AsyncWebsocketConsumer):
             room_wxid = msg_dict.get('room_wxid')
             if room_wxid:
                 channel_name = room_wxid.replace('@chatroom', '')
-                await self.channel_layer.group_send(
-                    channel_name,
-                    {
-                        'type': 'wehub_message',
-                        'message': msg_dict
-                    }
-                )
+                live_activitys.add(channel_name)
+                for channel_id in live_activitys:
+                    await self.channel_layer.group_send(
+                        str(channel_id),
+                        {
+                            'type': 'wehub_message',
+                            'message': msg_dict
+                        }
+                    )
         # 更新群成员变化
         elif action == 'report_room_member_change':
             # 发送上传群成员信息任务
