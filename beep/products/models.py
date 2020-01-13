@@ -21,6 +21,9 @@ class SkuType(models.Model):
         verbose_name = '商品类型'
         verbose_name_plural = '商品类型'
 
+    def __str__(self):
+        return self.name
+
 mm_SkuType = SkuType.objects
 
 class SkuManager(ModelManager):
