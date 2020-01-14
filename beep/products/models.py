@@ -42,6 +42,11 @@ class SkuManager(ModelManager):
         """在售商品
         """
         return self.filter(status=self.STATUS_PUBLISHED)
+    
+    def recommand_sku(self):
+        """推荐商品
+        """
+        return self.published_sku().filter(is_recommand=True)
 
     def update_data(self, pk, field_name, amount=1):
         if amount > 0: 
@@ -69,6 +74,7 @@ class Sku(models.Model):
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
     order_num = models.IntegerField(default=10000, verbose_name='排序值[越小越靠前]')
+    is_recommand = models.BooleanField(default=False, blank=True, verbose_name='推荐')
     
     objects = SkuManager()
 

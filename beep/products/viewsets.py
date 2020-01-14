@@ -21,6 +21,13 @@ class SkuViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = SkuFilter
     serializer_class = SkuSerializer
 
+    @action(detail=False, queryset=mm_Sku.recommand_sku())
+    def recommand(self, request):
+        """推荐产品
+        """
+        return super().list(request)
+
+
 class SkuOrderViewSet(viewsets.ModelViewSet):
     """订单
     """

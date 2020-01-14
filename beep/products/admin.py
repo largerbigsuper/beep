@@ -28,7 +28,7 @@ class SkuOrderItemInline(admin.TabularInline):
 class SkuAdmin(admin.ModelAdmin):
     form = SkuAdminForm
 
-    list_display = ['id', 'name', 'cover', 'point', 'detail', 'total_left', 'create_at']
+    list_display = ['id', 'name', 'cover', 'point', 'detail', 'total_left', 'create_at', 'is_recommand']
     search_fields = ['name']
     ordering = ['order_num', '-create_at']
     inlines = [SkuPropertyInline]
