@@ -28,6 +28,15 @@ class SkuPropertySerializer(serializers.ModelSerializer):
         'property_name_2', 'property_value_2', 
         'property_name_3', 'property_value_3', 
         'total_left', 'total_sales']
+        
+class SkuPropertyInlineSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = SkuProperty
+        fields = ['id', 'property_name_1', 'property_value_1', 
+        'property_name_2', 'property_value_2', 
+        'property_name_3', 'property_value_3', 
+        ]
 
 class SkuSerializer(serializers.ModelSerializer):
 
@@ -39,7 +48,7 @@ class SkuSerializer(serializers.ModelSerializer):
         'total_left', 'create_at', 'sku_properties']
 
 
-class SkuInSkuCartSerializer(serializers.ModelSerializer):
+class SkuInlineSerializer(serializers.ModelSerializer):
     """购物车内商品详情
     """
     class Meta:
@@ -48,8 +57,8 @@ class SkuInSkuCartSerializer(serializers.ModelSerializer):
 
 class SkuOrderItemSerializer(serializers.ModelSerializer):
 
-    sku = SkuSerializer(read_only=True)
-
+    sku = SkuInlineSerializer(read_only=True)
+    sku_property = SkuPropertyInlineSerializer(read_only=True)
     class Meta:
         model = SkuOrderItem
         fields = ['id', 'sku', 'sku_property', 'quantity', 'point', 'status', 'create_at', 'update_at']
@@ -137,7 +146,7 @@ class SkuCartSerializer(serializers.ModelSerializer):
 
 class SkuCartListSerialzier(serializers.ModelSerializer):
 
-    sku = SkuInSkuCartSerializer()
+    sku = SkuInlineSerializer()
     sku_property = SkuPropertySerializer()
     class Meta:
         model = SkuCart
