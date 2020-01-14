@@ -58,6 +58,15 @@ class SkuInlineSerializer(serializers.ModelSerializer):
 class SkuOrderItemSerializer(serializers.ModelSerializer):
 
     sku = SkuInlineSerializer(read_only=True)
+    class Meta:
+        model = SkuOrderItem
+        fields = ['id', 'sku', 'sku_property', 'quantity', 'point', 'status', 'create_at', 'update_at']
+        read_only_fields = ['point', 'status', 'create_at', 'update_at']
+
+
+class SkuOrderItemListSerializer(serializers.ModelSerializer):
+
+    sku = SkuInlineSerializer(read_only=True)
     sku_property = SkuPropertyInlineSerializer(read_only=True)
     class Meta:
         model = SkuOrderItem
@@ -67,7 +76,6 @@ class SkuOrderItemSerializer(serializers.ModelSerializer):
 class SkuOrderSerializer(serializers.ModelSerializer):
 
     sku_order_items = SkuOrderItemSerializer(many=True)
-    # address = SkuOrderAddressSerializer(read_only=True)
 
     class Meta:
         model = SkuOrder
@@ -119,6 +127,7 @@ class SkuOrderSerializer(serializers.ModelSerializer):
 
 class SkuOrderListSerializer(SkuOrderSerializer):
 
+    sku_order_items = SkuOrderItemListSerializer(many=True)
     address = SkuOrderAddressSerializer(read_only=True)
     
     class Meta:
