@@ -65,6 +65,7 @@ class Sku(models.Model):
     name = models.CharField(max_length=120, verbose_name='商品名')
     cover = models.ImageField(verbose_name='封面图')
     point = models.PositiveIntegerField(default=0, verbose_name='所需积分')
+    desc = models.CharField(max_length=500, default='', blank=True, verbose_name='简介')
     detail = models.TextField(default='', blank=True, verbose_name='详情')
     total_left = models.PositiveIntegerField(default=0, blank=True, verbose_name='总量')
     total_sales = models.PositiveIntegerField(default=0, blank=True, verbose_name='销量')
