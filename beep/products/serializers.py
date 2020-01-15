@@ -6,6 +6,7 @@ from django.db.models import F
 from .models import (Sku, mm_Sku, SkuOrderItem, mm_SkuOrderItem,
         SkuProperty, SkuOrderAddress, SkuOrder, mm_SkuOrder, mm_SkuProperty,
         SkuCart, mm_SkuCart)
+from beep.users.models import mm_Point
 
 from utils.exceptions import BeepException
 class SkuOrderAddressSerializer(serializers.ModelSerializer):
@@ -113,6 +114,8 @@ class SkuOrderSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             # 生成总订单
             order = mm_SkuOrder.create(user=request.user, order_num=order_num, point=point, **validated_data)
+            # 更新积分
+            mm_Point.add_action(user_id=request.user.id, action=mm_Point.ACTION_SKU_EXCHANGE_PAY, amount=point)
             for order_item_data in sku_order_items:
                 # 生成单个订单
                 sku_property = order_item_data['sku_property']
