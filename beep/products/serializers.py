@@ -45,7 +45,7 @@ class SkuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sku
-        fields = ['id', 'sku_type', 'name', 'cover', 'point', 'detail', 
+        fields = ['id', 'sku_type', 'name', 'cover', 'point',  'desc', 'detail', 
         'total_left', 'create_at', 'sku_properties']
 
 
@@ -54,7 +54,7 @@ class SkuInlineSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Sku
-        fields = ['id', 'sku_type', 'name', 'cover', 'point', 'detail', 'total_left', 'create_at']
+        fields = ['id', 'sku_type', 'name', 'cover', 'point', 'desc', 'detail', 'total_left', 'create_at']
 
 class SkuOrderItemSerializer(serializers.ModelSerializer):
 
