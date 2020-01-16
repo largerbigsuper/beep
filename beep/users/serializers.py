@@ -94,8 +94,8 @@ class MyUserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = base_user_fields + ['avatar_url_url', 'is_superuser'] + user_data_fields + ['weixin_bind'] + user_import_info_fields
-        read_only_fields = user_readonly_fields + user_data_fields + ['avatar_url', 'is_superuser']
+        fields = base_user_fields + ['avatar_url_url', 'is_superuser'] + user_data_fields + ['weixin_bind'] + user_import_info_fields + ['invite_code']
+        read_only_fields = user_readonly_fields + user_data_fields + ['avatar_url', 'is_superuser', 'invite_code']
 
 
 class ResetPasswordSerializer(serializers.Serializer):
