@@ -12,7 +12,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager as AuthUserManager
 from django_extensions.db.fields.json import JSONField
 
-
+from beep.cfg.models import mm_ActionPointCfg
 from utils.exceptions import BeepException
 from utils.modelmanager import ModelManager
 
@@ -175,6 +175,8 @@ class User(AbstractUser):
     total_following = models.PositiveIntegerField(default=0, verbose_name='关注数量')
     total_followers = models.PositiveIntegerField(default=0, verbose_name='粉丝数量')
     label_type = models.PositiveIntegerField(choices=UserManager.LABEL_TYPE, default=UserManager.LABEL_DEFAULT, verbose_name='普通用户|红V|蓝V')
+    completed_profile = models.BooleanField(default=False, verbose_name='完善信息')
+    invite_code = models.CharField(max_length=8, blank=True, null=True, unique=True, verbose_name='邀请码')
 
     objects = UserManager()
 
@@ -205,14 +207,45 @@ class PointManager(ModelManager):
         (POINT_IN, '增加'),
     )
 
-    ATION_CHECK_IN = 0
+    ACTION_CHECK_IN = 0
+    ACTION_SKU_EXCHANGE_PAY = 1
+    ACTION_SKU_EXCHANGE_REFOUND = 2
+    ACTION_USER_ENROLL = 1001
+    ACTION_USER_PROFILE = 1002
+    ACTION_USER_FIRST_COMMENT_EVERYDAY = 2001
+    ACTION_USER_ADD_BLOG = 2002
+    ACTION_USER_ADD_TOPIC = 2003
+    ACTION_USER_JOIN_TOPIC = 2004
+    ACTION_USER_INVITE_ENROLL = 3001
 
     ACTION_CHOICE = (
-        (ATION_CHECK_IN, '每日签到'),
+        (ACTION_CHECK_IN, '每日签到'),
+        (ACTION_SKU_EXCHANGE_PAY, '兑换商品消费'),
+        (ACTION_SKU_EXCHANGE_REFOUND, '兑换商品退回'),
+        (ACTION_USER_ENROLL, '用户注册'),
+        (ACTION_USER_PROFILE, '用户完善个人信息'),
+        (ACTION_USER_FIRST_COMMENT_EVERYDAY, '每日首评'),
+        (ACTION_USER_ADD_BLOG, '发表博文'),
+        (ACTION_USER_ADD_TOPIC, '发布话题'),
+        (ACTION_USER_JOIN_TOPIC, '参与话题'),
+        (ACTION_USER_INVITE_ENROLL, '邀请用户注册'),
     )
 
+    ACTION_IN_OR_OUT_MAPPING = {
+        ACTION_CHECK_IN: POINT_IN,
+        ACTION_SKU_EXCHANGE_PAY: POINT_OUT,
+        ACTION_SKU_EXCHANGE_REFOUND: POINT_IN,
+        ACTION_USER_ENROLL: POINT_IN,
+        ACTION_USER_PROFILE: POINT_IN,
+        ACTION_USER_FIRST_COMMENT_EVERYDAY: POINT_IN,
+        ACTION_USER_ADD_BLOG: POINT_IN,
+        ACTION_USER_ADD_TOPIC: POINT_IN,
+        ACTION_USER_JOIN_TOPIC: POINT_IN,
+        ACTION_USER_INVITE_ENROLL: POINT_IN,
+    }
+
     Action_Point_Mapping = {
-        ATION_CHECK_IN: 30,
+        ACTION_CHECK_IN: 30,
     }
 
     Action_Desc = {action: msg for action, msg in ACTION_CHOICE}
@@ -233,7 +266,7 @@ class PointManager(ModelManager):
         :param operator_id: 操作人auth_user.id
         :return:
         """
-        in_or_out = self.POINT_IN
+        in_or_out = self.ACTION_IN_OR_OUT_MAPPING[action]
         self.create(user_id=user_id,
                     in_or_out=in_or_out,
                     amount=amount,
@@ -243,15 +276,22 @@ class PointManager(ModelManager):
                     operator_id=operator_id,
                     )
 
-    def add_action(self, user_id, action):
+    def add_action(self, user_id, action, amount=None):
         """
         增加积分记录
         :param customer_id:
         :param action:
         :return:
         """
-        amount = self.Action_Point_Mapping[action]
-        total_left = self.get_total_point(user_id) + amount
+        if amount is None:
+            # amount = self.Action_Point_Mapping[action]
+            amount = mm_ActionPointCfg.get_action_point_mapping().get(action, 0)
+        if self.ACTION_IN_OR_OUT_MAPPING[action]:
+            total_left = self.get_total_point(user_id) + amount
+        else:
+            total_left = self.get_total_point(user_id) - amount
+        if amount <= 0:
+            return
         self._add_action(user_id=user_id,
                          action=action,
                          amount=amount,
@@ -282,6 +322,8 @@ class Point(models.Model):
     class Meta:
         db_table = 'user_points'
         ordering = ['-create_at']
+        verbose_name = '用户积分'
+        verbose_name_plural = '用户积分'
 
 
 mm_Point = Point.objects
@@ -386,4 +428,7 @@ class LableApply(models.Model):
         verbose_name = verbose_name_plural = '加V申请'
 
 mm_LableApply = LableApply.objects
+
+
+
 

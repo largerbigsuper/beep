@@ -29,3 +29,27 @@ class AutoFollowingCfg(models.Model):
 
 mm_AutoFollowingCfg = AutoFollowingCfg.objects
 
+
+class ActionPointCfgManager(ModelManager):
+    
+    def get_action_point_mapping(self):
+        cfg_list = list(self.all().values_list('code', 'point'))
+        return dict(cfg_list)
+
+class ActionPointCfg(models.Model):
+    """用户行为积分奖励设置
+    """
+    code = models.PositiveIntegerField(default=0, unique=True, verbose_name='编号')
+    name = models.CharField(max_length=100, verbose_name='行为')
+    point = models.PositiveIntegerField(default=0, verbose_name='奖励积分')
+    is_on = models.BooleanField(default=True, verbose_name='应用中')
+
+    objects = ActionPointCfgManager()
+
+    class Meta:
+        db_table = 'beep_action_point_cfg'
+        ordering = ['code']
+        verbose_name = '用户行为积分配置'
+        verbose_name_plural = '用户行为积分配置'
+
+mm_ActionPointCfg = ActionPointCfg.objects

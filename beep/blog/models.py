@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.db import models
 from django.db.models import F
 from django.conf import settings
@@ -5,6 +6,7 @@ from django.conf import settings
 from django_extensions.db.fields.json import JSONField
 from ckeditor_uploader.fields import RichTextUploadingField
 
+from beep.users.models import mm_Point
 from utils.modelmanager import ModelManager
 
 
@@ -275,6 +277,17 @@ class CommentManager(ModelManager):
             field_name: value
         }
         self.filter(pk=pk).update(**updates)
+
+    def update_commnet_point(self, user_id):
+        """每日首评增加积分
+        """
+        key = self.key_user_first_comment_everyday.format(user_id)
+        if not self.cache.get(key):
+            now = datetime.today()
+            today_end = datetime(now.year, now.month, now.day, 23, 59, 59)
+            today_timedelta = today_end - now
+            self.cache.set(key, 1, today_timedelta.total_seconds())
+            mm_Point.add_action(user_id, mm_Point.ACTION_USER_FIRST_COMMENT_EVERYDAY)
 
 class Comment(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, db_index=False)

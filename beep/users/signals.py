@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-from .models import User, mm_User, mm_RelationShip
+from .models import User, mm_User, mm_RelationShip, mm_Point
 
 from beep.cfg.models import mm_AutoFollowingCfg
 
@@ -11,7 +11,8 @@ def user_post_save(instance, raw, created, using, update_fields, **kwargs):
     """
     if created:
         add_auto_following(user=instance)
-
+    
+    complete_profile(user=instance)
 
 def add_auto_following(user):
     """自动关注
@@ -26,7 +27,10 @@ def add_auto_following(user):
     mm_User.filter(pk=user.id).update(total_following=len(objs))
 
 
-
-
-
-    
+def complete_profile(user):
+    """完善用户信息赠送积分
+    """
+    if all([user.avatar_url, user.name, user.desc, user.account, user.openid]):
+        if not user.completed_profile:
+            mm_User.filter(pk=user.id).update(completed_profile=True)
+            mm_Point.add_action(user_id=user.id, action=mm_Point.ACTION_USER_PROFILE)
