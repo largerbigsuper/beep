@@ -5,10 +5,16 @@ from django.db.models import F
 
 from .models import (Sku, mm_Sku, SkuOrderItem, mm_SkuOrderItem,
         SkuProperty, SkuOrderAddress, SkuOrder, mm_SkuOrder, mm_SkuProperty,
-        SkuCart, mm_SkuCart)
+        SkuCart, mm_SkuCart, SkuType)
 from beep.users.models import mm_Point
 
 from utils.exceptions import BeepException
+
+class SkuTypeSerilizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SkuType
+        fields = ['id', 'name']
 class SkuOrderAddressSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -41,6 +47,7 @@ class SkuPropertyInlineSerializer(serializers.ModelSerializer):
 
 class SkuSerializer(serializers.ModelSerializer):
 
+    sku_type = SkuTypeSerilizer()
     sku_properties = SkuPropertySerializer(many=True, read_only=True)
 
     class Meta:
@@ -52,6 +59,7 @@ class SkuSerializer(serializers.ModelSerializer):
 class SkuInlineSerializer(serializers.ModelSerializer):
     """购物车内商品详情
     """
+    sku_type = SkuTypeSerilizer()
     class Meta:
         model = Sku
         fields = ['id', 'sku_type', 'name', 'cover', 'point', 'desc', 'detail', 'total_left', 'create_at']
