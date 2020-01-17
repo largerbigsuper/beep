@@ -1,3 +1,4 @@
+import shortuuid
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
@@ -11,6 +12,7 @@ def user_post_save(instance, raw, created, using, update_fields, **kwargs):
     """
     if created:
         add_auto_following(user=instance)
+        add_invite_code(user=instance)
     
     complete_profile(user=instance)
 
@@ -34,3 +36,9 @@ def complete_profile(user):
         if not user.completed_profile:
             mm_User.filter(pk=user.id).update(completed_profile=True)
             mm_Point.add_action(user_id=user.id, action=mm_Point.ACTION_USER_PROFILE)
+
+def add_invite_code(user):
+    """生成邀请码
+    """
+    invite_code = shortuuid.ShortUUID().random(length=6)
+    mm_User.filter(pk=user.id).update(invite_code=invite_code)
