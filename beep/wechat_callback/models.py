@@ -55,12 +55,7 @@ class WxUserManager(ModelManager):
     def update_user(self, userinfo_dict):
 
         wehub_user_logger.info('Raw user data: {}'.format(userinfo_dict))
-        # saved_wxid = self.cache.get(self.key_wxid_set)
-        # if saved_wxid is None:
-            # saved_wxid = self.get_saved_wxid_set()
         wxid = userinfo_dict.pop('wxid')
-        # if wxid in saved_wxid:
-        #     return
         
         defaults = {
             'wx_alias': userinfo_dict.get('wx_alias'),

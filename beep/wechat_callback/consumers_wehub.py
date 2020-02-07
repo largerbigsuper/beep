@@ -63,9 +63,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
         if action == 'report_new_msg':
             msg_dict = req_data_dict['msg']
             room_wxid = msg_dict.get('room_wxid')
-            # live_rooms = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms, set())
-            # if room_wxid in live_rooms:
-            #     save_msg = True
             #FIXME 
             # 2019-01-07版本 以activity_id为频道
             live_groups_dict = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms_activity_map, {})

@@ -3,7 +3,6 @@ from django.core.cache import cache
 
 class CacheKey(object):
 
-    key_live_rooms = 'live_rooms'
     key_user_info = 'user_{}'
     key_wxid_set = 'wxid_set'
     key_live_rooms_activity_map = 'live_rooms_map'
