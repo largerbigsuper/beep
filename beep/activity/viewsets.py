@@ -155,9 +155,6 @@ class ActivityViewSet(viewsets.ModelViewSet):
         """
         activity = self.get_object()
         if activity.wx_groupwxid:
-            live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
-            live_rooms.add(activity.wx_groupwxid)
-            mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*24*3)
             # 2019-01-07版本 以activity_id为频道
             live_groups_dict = mm_Activity.cache.get(mm_Activity.key_live_rooms_activity_map, {})
             if activity.wx_groupwxid in live_groups_dict:
@@ -175,9 +172,6 @@ class ActivityViewSet(viewsets.ModelViewSet):
         """
         activity = self.get_object()
         if activity.wx_groupwxid:
-            live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
-            live_rooms.remove(activity.wx_groupwxid)
-            mm_Activity.cache.set(mm_Activity.key_live_rooms, live_rooms, 60*60*24*3)
             # 2019-01-07版本 以activity_id为频道
             # discard
             live_groups_dict = mm_Activity.cache.get(mm_Activity.key_live_rooms_activity_map, {})
@@ -194,40 +188,14 @@ class ActivityViewSet(viewsets.ModelViewSet):
         activity = self.get_object()
         live = False
         if activity.wx_groupwxid:
-            live_rooms = mm_Activity.cache.get(mm_Activity.key_live_rooms, set())
-            if activity.wx_groupwxid in live_rooms:
-                live = True
+            live_groups = mm_Activity.cache.get(mm_Activity.key_live_rooms_activity_map, set())
+            if activity.wx_groupwxid in live_groups:
+                if int(pk) in live_groups[activity.wx_groupwxid]:
+                    live = True
         data = {
             'live': live
         }
         return Response(data=data)
-
-    # @action(detail=True, methods=['post'])
-    # def create_poster(self, request, pk=None):
-    #     """生成海报
-    #     """
-    #     activity = self.get_object()
-    #     user_cover = activity.user.avatar_url
-    #     user_name = activity.user.name
-    #     user_desc = activity.user.desc[:30] if activity.user.desc else ''
-    #     title = activity.title
-    #     logo = activity.cover
-    #     qrcode_path = 'https://beepcrypto.com/activity/detail?id={}&articleId={}'.format(activity.id, activity.blog_id)
-
-    #     detail = ''
-    #     if not user_cover:
-    #         detail = '用户头像未设置'
-    #     if not logo:
-    #         detail = '活动封面图未设置'
-    #     if detail:
-    #         return Response(data={'detail': detail}, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     poster = Post().generate_post_activity(user_cover, user_name, user_desc, title, logo, qrcode_path)
-    #     mm_Activity.filter(pk=activity.id).update(poster=poster)
-    #     data = {
-    #         'poster': poster
-    #     }
-    #     return Response(data)
 
     @action(detail=True)
     def get_poster(self, request, pk=None):
