@@ -57,7 +57,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         serializer.is_valid(raise_exception=True)
         account = serializer.validated_data['account']
         password = serializer.validated_data['password']
-        invite_code = serializer.validated_data['invite_code']
+        invite_code = serializer.validated_data.get('invite_code')
         code = serializer.validated_data['code']
         _code = mm_User.cache.get(account)
         if not code == '8888':
