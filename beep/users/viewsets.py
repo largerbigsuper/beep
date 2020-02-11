@@ -87,7 +87,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         serializer.is_valid(raise_exception=True)
         code = serializer.validated_data['code']
         avatar_url = serializer.validated_data['avatar_url']
-        name = serializer.validated_data['name']
+        name = serializer.validated_data.get('name')
         encryptedData = serializer.validated_data['encryptedData']
         iv = serializer.validated_data['iv']
         logger.info('code: {}'.format(code))
@@ -112,6 +112,8 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         # unionid不一定存在
         unionid = decrypt_dict.get('unionId')
         mini_openid = ret_json['openid']
+        if not name:
+            name = 'bp_' + unionid[:8]
         user = mm_User.get_user_by_miniprogram(avatar_url, name,  mini_openid=mini_openid, unionid=unionid)
         process_login(request, user)
         respone_serailizer = MyUserProfileSerializer(user)
