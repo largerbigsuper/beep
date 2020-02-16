@@ -1,6 +1,7 @@
 import shortuuid
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.db.models import F
 
 from .models import User, mm_User, mm_RelationShip, mm_Point
 
@@ -26,7 +27,7 @@ def add_auto_following(user):
         relation = mm_RelationShip.model(user=user, following=following)
         relations.append(relation)
     objs = mm_RelationShip.bulk_create(relations)
-    mm_User.filter(pk=user.id).update(total_following=len(objs))
+    mm_User.filter(pk=user.id).update(total_following= F('total_following') + len(objs))
 
 
 def complete_profile(user):
