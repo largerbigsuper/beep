@@ -27,7 +27,12 @@ def add_auto_following(user):
         relation = mm_RelationShip.model(user=user, following=following)
         relations.append(relation)
     objs = mm_RelationShip.bulk_create(relations)
+    # 增加关注数
     mm_User.filter(pk=user.id).update(total_following= F('total_following') + len(objs))
+    # 增加粉丝数
+    for u in followings:
+        mm_User.filter(pk=u.id).update(total_followers= F('total_followers') + 1)
+
 
 
 def complete_profile(user):
