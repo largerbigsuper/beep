@@ -6,7 +6,7 @@ from channels.auth import login
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .models import mm_WxUser, mm_WxMessage
+from .models import mm_WxUser, mm_WxMessage, mm_WxGroup
 
 """消息格式
 msg_type
@@ -43,8 +43,6 @@ class LiveConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         self.user = self.scope["user"]
-        # await login(self.scope, user)
-        # await database_sync_to_async(self.scope["session"].save)()
         self.logger.info('+ WebSocket CONNECT {} {} {}'.format(self.scope["user"], self.scope['path'], self.scope['client']))
         await self.accept()
 
@@ -84,7 +82,14 @@ class LiveConsumer(AsyncWebsocketConsumer):
             'user': user
         }
 
-        room_wxid = self.room_name + '@chatroom'
+        # room_wxid = self.room_name + '@chatroom'
+        live_groups_dict = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms_activity_map, {})
+        live_activity_group_dict  = {}
+        for wxid, activity_set in live_groups_dict.items():
+            for activity_id in activity_set:
+                live_activity_group_dict[activity_id] = wxid
+        room_wxid = live_activity_group_dict.get(int(self.room_name), 1)
+
         # 群发
         await self.channel_layer.group_send(
             self.room_group_name,
