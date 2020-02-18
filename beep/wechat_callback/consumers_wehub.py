@@ -63,8 +63,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
         if action == 'report_new_msg':
             msg_dict = req_data_dict['msg']
             room_wxid = msg_dict.get('room_wxid')
-            #FIXME 
-            # 2019-01-07版本 以activity_id为频道
             live_groups_dict = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms_activity_map, {})
             if room_wxid in live_groups_dict:
                 save_msg = True
@@ -146,7 +144,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
         # 1. 更新好友列表
         friend_list = data_dict['friend_list']
         for info in friend_list:
-            # mm_WxUser.update_user(friend)
             # 去除已更新的wxid
             wxid = info['wxid']
             if wxid in saved_wxid:
@@ -164,9 +161,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         for group in my_groups:
             group_wxid = group['wxid']
-            # if group_wxid in saved_groups:
-            #     continue
-            # mm_WxGroup.update_group(bot_wxid, group)
             update_or_create_wxgroup.delay(bot_wxid, group)
         
         return room_wxid_list
@@ -261,6 +255,20 @@ class WehubConsumer(AsyncWebsocketConsumer):
         # mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
         save_wxmessage.delay(bot_wxid, wxmessage_dict)
 
+    def process_report_new_msg_system(self, bot_wxid, data_dict):
+        """处理聊天中的系统消息
+        """
+        # 存储消息
+        msg_dict = data_dict['msg']
+        msg_type = msg_dict['msg_type']
+        room_wxid = msg_dict['room_wxid']
+        # 系统消息 -- 更新群名时更新群信息
+        if msg_type == const.MSG_TYPE_SYSTEM:
+            key = '修改群名为'
+            if key in msg_dict['raw_msg']:
+                new_name = msg_dict['raw_msg'].split(key)[-1][1: -1]
+                mm_WxGroup.filter(room_wxid=room_wxid).update(name=new_name)
+
 
     def process_report_user_info(self, bot_wxid, data_dict):
         """上报具体某个微信的详情 request格式
@@ -336,6 +344,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
             self.process_report_user_info(wxid, request_data_dict)
 
         elif action == 'report_new_msg':
+            # 处理系统消息
+            self.process_report_new_msg_system(wxid, request_data_dict)
             if save_msg:
                 # 如果是系统消息，则更新群信息
                 self.process_report_new_msg(wxid, request_data_dict)
