@@ -209,6 +209,8 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
                 request.user.openid = openid
                 request.user.unionid = unionid
                 request.user.save()
+                # 退出登陆
+                process_logout(request)
             return Response()
         else:
             data = {
