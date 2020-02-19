@@ -47,7 +47,10 @@ def send_rewardplan_start(rewardplan_id):
     # group_name = wx_groupwxid.replace('@chatroom', '')
     # if not group_name:
     #     return
-    group_name = rewardplan.activity.id
+    if not rewardplan.activity:
+        return
+
+    group_name = str(rewardplan.activity.id)
 
     # 生成中奖结果
     result_list = rewardplan.get_rewardplan_result
