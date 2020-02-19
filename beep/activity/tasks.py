@@ -60,7 +60,7 @@ def send_rewardplan_start(rewardplan_id):
             'id': rewardplan.id,
             'desc': rewardplan.desc,
             'coin_name': rewardplan.coin_name,
-            'coin_logo': rewardplan.coin_logo.url,
+            'coin_logo': rewardplan.coin_logo.url if rewardplan.coin_logo else '',
             'total_coin': rewardplan.total_coin,
             'start_time': rewardplan.start_time.strftime(settings.DATETIME_FORMAT)
         }
