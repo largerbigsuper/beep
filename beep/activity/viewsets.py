@@ -177,6 +177,8 @@ class ActivityViewSet(viewsets.ModelViewSet):
             live_groups_dict = mm_Activity.cache.get(mm_Activity.key_live_rooms_activity_map, {})
             if activity.wx_groupwxid in live_groups_dict:
                 live_groups_dict[activity.wx_groupwxid].discard(activity.id)
+                if not live_groups_dict[activity.wx_groupwxid]:
+                    del live_groups_dict[activity.wx_groupwxid]
             mm_Activity.cache.set(mm_Activity.key_live_rooms_activity_map, live_groups_dict, 60*60*24*3)
 
         return Response()

@@ -85,8 +85,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
             msg_dict = req_data_dict['msg']
             room_wxid = msg_dict.get('room_wxid')
             if room_wxid:
-                channel_name = room_wxid.replace('@chatroom', '')
-                live_activitys.add(channel_name)
+                # channel_name = room_wxid.replace('@chatroom', '')
+                # live_activitys.add(channel_name)
                 for channel_id in live_activitys:
                     await self.channel_layer.group_send(
                         str(channel_id),
