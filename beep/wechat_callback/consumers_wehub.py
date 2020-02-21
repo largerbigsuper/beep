@@ -7,7 +7,7 @@ from django.core.cache import cache
 
 from . import const
 from .models import mm_WxUser, mm_WxGroup, mm_WxBot, mm_WxMessage
-from .tasks import update_or_create_wxuser, update_or_create_wxgroup, update_or_create_wxbot, save_wxmessage
+from .tasks import update_or_create_wxuser, update_or_create_wxgroup, update_or_create_wxbot, save_wxmessage, update_wxgroup_name
 
 
 class WehubConsumer(AsyncWebsocketConsumer):
@@ -85,8 +85,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
             msg_dict = req_data_dict['msg']
             room_wxid = msg_dict.get('room_wxid')
             if room_wxid:
-                channel_name = room_wxid.replace('@chatroom', '')
-                live_activitys.add(channel_name)
+                # channel_name = room_wxid.replace('@chatroom', '')
+                # live_activitys.add(channel_name)
                 for channel_id in live_activitys:
                     await self.channel_layer.group_send(
                         str(channel_id),
@@ -267,7 +267,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
             key = '修改群名为'
             if key in msg_dict['raw_msg']:
                 new_name = msg_dict['raw_msg'].split(key)[-1][1: -1]
-                mm_WxGroup.filter(room_wxid=room_wxid).update(name=new_name)
+                # mm_WxGroup.filter(room_wxid=room_wxid).update(name=new_name)
+                update_wxgroup_name.delay(room_wxid, new_name)
 
 
     def process_report_user_info(self, bot_wxid, data_dict):

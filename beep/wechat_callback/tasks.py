@@ -27,3 +27,9 @@ def save_wxmessage(bot_wxid, wxmessage_dict):
     """保存微信信息
     """
     mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
+
+@shared_task
+def update_wxgroup_name(room_wxid, new_name):
+    """更新微信群名
+    """
+    mm_WxGroup.filter(room_wxid=room_wxid).update(name=new_name)
