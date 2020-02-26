@@ -139,7 +139,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         """
         saved_wxid = mm_WxUser.cache.get(mm_WxUser.key_wxid_set)
         if saved_wxid is None:
-            saved_wxid = self.get_saved_wxid_set()
+            saved_wxid = mm_WxUser.get_saved_wxid_set()
 
         # 1. 更新好友列表
         friend_list = data_dict['friend_list']
@@ -180,7 +180,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 userinfo_list.append(info)
         saved_wxid = mm_WxUser.cache.get(mm_WxUser.key_wxid_set)
         if saved_wxid is None:
-            saved_wxid = self.get_saved_wxid_set()
+            saved_wxid = mm_WxUser.get_saved_wxid_set()
 
         for info in userinfo_list:
             # mm_WxUser.update_user(info)
@@ -197,7 +197,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         """
         saved_wxid = mm_WxUser.cache.get(mm_WxUser.key_wxid_set)
         if saved_wxid is None:
-            saved_wxid = self.get_saved_wxid_set()
+            saved_wxid = mm_WxUser.get_saved_wxid_set()
             
         room_data_list = data_dict['room_data_list']
         for room in room_data_list:
