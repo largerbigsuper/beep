@@ -383,8 +383,6 @@ class CommentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(to_user=self.request.user)
         elif self.action in ('all'):
             queryset = queryset.filter(parent=None)
-        elif self.action in ['list']:
-            queryset = queryset[:10]
         return queryset
 
     @action(detail=False, methods=['get'], pagination_class=Size_10_Pagination)
