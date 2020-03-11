@@ -2,6 +2,7 @@ import json
 import traceback
 import logging
 
+from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.cache import cache
 
@@ -57,89 +58,21 @@ class WehubConsumer(AsyncWebsocketConsumer):
         if appid is None or action is None or wxid is None:
             self.logger.info("invalid param")
             return
-        
-        live_activitys = set()
-        save_msg = False
-        if action == 'report_new_msg':
-            msg_dict = req_data_dict['msg']
-            room_wxid = msg_dict.get('room_wxid')
-            live_groups_dict = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms_activity_map, {})
-            if room_wxid in live_groups_dict:
-                save_msg = True
-                live_activitys = live_groups_dict[room_wxid]
 
-        error_code, error_reason, ack_data, ack_type = self.main_process(wxid, action, req_data_dict, save_msg)
-        ack_dict = {
-            'error_code': error_code,
-            'error_reason': error_reason,
-            'data': ack_data,
-            'ack_type': str(ack_type)
-        }
-        # 回调wehub
-        ack_data_text = json.dumps(ack_dict)
-        self.logger.info('===ack_data==: {}'.format(ack_data_text))
-        await self.send(ack_data_text)
+        await self.main_process(wxid, action, req_data_dict)
 
-        # 讲消息转发到对应的群
-        if save_msg and action == 'report_new_msg':
-            msg_dict = req_data_dict['msg']
-            room_wxid = msg_dict.get('room_wxid')
-            if room_wxid:
-                # channel_name = room_wxid.replace('@chatroom', '')
-                # live_activitys.add(channel_name)
-                for channel_id in live_activitys:
-                    await self.channel_layer.group_send(
-                        str(channel_id),
-                        {
-                            'type': 'wehub_message',
-                            'message': msg_dict
-                        }
-                    )
-        # 更新群成员变化
-        elif action == 'report_room_member_change':
-            # 发送上传群成员信息任务
-            wxid_list = []
-            if req_data_dict['flag']:
-                wxid_list = req_data_dict['wxid_list']
-            ack_type = 'common_ack'
-            for wxid in wxid_list:
-                reply_task_list = []
-                task = {
-                    'task_type': const.TASK_TYPE_REPORT_USER_INFO,
-                    'task_dict': {
-                        'wxid': wxid
-                    }
-                }
-                reply_task_list.append(task)
-                ack_data = {
-                    'reply_task_list': reply_task_list
-                }
-                ack_dict = {
-                    'error_code': 0,
-                    'error_reason': "no error",
-                    'data': ack_data,
-                    'ack_type': ack_type
-                }
-                # 回调wehub
-                ack_data_text = json.dumps(ack_dict)
-                self.logger.info('===ack_data==: {}'.format(ack_data_text))
-                await self.send(ack_data_text)
 
-    def process_login(self, wxid, data_dict):
+    async def process_login(self, wxid, data_dict):
         """微信机器人
         """
-
-        # mm_WxBot.update_bot(wxid=wxid, data=data_dict)
-        update_or_create_wxbot.delay(wxid, data_dict)
+        await database_sync_to_async(mm_WxBot.update_bot)(wxid=wxid, data=data_dict)
         # 更新缓存
-        mm_WxUser.get_saved_wxid_set()
+        wxid = await database_sync_to_async(mm_WxUser.get_saved_wxid_set)(refash=True)
 
     def process_report_contact(self, bot_wxid, data_dict):
         """上报好友与群列表
         """
-        saved_wxid = mm_WxUser.cache.get(mm_WxUser.key_wxid_set)
-        if saved_wxid is None:
-            saved_wxid = mm_WxUser.get_saved_wxid_set()
+        saved_wxid = mm_WxUser.get_saved_wxid_set()
 
         # 1. 更新好友列表
         friend_list = data_dict['friend_list']
@@ -178,15 +111,15 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 groupinfo_list.append(info)
             else:
                 userinfo_list.append(info)
-        saved_wxid = mm_WxUser.cache.get(mm_WxUser.key_wxid_set)
-        if saved_wxid is None:
-            saved_wxid = mm_WxUser.get_saved_wxid_set()
+
+        saved_wxid = mm_WxUser.get_saved_wxid_set()
 
         for info in userinfo_list:
             # mm_WxUser.update_user(info)
             wxid = info['wxid']
             if wxid in saved_wxid:
-                continue
+                if saved_wxid[wxid][1] == info['nickname'] and saved_wxid[wxid][2] == info['head_img']:
+                    continue
             update_or_create_wxuser.delay(info)
         for info in groupinfo_list:
             # mm_WxGroup.update_group(bot_wxid, info)
@@ -195,10 +128,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
     def process_report_room_member_info(self, bot_wxid, data_dict):
         """上报群成员信息
         """
-        saved_wxid = mm_WxUser.cache.get(mm_WxUser.key_wxid_set)
-        if saved_wxid is None:
-            saved_wxid = mm_WxUser.get_saved_wxid_set()
-            
+        saved_wxid = mm_WxUser.get_saved_wxid_set()
         room_data_list = data_dict['room_data_list']
         for room in room_data_list:
             # mm_WxGroup.update_group(bot_wxid, room)
@@ -207,12 +137,13 @@ class WehubConsumer(AsyncWebsocketConsumer):
             for info in memberInfo_list:
                 wxid = info['wxid']
                 if wxid in saved_wxid:
-                    continue
+                    if saved_wxid[wxid][1] == info['nickname'] and saved_wxid[wxid][2] == info['head_img']:
+                        continue
                 info.pop('room_nickname')
                 # mm_WxUser.update_user(info)
                 update_or_create_wxuser.delay(info)
 
-    def process_report_room_member_change(self, bot_wxid, data_dict):
+    async def process_report_room_member_change(self, bot_wxid, data_dict):
         """上报群成员变化
         request
         {
@@ -238,7 +169,33 @@ class WehubConsumer(AsyncWebsocketConsumer):
             }
         }
         """
-        pass
+        # 发送上传群成员信息任务
+        wxid_list = []
+        if data_dict['flag']:
+            wxid_list = data_dict['wxid_list']
+        ack_type = 'common_ack'
+        for wxid in wxid_list:
+            reply_task_list = []
+            task = {
+                'task_type': const.TASK_TYPE_REPORT_USER_INFO,
+                'task_dict': {
+                    'wxid': wxid
+                }
+            }
+            reply_task_list.append(task)
+            ack_data = {
+                'reply_task_list': reply_task_list
+            }
+            ack_dict = {
+                'error_code': 0,
+                'error_reason': "no error",
+                'data': ack_data,
+                'ack_type': ack_type
+            }
+            # 回调wehub
+            ack_data_text = json.dumps(ack_dict)
+            self.logger.info('===ack_data==: {}'.format(ack_data_text))
+            await self.send(ack_data_text)
 
     def process_report_new_room(self, bot_wxid, data_dict):
         """上报新群
@@ -270,7 +227,6 @@ class WehubConsumer(AsyncWebsocketConsumer):
                 # mm_WxGroup.filter(room_wxid=room_wxid).update(name=new_name)
                 update_wxgroup_name.delay(room_wxid, new_name)
 
-
     def process_report_user_info(self, bot_wxid, data_dict):
         """上报具体某个微信的详情 request格式
         {
@@ -297,10 +253,22 @@ class WehubConsumer(AsyncWebsocketConsumer):
         # mm_WxUser.update_user(data_dict)
         update_or_create_wxuser.delay(data_dict)
 
-    def main_process(self, wxid, action, request_data_dict, save_msg):
-        # self.logger.info("action = {0},data = {1}".format(
-        #     action, request_data_dict))
+    async def main_process(self, wxid, action, request_data_dict):
+
         ack_type = 'common_ack'
+        error_code, error_reason, ack_data, ack_type = 0, 'no error', {}, ack_type
+
+        # 获取直播房间信息
+        live_activitys = set()
+        save_msg = False
+        if action == 'report_new_msg':
+            msg_dict = request_data_dict['msg']
+            room_wxid = msg_dict.get('room_wxid')
+            live_groups_dict = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms_activity_map, {})
+            if room_wxid in live_groups_dict:
+                save_msg = True
+                live_activitys = live_groups_dict[room_wxid]
+        
         if action in const.FIX_REQUEST_TYPES:
             ack_type = str(action)+'_ack'
 
@@ -309,7 +277,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         # 处理微信机器人
         if action == 'login':
-            self.process_login(wxid, request_data_dict)
+            await self.process_login(wxid, request_data_dict)
 
         elif action == 'report_contact':
             # 处理群信息
@@ -327,7 +295,8 @@ class WehubConsumer(AsyncWebsocketConsumer):
             ack_data = {
                 'reply_task_list': reply_task_list
             }
-            return 0, "no error", ack_data, ack_type
+
+            # return 0, "no error", ack_data, ack_type
 
         elif action == 'report_contact_update':
             self.process_report_contact_update(wxid, request_data_dict)
@@ -339,7 +308,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
             self.process_report_new_room(wxid, request_data_dict)
 
         elif action == 'report_room_member_change':
-            pass
+            await self.process_report_room_member_change(wxid, request_data_dict)
 
         elif action == 'report_user_info':
             self.process_report_user_info(wxid, request_data_dict)
@@ -350,6 +319,20 @@ class WehubConsumer(AsyncWebsocketConsumer):
             if save_msg:
                 # 如果是系统消息，则更新群信息
                 self.process_report_new_msg(wxid, request_data_dict)
+                # 讲消息转发到对应的群
+                msg_dict = request_data_dict['msg']
+                room_wxid = msg_dict.get('room_wxid')
+                if room_wxid:
+                    # channel_name = room_wxid.replace('@chatroom', '')
+                    # live_activitys.add(channel_name)
+                    for channel_id in live_activitys:
+                        await self.channel_layer.group_send(
+                            str(channel_id),
+                            {
+                                'type': 'wehub_message',
+                                'message': msg_dict
+                            }
+                        )
                 # 处理文件回调
                 msg_dict = request_data_dict['msg']
                 msg_type = msg_dict['msg_type']
@@ -365,10 +348,19 @@ class WehubConsumer(AsyncWebsocketConsumer):
                     ack_data = {
                         'reply_task_list': reply_task_list
                     }
-                    return 0, 'no error', ack_data, ack_type
         else:
             pass
-        return 0, 'no error', {}, ack_type
+
+        ack_dict = {
+            'error_code': error_code,
+            'error_reason': error_reason,
+            'data': ack_data,
+            'ack_type': str(ack_type)
+        }
+        # 回调wehub
+        ack_data_text = json.dumps(ack_dict)
+        self.logger.info('===ack_data==: {}'.format(ack_data_text))
+        await self.send(ack_data_text)
 
     async def live_message(self, event):
         """发送消息到wehub

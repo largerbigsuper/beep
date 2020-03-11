@@ -89,11 +89,16 @@ class WxUserManager(ModelManager):
                 info = {}
         return info
 
-    def get_saved_wxid_set(self):
+    def get_saved_wxid_set(self, refash=False):
         """获取上一次wehub上传的用户wxid
         """
-        saved_wxid_set = set(self.all().values_list('wxid', flat=True))
-        self.cache.set(self.key_wxid_set, saved_wxid_set, self.TIME_OUT_WXID_SET)
+        if refash:
+            vlist = self.all().values_list('wxid', 'nickname', 'head_img')
+            saved_wxid_set = {t[0]: t for t in vlist}
+
+            self.cache.set(self.key_wxid_set, saved_wxid_set, self.TIME_OUT_WXID_SET)
+        else:
+            saved_wxid_set = self.cache.get(self.key_wxid_set, {})
         return saved_wxid_set
 
 
