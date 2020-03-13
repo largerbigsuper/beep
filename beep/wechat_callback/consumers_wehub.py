@@ -69,7 +69,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
         # 更新缓存
         wxid = await database_sync_to_async(mm_WxUser.get_saved_wxid_set)(refash=True)
 
-    def process_report_contact(self, bot_wxid, data_dict):
+    async def process_report_contact(self, bot_wxid, data_dict):
         """上报好友与群列表
         """
         saved_wxid = mm_WxUser.get_saved_wxid_set()
@@ -89,14 +89,40 @@ class WehubConsumer(AsyncWebsocketConsumer):
        
         # 2返回需要上传群信息的群wxid列表
         # 去除已经同步的群
-        saved_groups = set(mm_WxGroup.all().values_list('room_wxid', flat=True))
+        saved_groups = await database_sync_to_async(mm_WxGroup.get_saved_wxgroup_set)()
         room_wxid_list = [group['wxid'] for group in my_groups if group['wxid'] not in saved_groups]
 
         for group in my_groups:
             group_wxid = group['wxid']
             update_or_create_wxgroup.delay(bot_wxid, group)
         
-        return room_wxid_list
+        # return room_wxid_list
+
+        # 发送上传群成员信息任务
+        # room_wxid_list = []
+        reply_task_list = []
+        task = {
+            'task_type': const.TASK_TYPE_REPORT_ROOMMEMBER,
+            'task_dict': {
+                'room_wxid_list': room_wxid_list
+            }
+        }
+        reply_task_list.append(task)
+        ack_data = {
+            'reply_task_list': reply_task_list
+        }
+        ack_type = 'common_ack'
+        ack_dict = {
+        'error_code': 0,
+        'error_reason': "no error",
+        'data': ack_data,
+        'ack_type': ack_type
+        }
+        # 回调wehub
+        ack_data_text = json.dumps(ack_dict)
+        self.logger.info('===ack_data==: {}'.format(ack_data_text))
+        await self.send(ack_data_text)
+
 
     def process_report_contact_update(self, bot_wxid, data_dict):
         """群成员变化
@@ -281,22 +307,7 @@ class WehubConsumer(AsyncWebsocketConsumer):
 
         elif action == 'report_contact':
             # 处理群信息
-            room_wxid_list = self.process_report_contact(wxid, request_data_dict)
-            # 发送上传群成员信息任务
-            # room_wxid_list = []
-            reply_task_list = []
-            task = {
-                'task_type': const.TASK_TYPE_REPORT_ROOMMEMBER,
-                'task_dict': {
-                    'room_wxid_list': room_wxid_list
-                }
-            }
-            reply_task_list.append(task)
-            ack_data = {
-                'reply_task_list': reply_task_list
-            }
-
-            # return 0, "no error", ack_data, ack_type
+            await self.process_report_contact(wxid, request_data_dict)
 
         elif action == 'report_contact_update':
             self.process_report_contact_update(wxid, request_data_dict)

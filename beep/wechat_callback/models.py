@@ -171,6 +171,11 @@ class WxGroupManager(ModelManager):
         defaults['memberInfo_list'] = groupinfo_dict.get('memberInfo_list')
         self.update_or_create(bot_wxid=bot_wxid, room_wxid=room_wxid, defaults=defaults)
 
+    def get_saved_wxgroup_set(self):
+        """获取全部的quid
+        """
+        return set(self.all().values_list('room_wxid', flat=True))
+
 
 class WxGroup(models.Model):
     """[summary]
