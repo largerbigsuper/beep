@@ -133,6 +133,8 @@ class SkuOrderSerializer(serializers.ModelSerializer):
                 mm_SkuOrderItem.create(user=request.user, sku=sku, order=order, point=item_point, **order_item_data)
                 # 更新产品库存
                 mm_SkuProperty.filter(pk=sku_property.id).update(total_left=F('total_left') - quantity, total_sales=F('total_sales') + quantity)
+                # 删除购物车记录
+                mm_SkuCart.filter(user=request.user, sku=sku, sku_property=sku_property).delete()
 
             return order
 
