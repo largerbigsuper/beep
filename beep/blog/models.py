@@ -281,13 +281,14 @@ class CommentManager(ModelManager):
     def update_commnet_point(self, user_id):
         """每日首评增加积分
         """
-        key = self.key_user_first_comment_everyday.format(user_id)
-        if not self.cache.get(key):
-            now = datetime.today()
-            today_end = datetime(now.year, now.month, now.day, 23, 59, 59)
-            today_timedelta = today_end - now
-            self.cache.set(key, 1, today_timedelta.total_seconds())
-            mm_Point.add_action(user_id, mm_Point.ACTION_USER_FIRST_COMMENT_EVERYDAY)
+        # key = self.key_user_first_comment_everyday.format(user_id)
+        # if not self.cache.get(key):
+        #     now = datetime.today()
+        #     today_end = datetime(now.year, now.month, now.day, 23, 59, 59)
+        #     today_timedelta = today_end - now
+        #     self.cache.set(key, 1, today_timedelta.total_seconds())
+        # mm_Point.add_action(user_id, mm_Point.ACTION_USER_FIRST_COMMENT_EVERYDAY)
+        mm_Point.add_action(user_id, mm_Point.ACTION_USER_ADD_COMMENT)
 
 class Comment(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, db_index=False)

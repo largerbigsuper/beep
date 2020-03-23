@@ -263,6 +263,7 @@ class LikeCreateSerializer(serializers.ModelSerializer):
         instance = self.Meta.model(
             user=self.context['request'].user, **validated_data)
         instance.save()
+        mm_Point.add_action(instance.user_id, mm_Point.ACTION_USER_ADD_BLOG_LIKE)
         return instance
 
 class CommentLikeCreateSerializer(serializers.ModelSerializer):
