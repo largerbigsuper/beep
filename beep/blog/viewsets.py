@@ -12,12 +12,25 @@ from rest_framework.response import Response
 from utils.serializers import NoneParamsSerializer
 from utils.permissions import IsOwerPermission
 from .serializers import (TopicSerializer,
-                          BlogCreateSerializer, BlogListSerialzier,
+                          BlogCreateSerializer, 
+                          BlogListSerialzier,
                           AtMessageSerializer,
-                          CommentCreateSerializer, CommentSerializer, CommentListSerializer,
-                          LikeCreateSerializer, LikeListSerializer, MyLikeListSerializer,
+                          CommentCreateSerializer, 
+                          CommentSerializer,
+                          CommentListSerializer,
+                          LikeCreateSerializer, 
+                          LikeListSerializer, 
+                          MyLikeListSerializer,
                           CommentLikeCreateSerializer)
-from .models import mm_Topic, mm_Blog, mm_AtMessage, mm_Like, mm_BlogShare, mm_Comment, mm_user_Blog
+from .models import (mm_Topic, 
+    mm_Blog, 
+    mm_AtMessage, 
+    mm_Like,
+    mm_BlogShare, 
+    mm_Comment, 
+    mm_user_Blog,
+    mm_Point
+    )
 from .filters import CommentFilter, LikeFilter, BlogFilter, TopicFilter
 from beep.search.models import mm_SearchHistory
 from beep.users.models import mm_User   
@@ -266,6 +279,7 @@ class BlogViewSet(viewsets.ModelViewSet):
                 user=request.user, blog=blog)
             if created:
                 mm_Blog.update_data(blog.id, 'total_like')
+                mm_Point.add_action(request.user.id, mm_Point.ACTION_USER_ADD_BLOG_LIKE)
 
         return Response()
 
@@ -289,6 +303,7 @@ class BlogViewSet(viewsets.ModelViewSet):
                 user=request.user, blog=blog)
             if created:
                 mm_Blog.update_data(blog.id, 'total_share')
+                mm_Point.add_action(request.user.id, mm_Point.ACTION_USER_ADD_SHARE)
 
         return Response()
 

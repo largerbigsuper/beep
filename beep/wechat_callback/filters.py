@@ -8,6 +8,7 @@ class WxMessageFilter(filters.FilterSet):
         model = WxMessage
         fields = {
             'room_wxid': ['exact'],
+            'activity_id': ['exact'],
             'msg_type': ['exact'],
             'user_type': ['exact'],
             'msg_timestamp': ['gt', 'lt'],

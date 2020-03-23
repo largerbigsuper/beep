@@ -324,6 +324,7 @@ class WxMessage(models.Model):
     user_id = models.IntegerField(default=0, blank=True, db_index=True, verbose_name='平台用户user_id')
     user_type = models.IntegerField(default=0, blank=True, db_index=True, verbose_name='用户类型：0:微信用户， 1:平台用户, 2:系统消息')
     create_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='创建时间')
+    activity_id = models.PositiveIntegerField(default=0,verbose_name='活动id')
 
     objects = WxMessageManager()
 

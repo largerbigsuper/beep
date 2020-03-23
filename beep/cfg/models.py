@@ -35,6 +35,10 @@ class ActionPointCfgManager(ModelManager):
     def get_action_point_mapping(self):
         cfg_list = list(self.all().values_list('code', 'point'))
         return dict(cfg_list)
+    
+    def get_action_point_limit_mapping(self):
+        cfg_list = list(self.all().values_list('code', 'max_per_day'))
+        return dict(cfg_list)
 
 class ActionPointCfg(models.Model):
     """用户行为积分奖励设置
@@ -42,6 +46,7 @@ class ActionPointCfg(models.Model):
     code = models.PositiveIntegerField(default=0, unique=True, verbose_name='编号')
     name = models.CharField(max_length=100, verbose_name='行为')
     point = models.PositiveIntegerField(default=0, verbose_name='奖励积分')
+    max_per_day = models.PositiveIntegerField(default=1000, verbose_name='每天获取积分上限')
     is_on = models.BooleanField(default=True, verbose_name='应用中')
 
     objects = ActionPointCfgManager()
