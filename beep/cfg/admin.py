@@ -14,4 +14,4 @@ class AutoFollowingCfgAdmin(admin.ModelAdmin):
 @admin.register(ActionPointCfg)
 class ActionPointCfgAdmin(admin.ModelAdmin):
     
-    list_display = ['code', 'name', 'point', 'is_on']
+    list_display = ['code', 'name', 'point', 'max_per_day', 'is_on']

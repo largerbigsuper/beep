@@ -6,7 +6,8 @@ from datetime import date
 from django.db import models
 from django.db import transaction
 from django.db import IntegrityError, DataError
-from django.db.models import F
+from django.db.models import F, Sum, Value
+from django.db.models.functions import Coalesce
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager as AuthUserManager
@@ -216,6 +217,9 @@ class PointManager(ModelManager):
     ACTION_USER_ADD_BLOG = 2002
     ACTION_USER_ADD_TOPIC = 2003
     ACTION_USER_JOIN_TOPIC = 2004
+    ACTION_USER_ADD_BLOG_LIKE = 2005
+    ACTION_USER_ADD_COMMENT= 2006
+    ACTION_USER_ADD_SHARE= 2007
     ACTION_USER_INVITE_ENROLL = 3001
 
     ACTION_CHOICE = (
@@ -228,6 +232,9 @@ class PointManager(ModelManager):
         (ACTION_USER_ADD_BLOG, '发表博文'),
         (ACTION_USER_ADD_TOPIC, '发布话题'),
         (ACTION_USER_JOIN_TOPIC, '参与话题'),
+        (ACTION_USER_ADD_BLOG_LIKE, '博文点赞'),
+        (ACTION_USER_ADD_COMMENT, '博文评论'),
+        (ACTION_USER_ADD_SHARE, '博文转发'),
         (ACTION_USER_INVITE_ENROLL, '邀请用户注册'),
     )
 
@@ -242,6 +249,9 @@ class PointManager(ModelManager):
         ACTION_USER_ADD_TOPIC: POINT_IN,
         ACTION_USER_JOIN_TOPIC: POINT_IN,
         ACTION_USER_INVITE_ENROLL: POINT_IN,
+        ACTION_USER_ADD_BLOG_LIKE: POINT_IN,
+        ACTION_USER_ADD_COMMENT: POINT_IN,
+        ACTION_USER_ADD_SHARE: POINT_IN,
     }
 
     Action_Point_Mapping = {
@@ -292,11 +302,19 @@ class PointManager(ModelManager):
             total_left = self.get_total_point(user_id) - amount
         if amount <= 0:
             return
+        if self.is_limited(user_id, action):
+            return
         self._add_action(user_id=user_id,
                          action=action,
                          amount=amount,
                          total_left=total_left,
                          )
+    def is_limited(self, user_id, action):
+        max_per_day = mm_ActionPointCfg.get_action_point_limit_mapping().get(action, 0)
+        today_date = date.today()
+        total = self.filter(user_id=user_id, action=action, create_at__date=today_date).aggregate(total=Coalesce(Sum('amount'), Value(0)))['total']
+        return total >= max_per_day
+
 
 
 class Point(models.Model):

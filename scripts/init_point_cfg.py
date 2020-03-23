@@ -1,6 +1,10 @@
 from beep.cfg.models import mm_ActionPointCfg
 from beep.users.models import mm_Point
 
+
+def clear():
+    mm_ActionPointCfg.all().delete()
+
 def init_action_point_cfg():
     """初始化配置表
     """
@@ -13,5 +17,6 @@ def init_action_point_cfg():
 
 
 def run():
+    clear()
     init_action_point_cfg()
 
