@@ -235,8 +235,12 @@ class WehubConsumer(AsyncWebsocketConsumer):
         """
         # 存储消息
         wxmessage_dict = data_dict['msg']
-        # mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
-        save_wxmessage.delay(bot_wxid, wxmessage_dict)
+        room_wxid = wxmessage_dict.get('room_wxid')
+        live_groups_dict = mm_WxGroup.cache.get(mm_WxGroup.key_live_rooms_activity_map, {})
+        live_activitys = live_groups_dict.get(room_wxid, [])
+        for activity_id in live_activitys:
+            wxmessage_dict['activity_id'] = activity_id
+            save_wxmessage.delay(bot_wxid, wxmessage_dict)
 
     def process_report_new_msg_system(self, bot_wxid, data_dict):
         """处理聊天中的系统消息
