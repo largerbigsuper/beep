@@ -315,6 +315,10 @@ class PointManager(ModelManager):
         total = self.filter(user_id=user_id, action=action, create_at__date=today_date).aggregate(total=Coalesce(Sum('amount'), Value(0)))['total']
         return total >= max_per_day
 
+    def get_today_points(self, user_id):
+        """获取当天的积分列表
+        """
+        return self.filter(user_id=user_id, create_at__date=date.today())
 
 
 class Point(models.Model):
@@ -334,6 +338,7 @@ class Point(models.Model):
     operator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                  null=True, blank=True, verbose_name='操作人')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='记录时间')
+    is_read = models.BooleanField(default=False, verbose_name='已读')
 
     objects = PointManager()
 

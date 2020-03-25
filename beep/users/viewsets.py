@@ -38,6 +38,8 @@ from utils.exceptions import BeepException
 from .models import mm_User, mm_CheckIn, mm_Point, mm_RelationShip, mm_LableApply
 from .filters import UserFilter
 from beep.blog.models import mm_AtMessage, mm_Comment, mm_Like
+from beep.cfg.models import mm_ActionPointCfg
+from beep.cfg.serializers import ActionPointCfgSerializer
 
 logger = logging.getLogger('api_weixin')
 
@@ -499,6 +501,21 @@ class PointViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return mm_Point.filter(user=self.request.user)
+
+    @action(detail=False)
+    def points_today(self, request):
+        """今日积分列表
+        """
+        cfg_qs = mm_ActionPointCfg.all()
+        cfg_info = ActionPointCfgSerializer(cfg_qs, many=True).data
+        points_qs = mm_Point.get_today_points(request.user.id)
+        points = PointSerializer(points_qs, many=True).data
+        data = {
+            'cfg_info': cfg_info,
+            'points': points
+        }
+        points_qs.filter(is_read=False).update(is_read=True)
+        return Response(data=data)
 
 
 class LabelApplyViewSet(viewsets.ModelViewSet):

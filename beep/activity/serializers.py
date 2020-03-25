@@ -50,7 +50,7 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
     user = UserBaseSerializer(read_only=True)
     cover_url = serializers.CharField(write_only=True, allow_blank=True, required=False)
 
-    rewardplan = RewardPlanCreateSerializer(allow_null=True, required=False)
+    rewardplan = RewardPlanCreateSerializer(read_only=True)
 
     class Meta:
         model = Activity

@@ -140,7 +140,7 @@ class PointSerializer(serializers.ModelSerializer):
     class Meta:
         model = Point
         fields = ['id', 'in_or_out', 'amount',
-                  'total_left', 'action', 'desc', 'create_at']
+                  'total_left', 'action', 'desc', 'create_at', 'is_read']
 
 
 class UserSampleSerializer(serializers.ModelSerializer):
