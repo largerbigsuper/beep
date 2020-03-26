@@ -31,7 +31,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     pagination_class = Size_12_Pagination
 
     def get_permissions(self):
-        if self.action in ['create', 'put', 'delete']:
+        if self.action in ['create', 'put', 'update', 'delete']:
             return [IsAuthenticated()]
         elif self.action in ['set_live_start', 'set_live_end']:
             return [IsOwnerOrAdminPermission()]
@@ -39,7 +39,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
             return []
 
     def get_serializer_class(self):
-        if self.action in ['create', 'put']:
+        if self.action in ['create', 'put', 'update',]:
             return ActivityCreateSerializer
         elif self.action in ['remove_registration', 'remove_collect', 'delete', 'set_live_start', 'set_live_end']:
             return NoneParamsSerializer
