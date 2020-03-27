@@ -127,7 +127,8 @@ class LiveConsumer(AsyncWebsocketConsumer):
             'wxid_from': str(self.user.id),
             'wxid_to': room_wxid,
             'msg_timestamp': int(round(time.time() * 1000)),
-            'msg_type': saved_msg_type
+            'msg_type': saved_msg_type,
+            'activity_id': int(self.room_name)
         }
 
         await  database_sync_to_async(mm_WxMessage.create)(**wxmessage_dict)
