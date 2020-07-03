@@ -54,7 +54,7 @@ class MyUserAdmin(UserAdmin):
     add_form = UserCreationForm
     ordering = ('-id', )
 
-    user_info = ('name', 'age', 'gender', 'desc', 'email', 'mini_openid', 'openid', 'unionid', 'avatar_url')
+    user_info = ('name', 'age', 'gender', 'desc', 'email', 'mini_openid', 'openid', 'unionid', 'avatar_url', 'is_bot')
     data_info = ('total_blog', 'total_following', 'total_followers', 'label_type')
     user_info_tuple = user_info + data_info 
     fieldsets = (

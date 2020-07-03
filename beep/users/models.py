@@ -178,6 +178,7 @@ class User(AbstractUser):
     label_type = models.PositiveIntegerField(choices=UserManager.LABEL_TYPE, default=UserManager.LABEL_DEFAULT, verbose_name='普通用户|红V|蓝V')
     completed_profile = models.BooleanField(default=False, verbose_name='完善信息')
     invite_code = models.CharField(max_length=8, blank=True, null=True, unique=True, verbose_name='邀请码')
+    is_bot = models.BooleanField(default=False, blank=True, verbose_name='机器人账号')
 
     objects = UserManager()
 
