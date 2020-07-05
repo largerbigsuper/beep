@@ -4,8 +4,9 @@ from django.db.models import F
 from django.db import transaction
 
 from config.celery import app
-from .models import mm_Bot, mm_BotActionStatsOnBlog, mm_BotComment, mm_BotActionLog
+from .models import mm_Bot, mm_BotActionStats, mm_BotComment, mm_BotActionLog
 from beep.blog.models import Comment, mm_Comment, mm_Blog, mm_Like, mm_Point
+from beep.activity.models import mm_Activity
 
 
 
@@ -24,6 +25,45 @@ def get_bot():
     """
     return mm_Bot.get_bots().first()
 
+def get_activity(bot_id=None, min_minutes=3, max_minutes=1200000, min_count=0, max_count=1, action='action_activity_comment'):
+    """
+    2. 获取有效博文
+        2.1 根据时间筛选符合条件的博文id
+        2.2 根据bot执行记录剔除不符合的博文id
+        2.3 随机筛选一个博文id
+
+    Keyword Arguments:
+        min_minutes {int} -- 最小发布时间 (default: {3})
+        max_minutes {int} -- 最大发布时间 (default: {120})
+        min_count {int} -- 最小机器评论数 (default: {2})
+        max_count {int} -- 最大机器评论数 (default: {8})
+    """
+    # 根据时间筛选符合条件的博文id
+    min_time = datetime.datetime.now() - datetime.timedelta(minutes=max_minutes)
+    max_time = datetime.datetime.now() - datetime.timedelta(minutes=min_minutes)
+    qs = mm_Activity.filter(create_at__range=[min_time, max_time])
+    obj_ids = {obj.id for obj in qs}
+    # 根据bot执行记录剔除不符合的博文id
+    action_gt = action + '__gt'
+    params = {
+        'activity_id__in' : obj_ids,
+        action_gt: max_count
+    }
+    obj_count_limit_ids = mm_BotActionStats.filter(**params).values_list('activity_id', flat=True)
+    params_log = {
+        'activity_id__in': obj_ids,
+        'bot_id': bot_id,
+        'action': mm_BotActionLog.ACTION_MAP[action]
+    }
+    # 剔除已执行过的blog_id
+    obj_bot_limit_ids = mm_BotActionLog.filter(**params_log).values_list('activity_id', flat=True)
+    # 随机筛选一个博文id
+    final_ids = obj_ids - set(list(obj_count_limit_ids)) - set(list(obj_bot_limit_ids))
+    if not final_ids:
+        return None
+    else:
+        return random.choice(list(final_ids))
+
 def get_blog(bot_id=None, min_minutes=3, max_minutes=1200000, min_count=2, max_count=8, action='action_comment'):
     """
     2. 获取有效博文
@@ -41,23 +81,23 @@ def get_blog(bot_id=None, min_minutes=3, max_minutes=1200000, min_count=2, max_c
     min_time = datetime.datetime.now() - datetime.timedelta(minutes=max_minutes)
     max_time = datetime.datetime.now() - datetime.timedelta(minutes=min_minutes)
     blogs = mm_Blog.filter(create_at__range=[min_time, max_time])
-    blog_ids = {obj.id for obj in blogs}
+    obj_ids = {obj.id for obj in blogs}
     # 根据bot执行记录剔除不符合的博文id
     action_gt = action + '__gt'
     params = {
-        'blog_id__in': blog_ids,
+        'blog_id__in': obj_ids,
         action_gt: max_count
     }
-    exclude_ids = mm_BotActionStatsOnBlog.filter(**params).values_list('blog_id', flat=True)
+    obj_count_limit_ids = mm_BotActionStats.filter(**params).values_list('blog_id', flat=True)
     params_log = {
-        'blog_id__in': blog_ids,
+        'blog_id__in': obj_ids,
         'bot_id': bot_id,
         'action': mm_BotActionLog.ACTION_MAP[action]
     }
     # 剔除已执行过的blog_id
-    skip_ids = mm_BotActionLog.filter(**params_log).values_list('blog_id', flat=True)
+    obj_bot_limit_ids = mm_BotActionLog.filter(**params_log).values_list('blog_id', flat=True)
     # 随机筛选一个博文id
-    final_blogs = blog_ids - set(list(exclude_ids)) - set(list(skip_ids))
+    final_blogs = obj_ids - set(list(obj_count_limit_ids)) - set(list(obj_bot_limit_ids))
     if not final_blogs:
         return None
     else:
@@ -75,7 +115,7 @@ def get_comment(group=0):
     return text
 
 @app.task(queue='bot')
-def task_add_blog_commnet():
+def task_add_blog_comment():
     """
     单个bot执行评论单个博文
     博文增加评论
@@ -85,14 +125,14 @@ def task_add_blog_commnet():
         return
     try:
         mm_Bot.run(bot.id)
-        blog_id = get_blog()
+        blog_id = get_blog(bot_id=bot.id)
         if not blog_id:
             return
         comment = get_comment()
 
         obj = _add_blog_comment(blog_id=blog_id, user_id=bot.user_id, commnet=comment)
         if obj:
-            mm_BotActionStatsOnBlog.add_action(blog_id=blog_id, user_id=bot.user_id, action='action_comment')
+            mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_comment')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_comment', rid=blog_id)
     finally:
         mm_Bot.stop(bot.id)
@@ -126,13 +166,13 @@ def task_add_blog_like():
         return
     try:
         mm_Bot.run(bot.id)
-        blog_id = get_blog(min_count=2, max_count=200, action='action_like')
+        blog_id = get_blog(bot_id=bot.id, min_count=2, max_count=200, action='action_like')
         if not blog_id:
             return
 
         obj = _add_blog_like(blog_id=blog_id, user_id=bot.user_id)
         if obj:
-            mm_BotActionStatsOnBlog.add_action(blog_id=blog_id, user_id=bot.user_id, action='action_like')
+            mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_like')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_like', rid=blog_id)
     finally:
         mm_Bot.stop(bot.id)
@@ -169,13 +209,13 @@ def task_add_blog_forward():
         return
     try:
         mm_Bot.run(bot.id)
-        blog_id = get_blog(max_count=2, action='action_forward')
+        blog_id = get_blog(bot_id=bot.id, max_count=2, action='action_forward')
         if not blog_id:
             return
         text = get_comment()
         obj = _add_blog_forward(blog_id=blog_id, user_id=bot.user_id, text=text)
         if obj:
-            mm_BotActionStatsOnBlog.add_action(blog_id=blog_id, user_id=bot.user_id, action='action_forward')
+            mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_forward')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_forward', rid=blog_id)
     finally:
         mm_Bot.stop(bot.id)
@@ -201,16 +241,48 @@ def _add_blog_forward(blog_id, user_id, text):
     
     return instance
 
+@app.task(queue='bot')
+def task_add_activity_commnet():
+    """
+    活动增加评论
+    """
+    bot = get_bot()
+    if not bot:
+        return
+    try:
+        mm_Bot.run(bot.id)
+        rid = get_activity(bot_id=bot.id, max_count=1, action='action_activity_comment')
+        if not rid:
+            return
+        text = get_comment()
+        obj = _add_activity_comment(rid=rid, user_id=bot.user_id, text=text)
+        if obj:
+            mm_BotActionStats.add_action(rid=rid, user_id=bot.user_id, action='action_activity_comment')
+            mm_BotActionLog.add_log(bot_id=bot.id, action='action_activity_comment', rid=rid)
+    finally:
+        mm_Bot.stop(bot.id)
+
+
+def _add_activity_comment(rid, user_id, text):
+    """
+    活动评论
+    """
+    blog = mm_Blog.get(activity_id=rid)
+    to_user = blog.user
+    instance = Comment(blog_id=blog.id, user_id=user_id,to_user=to_user, text=text)
+    instance.save()
+    blog.total_comment = F('total_comment') + 1
+    blog.save()
+    if blog.topic:
+        blog.topic.total_comment = F('total_comment') + 1
+        blog.topic.save()
+    # 第一次评论
+    mm_Comment.update_commnet_point(user_id=user_id)
+    return instance
+
 
 def task_add_user_following():
     """
     增加关注
-    """
-    pass
-
-
-def task_add_activity_commnet():
-    """
-    博文增加评论
     """
     pass

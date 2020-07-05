@@ -178,24 +178,31 @@ class BotComment(models.Model):
 mm_BotComment = BotComment.objects
 
 
-class BotActionStatsOnBlogManager(ModelManager):
+class BotActionStatsManager(ModelManager):
     
 
-    def add_action(self, blog_id, user_id, action):
+    def add_action(self, rid, user_id, action):
         """
         增加action记录
         """
-        obj, _ = self.get_or_create(blog_id=blog_id)
+        if action in ['action_activity_comment']:
+            obj, _ = self.get_or_create(activity_id=rid)
+        else:
+            obj, _ = self.get_or_create(blog_id=rid)
         updates = {}
-        if action in ['action_comment', 'action_forward', 'action_like']:
+        if action in ['action_comment', 'action_forward', 'action_like', 'action_activity_comment']:
             updates[action] = F(action) + 1
-        self.filter(pk=obj.id).update(**updates)
+            self.filter(pk=obj.id).update(**updates)
+        else:
+            return
 
-class BotActionStatsOnBlog(models.Model):
+class BotActionStats(models.Model):
     """
     机器人对单个资源操作记录
     """
-    blog = models.ForeignKey('blog.Blog', on_delete=models.CASCADE, verbose_name='博文')
+    blog = models.ForeignKey('blog.Blog', on_delete=models.CASCADE, null=True, blank=True, verbose_name='博文')
+    activity = models.ForeignKey('activity.Activity', on_delete=models.CASCADE, null=True, blank=True, verbose_name='活动')
+    action_activity_comment = models.IntegerField(default=0, verbose_name='活动评论次数')
     action_comment = models.IntegerField(default=0, verbose_name='评论次数')
     action_forward = models.IntegerField(default=0, verbose_name='转发次数')
     action_like = models.IntegerField(default=0, verbose_name='点赞次数')
@@ -203,15 +210,15 @@ class BotActionStatsOnBlog(models.Model):
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
 
-    objects = BotActionStatsOnBlogManager()
+    objects = BotActionStatsManager()
 
     class Meta:
-        db_table = 'cms_bot_action_stats_on_blog'
+        db_table = 'cms_bot_action_stats'
         verbose_name = '机器人操作Blog统计'
         verbose_name_plural = '机器人操作Blog统计'
         ordering = ['-id']
 
-mm_BotActionStatsOnBlog = BotActionStatsOnBlog.objects
+mm_BotActionStats = BotActionStats.objects
 
 
 class BotActionLogManager(ModelManager):

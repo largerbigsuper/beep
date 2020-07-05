@@ -45,8 +45,8 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='*/2'),
         'args': (),
     },
-    'task_add_blog_commnet': {
-        'task': 'beep.bot.tasks.task_add_blog_commnet',
+    'task_add_blog_comment': {
+        'task': 'beep.bot.tasks.task_add_blog_comment',
         'schedule': crontab(minute='*'),
         'args': (),
     },
@@ -57,6 +57,11 @@ app.conf.beat_schedule = {
     },
     'task_add_blog_forward': {
         'task': 'beep.bot.tasks.task_add_blog_forward',
+        'schedule': crontab(minute='*'),
+        'args': (),
+    },
+    'task_add_activity_commnet': {
+        'task': 'beep.bot.tasks.task_add_activity_commnet',
         'schedule': crontab(minute='*'),
         'args': (),
     },
