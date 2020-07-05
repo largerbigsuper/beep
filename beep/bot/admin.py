@@ -125,7 +125,7 @@ class BotAdmin(admin.ModelAdmin):
         'create_at',
         'update_at',
     )
-    list_filter = ('user', 'is_on', 'create_at', 'update_at')
+    list_filter = ('is_on', 'create_at', 'update_at')
 
 
 @admin.register(BotComment)

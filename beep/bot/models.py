@@ -3,6 +3,7 @@ from django.conf import settings
 
 from utils.modelmanager import ModelManager
 from django_extensions.db.fields.json import JSONField
+from django.db.models import F
 
 
 class BotNameManager(ModelManager):
@@ -121,6 +122,14 @@ class BotManager(ModelManager):
         (RUNING, '运行中'),
     )
 
+    def get_bots(self):
+        return self.exclude(status=self.RUNING).filter(is_on=True)
+
+    def run(self, pk):
+        self.filter(pk=pk).update(status=self.RUNING)
+    
+    def stop(self, pk):
+        self.filter(pk=pk).update(status=self.STOPED)
 
 class Bot(models.Model):
 
@@ -150,6 +159,8 @@ class BotCommentManager(ModelManager):
         (COMMENT_ACTIVITY, '活动评论'),
     )
 
+    def get_random_one(self, group=COMMENT_BLOG):
+        return self.filter(group=group).order_by('?')[0]
 
 class BotComment(models.Model):
 
@@ -166,3 +177,97 @@ class BotComment(models.Model):
 
 mm_BotComment = BotComment.objects
 
+
+class BotActionStatsOnBlogManager(ModelManager):
+    
+
+    def add_action(self, blog_id, user_id, action):
+        """
+        增加action记录
+        """
+        obj, _ = self.get_or_create(blog_id=blog_id)
+        updates = {}
+        if action in ['action_comment', 'action_forward', 'action_like']:
+            updates[action] = F(action) + 1
+        self.filter(pk=obj.id).update(**updates)
+
+class BotActionStatsOnBlog(models.Model):
+    """
+    机器人对单个资源操作记录
+    """
+    blog = models.ForeignKey('blog.Blog', on_delete=models.CASCADE, verbose_name='博文')
+    action_comment = models.IntegerField(default=0, verbose_name='评论次数')
+    action_forward = models.IntegerField(default=0, verbose_name='转发次数')
+    action_like = models.IntegerField(default=0, verbose_name='点赞次数')
+    bots = JSONField(default=[], blank=True, verbose_name='机器人user_id')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
+
+    objects = BotActionStatsOnBlogManager()
+
+    class Meta:
+        db_table = 'cms_bot_action_stats_on_blog'
+        verbose_name = '机器人操作Blog统计'
+        verbose_name_plural = '机器人操作Blog统计'
+        ordering = ['-id']
+
+mm_BotActionStatsOnBlog = BotActionStatsOnBlog.objects
+
+
+class BotActionLogManager(ModelManager):
+    
+    ACTION_BLOG_COMMNET = 0
+    ACTION_BLOG_LIKE = 1
+    ACTION_BLOG_FORWARD = 2
+    ACTION_ACTIVITY_COMMENT = 3
+    ACTION_CHOICES = (
+        (ACTION_BLOG_COMMNET, '博文评论'),
+        (ACTION_BLOG_LIKE, '博文点赞'),
+        (ACTION_BLOG_FORWARD, '博文转发'),
+        (ACTION_ACTIVITY_COMMENT, '活动评论'),
+    )
+    ACTION_BLOG = [ACTION_BLOG_COMMNET, ACTION_BLOG_LIKE, ACTION_BLOG_FORWARD]
+    ACTION_ACTIVITY = [ACTION_ACTIVITY_COMMENT]
+    ACTION_ALL = [ACTION_BLOG_COMMNET, ACTION_BLOG_LIKE, ACTION_BLOG_FORWARD, ACTION_ACTIVITY_COMMENT]
+    ACTION_MAP = {
+        'action_comment': ACTION_BLOG_COMMNET,
+        'action_like': ACTION_BLOG_LIKE,
+        'action_forward': ACTION_BLOG_FORWARD,
+        'action_activity_comment': ACTION_ACTIVITY_COMMENT,
+    }
+
+    def add_log(self, bot_id, action, rid):
+        """
+        增加记录
+        """
+        action = self.ACTION_MAP.get(action)
+        if action not in self.ACTION_ALL:
+            return
+        updates = {}
+        if action in self.ACTION_BLOG:
+            updates['blog_id'] = rid
+        else:
+            updates['activity_id'] = rid
+        obj, _ = self.get_or_create(bot_id=bot_id, action=action, **updates)
+        updates['total'] = F('total') + 1
+        self.filter(pk=obj.id).update(**updates)
+    
+
+class BotActionLog(models.Model):
+
+    bot = models.ForeignKey('bot.Bot', on_delete=models.CASCADE, verbose_name='机器人')
+    blog = models.ForeignKey('blog.Blog', on_delete=models.CASCADE, null=True, blank=True, verbose_name='博文')
+    activity = models.ForeignKey('activity.Activity', on_delete=models.CASCADE, null=True, blank=True, verbose_name='活动')
+    action = models.PositiveSmallIntegerField(choices=BotActionLogManager.ACTION_CHOICES, default=BotActionLogManager.ACTION_BLOG_COMMNET, verbose_name='行为')
+    total = models.PositiveIntegerField(default=0, verbose_name='次数')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+    objects = BotActionLogManager()
+
+    class Meta:
+        db_table = 'cms_bot_action_log'
+        ordering = ['-id']
+        verbose_name = '机器人操作日志'
+        verbose_name_plural = '机器人操作日志'
+
+mm_BotActionLog = BotActionLog.objects

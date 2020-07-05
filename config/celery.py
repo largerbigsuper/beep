@@ -44,7 +44,22 @@ app.conf.beat_schedule = {
         'task': 'beep.news.tasks.update_news_from_crawler',
         'schedule': crontab(minute='*/2'),
         'args': (),
-    }
+    },
+    'task_add_blog_commnet': {
+        'task': 'beep.bot.tasks.task_add_blog_commnet',
+        'schedule': crontab(minute='*'),
+        'args': (),
+    },
+    'task_add_blog_like': {
+        'task': 'beep.bot.tasks.task_add_blog_like',
+        'schedule': crontab(minute='*'),
+        'args': (),
+    },
+    'task_add_blog_forward': {
+        'task': 'beep.bot.tasks.task_add_blog_forward',
+        'schedule': crontab(minute='*'),
+        'args': (),
+    },
 }
 
 
@@ -54,6 +69,7 @@ app.conf.task_default_queue = 'default'
 app.conf.task_queues = (
     Queue('default',    routing_key='task.#'),
     Queue('news', routing_key='news.#'),
+    Queue('bot', routing_key='bot.#'),
 )
 task_default_exchange = 'tasks'
 task_default_exchange_type = 'direct'
