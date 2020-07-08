@@ -361,8 +361,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
         """
         try:
             following = self.get_object()
-            relation = mm_RelationShip.add_relation(
-                self.request.user, following)
+            relation = mm_RelationShip.add_relation(self.request.user.id, following.id)
             msg = "添加关注成功"
             # 更新统计
             # 更新我的关注个数

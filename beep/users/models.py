@@ -178,6 +178,7 @@ class User(AbstractUser):
     label_type = models.PositiveIntegerField(choices=UserManager.LABEL_TYPE, default=UserManager.LABEL_DEFAULT, verbose_name='普通用户|红V|蓝V')
     completed_profile = models.BooleanField(default=False, verbose_name='完善信息')
     invite_code = models.CharField(max_length=8, blank=True, null=True, unique=True, verbose_name='邀请码')
+    is_bot = models.BooleanField(default=False, blank=True, verbose_name='机器人账号')
 
     objects = UserManager()
 
@@ -378,10 +379,10 @@ mm_CheckIn = CheckIn.objects
 
 class RelationShipManager(ModelManager):
 
-    def add_relation(self, user, following):
+    def add_relation(self, user_id, following_id):
         """添加关注
         """
-        created, relation = self.get_or_create(user=user, following=following)
+        relation, created = self.get_or_create(user_id=user_id, following_id=following_id)
         return relation
 
     def remove_relation(self, user, following):

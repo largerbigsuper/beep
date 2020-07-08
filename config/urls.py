@@ -48,5 +48,13 @@ if settings.DEBUG:
         import debug_toolbar
 
         urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
+    from beep.bot import views as views_bot
+    urlpatterns += [
+        path('bot/comment', views_bot.test_task_blog_add_commnet, name='test_task_blog_add_commnet'),
+        path('bot/like', views_bot.test_task_add_blog_like, name='test_task_blog_add_like'),
+        path('bot/forward', views_bot.test_task_add_blog_forward, name='test_task_blog_add_forward'),
+        path('bot/activity', views_bot.test_task_add_activity_commnet, name='test_task_add_activity_commnet'),
+        path('bot/following', views_bot.test_task_add_user_following, name='test_task_add_user_following'),
+    ]
 
 admin.site.site_header = 'beep后台管理'
