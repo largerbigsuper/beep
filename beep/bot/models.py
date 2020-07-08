@@ -277,3 +277,31 @@ class BotActionLog(models.Model):
         verbose_name_plural = '机器人操作日志'
 
 mm_BotActionLog = BotActionLog.objects
+
+
+class BotTaskManager(ModelManager):
+    
+    def task_keep_open(self, task_name):
+        exists = self.filter(is_open=True, name=task_name).exists()
+        if not exists:
+            raise Exception('bottask is not open')
+
+
+class BotTask(models.Model):
+    """
+    定时任务状态
+    """
+
+    name = models.CharField(max_length=120, verbose_name='任务名')
+    is_open = models.BooleanField(default=True, verbose_name='开启｜关闭')
+
+    objects = BotTaskManager()
+
+    class Meta:
+        db_table = 'cms_bot_task'
+        ordering = ['-id']
+        verbose_name = '机器人任务'
+        verbose_name_plural = '机器人任务'
+
+
+mm_BotTask = BotTask.objects

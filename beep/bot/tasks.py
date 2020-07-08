@@ -4,7 +4,7 @@ from django.db.models import F, Count
 from django.db import transaction
 
 from config.celery import app
-from .models import mm_Bot, mm_BotActionStats, mm_BotComment, mm_BotActionLog
+from .models import mm_Bot, mm_BotActionStats, mm_BotComment, mm_BotActionLog, mm_BotTask
 from beep.blog.models import Comment, mm_Comment, mm_Blog, mm_Like, mm_Point
 from beep.activity.models import mm_Activity
 from beep.users.models import mm_User, mm_RelationShip
@@ -121,6 +121,7 @@ def task_add_blog_comment():
     单个bot执行评论单个博文
     博文增加评论
     """
+    mm_BotTask.task_keep_open('task_add_blog_comment')
     bot = get_bot()
     if not bot:
         return
@@ -162,6 +163,7 @@ def task_add_blog_like():
     """
     博文点赞
     """
+    mm_BotTask.task_keep_open('task_add_blog_like')
     bot = get_bot()
     if not bot:
         return
@@ -204,7 +206,7 @@ def task_add_blog_forward():
     4. 执行转发
     5. 记录bot执行记录
     """
-
+    mm_BotTask.task_keep_open('task_add_blog_forward')
     bot = get_bot()
     if not bot:
         return
@@ -247,6 +249,7 @@ def task_add_activity_commnet():
     """
     活动增加评论
     """
+    mm_BotTask.task_keep_open('task_add_activity_commnet')
     bot = get_bot()
     if not bot:
         return
@@ -292,7 +295,8 @@ def task_add_user_following(signup_day=1):
         6.3 单次最多关注10人
         6.4 单个普通账户一天增加粉丝 2～6人
     """
-    
+    mm_BotTask.task_keep_open('task_add_user_following')
+
     bot = get_bot()
     if not bot:
         return

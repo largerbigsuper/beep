@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin, messages
 
-from .models import BotName, BotNameBuilder, BotAvatar, BotAvatarBuilder, BotBuilder, Bot, BotComment
+from .models import BotName, BotNameBuilder, BotAvatar, BotAvatarBuilder, BotBuilder, Bot, BotComment, BotTask
 from beep.users.models import User
 from django.db import IntegrityError
 
@@ -131,3 +131,7 @@ class BotAdmin(admin.ModelAdmin):
 @admin.register(BotComment)
 class BotCommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'group', 'text')
+
+@admin.register(BotTask)
+class BotTaskAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'is_open')
