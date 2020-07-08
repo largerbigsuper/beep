@@ -379,10 +379,10 @@ mm_CheckIn = CheckIn.objects
 
 class RelationShipManager(ModelManager):
 
-    def add_relation(self, user, following):
+    def add_relation(self, user_id, following_id):
         """添加关注
         """
-        created, relation = self.get_or_create(user=user, following=following)
+        relation, created = self.get_or_create(user_id=user_id, following_id=following_id)
         return relation
 
     def remove_relation(self, user, following):

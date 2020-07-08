@@ -1,12 +1,13 @@
 import datetime
 import random
-from django.db.models import F
+from django.db.models import F, Count
 from django.db import transaction
 
 from config.celery import app
 from .models import mm_Bot, mm_BotActionStats, mm_BotComment, mm_BotActionLog
 from beep.blog.models import Comment, mm_Comment, mm_Blog, mm_Like, mm_Point
 from beep.activity.models import mm_Activity
+from beep.users.models import mm_User, mm_RelationShip
 
 
 
@@ -51,12 +52,12 @@ def get_activity(bot_id=None, min_minutes=3, max_minutes=1200000, min_count=0, m
     }
     obj_count_limit_ids = mm_BotActionStats.filter(**params).values_list('activity_id', flat=True)
     params_log = {
-        'activity_id__in': obj_ids,
+        'rid__in': obj_ids,
         'bot_id': bot_id,
         'action': mm_BotActionLog.ACTION_MAP[action]
     }
     # 剔除已执行过的blog_id
-    obj_bot_limit_ids = mm_BotActionLog.filter(**params_log).values_list('activity_id', flat=True)
+    obj_bot_limit_ids = mm_BotActionLog.filter(**params_log).values_list('rid', flat=True)
     # 随机筛选一个博文id
     final_ids = obj_ids - set(list(obj_count_limit_ids)) - set(list(obj_bot_limit_ids))
     if not final_ids:
@@ -90,12 +91,12 @@ def get_blog(bot_id=None, min_minutes=3, max_minutes=1200000, min_count=2, max_c
     }
     obj_count_limit_ids = mm_BotActionStats.filter(**params).values_list('blog_id', flat=True)
     params_log = {
-        'blog_id__in': obj_ids,
+        'rid__in': obj_ids,
         'bot_id': bot_id,
         'action': mm_BotActionLog.ACTION_MAP[action]
     }
     # 剔除已执行过的blog_id
-    obj_bot_limit_ids = mm_BotActionLog.filter(**params_log).values_list('blog_id', flat=True)
+    obj_bot_limit_ids = mm_BotActionLog.filter(**params_log).values_list('rid', flat=True)
     # 随机筛选一个博文id
     final_blogs = obj_ids - set(list(obj_count_limit_ids)) - set(list(obj_bot_limit_ids))
     if not final_blogs:
@@ -280,9 +281,80 @@ def _add_activity_comment(rid, user_id, text):
     mm_Comment.update_commnet_point(user_id=user_id)
     return instance
 
-
-def task_add_user_following():
+@app.task(queue='bot')
+def task_add_user_following(signup_day=1):
     """
+    每天固定时间跑三次
     增加关注
+    6.新用户注册时，第一天，第二天，第五天及第七天，每天随机数目分配粉丝（每天2-6人之内）
+        6.1 每个机器人关注个数小于200
+        6.2 一个机器人一天只跑一次任务
+        6.3 单次最多关注10人
+        6.4 单个普通账户一天增加粉丝 2～6人
     """
-    pass
+    
+    bot = get_bot()
+    if not bot:
+        return
+    try:
+        mm_Bot.run(bot.id)
+        rids = get_users_not_following(signup_day=signup_day, user_id=bot.user.id, max_users=10, max_bot_per_day=6)
+        for rid in rids:
+            _add_user_following(user_id=bot.user.id, following_id=rid)
+            mm_BotActionLog.add_log(bot_id=bot.id, action='action_user_following', rid=rid)
+    finally:
+        mm_Bot.stop(bot.id)
+
+def get_users_not_following(signup_day, user_id, max_users=10, max_bot_per_day=6):
+    """
+    获取符合要求的用户
+
+    Keyword Arguments:
+        signup_day {int} -- 注册第几天 (default: {signup_day})
+        bot_id {int} -- bot_id (default: {bot.id})
+        max_users {int} -- 最多关注几人 (default: {10})
+        max_bot_per_day {int} -- 单个用户每天机器粉限制 (default: {6})
+    """
+    # create_at
+    end_date = datetime.date.today()
+    start_date = end_date - datetime.timedelta(days=signup_day-1)
+    user_filters = {
+        'create_at__date': start_date,
+        'is_bot': False,
+    }
+    user_ids = mm_User.filter(**user_filters).values_list('id', flat=True)
+    if not user_ids:
+        return []
+    # 去除已关注
+    relation_filters = {
+        'user_id': user_id
+    }
+    following_ids = set(list(mm_RelationShip.filter(**relation_filters).values_list('following_id', flat=True)))
+    not_following_ids = [uid for uid in user_ids if uid not in following_ids]
+    if not not_following_ids:
+        return []
+    # 每天关注人数限制
+    today_date = datetime.date.today()
+    following_limit_filter = {
+        'following_id__in': not_following_ids,
+        'user__is_bot': True,
+        'create_at__date': today_date
+    }
+    out_limited_ids = mm_RelationShip.filter(**following_limit_filter).values('following_id').annotate(total_following=Count('user')).filter(total_following__gt=max_bot_per_day).values_list('following_id', flat=True)
+
+    expected_ids = [uid for uid in not_following_ids if uid not in out_limited_ids]
+
+    return expected_ids[:max_users]
+
+
+def _add_user_following(user_id, following_id):
+    """
+    添加关注
+    """
+    relation = mm_RelationShip.add_relation(user_id=user_id, following_id=following_id)
+    # 更新统计
+    # 更新我的关注个数
+    mm_User.update_data(user_id, 'total_following')
+    # 更新我的粉丝个数
+    mm_User.update_data(following_id, 'total_followers')
+    return relation

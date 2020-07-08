@@ -65,6 +65,26 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='*'),
         'args': (),
     },
+    'task_add_user_following_1': {
+        'task': 'beep.bot.tasks.task_add_user_following',
+        'schedule': crontab(minute='*', hour='7-8'),
+        'args': (1,),
+    },
+    'task_add_user_following_3': {
+        'task': 'beep.bot.tasks.task_add_user_following',
+        'schedule': crontab(minute='*', hour='7-8'),
+        'args': (3,),
+    },
+    'task_add_user_following_5': {
+        'task': 'beep.bot.tasks.task_add_user_following',
+        'schedule': crontab(minute='*', hour='7-8'),
+        'args': (5,),
+    },
+    'task_add_user_following_7': {
+        'task': 'beep.bot.tasks.task_add_user_following',
+        'schedule': crontab(minute='*', hour='7-8'),
+        'args': (7,),
+    },
 }
 
 

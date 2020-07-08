@@ -227,20 +227,24 @@ class BotActionLogManager(ModelManager):
     ACTION_BLOG_LIKE = 1
     ACTION_BLOG_FORWARD = 2
     ACTION_ACTIVITY_COMMENT = 3
+    ACTION_USER_FOLLOWING = 4
     ACTION_CHOICES = (
         (ACTION_BLOG_COMMNET, '博文评论'),
         (ACTION_BLOG_LIKE, '博文点赞'),
         (ACTION_BLOG_FORWARD, '博文转发'),
         (ACTION_ACTIVITY_COMMENT, '活动评论'),
+        (ACTION_USER_FOLLOWING, '关注用户'),
     )
     ACTION_BLOG = [ACTION_BLOG_COMMNET, ACTION_BLOG_LIKE, ACTION_BLOG_FORWARD]
     ACTION_ACTIVITY = [ACTION_ACTIVITY_COMMENT]
-    ACTION_ALL = [ACTION_BLOG_COMMNET, ACTION_BLOG_LIKE, ACTION_BLOG_FORWARD, ACTION_ACTIVITY_COMMENT]
+    ACTION_USER = [ACTION_USER_FOLLOWING]
+    ACTION_ALL = [ACTION_BLOG_COMMNET, ACTION_BLOG_LIKE, ACTION_BLOG_FORWARD, ACTION_ACTIVITY_COMMENT, ACTION_USER_FOLLOWING]
     ACTION_MAP = {
         'action_comment': ACTION_BLOG_COMMNET,
         'action_like': ACTION_BLOG_LIKE,
         'action_forward': ACTION_BLOG_FORWARD,
         'action_activity_comment': ACTION_ACTIVITY_COMMENT,
+        'action_user_following': ACTION_USER_FOLLOWING,
     }
 
     def add_log(self, bot_id, action, rid):
@@ -250,12 +254,8 @@ class BotActionLogManager(ModelManager):
         action = self.ACTION_MAP.get(action)
         if action not in self.ACTION_ALL:
             return
+        obj, _ = self.get_or_create(bot_id=bot_id, action=action, rid=rid)
         updates = {}
-        if action in self.ACTION_BLOG:
-            updates['blog_id'] = rid
-        else:
-            updates['activity_id'] = rid
-        obj, _ = self.get_or_create(bot_id=bot_id, action=action, **updates)
         updates['total'] = F('total') + 1
         self.filter(pk=obj.id).update(**updates)
     
@@ -263,8 +263,7 @@ class BotActionLogManager(ModelManager):
 class BotActionLog(models.Model):
 
     bot = models.ForeignKey('bot.Bot', on_delete=models.CASCADE, verbose_name='机器人')
-    blog = models.ForeignKey('blog.Blog', on_delete=models.CASCADE, null=True, blank=True, verbose_name='博文')
-    activity = models.ForeignKey('activity.Activity', on_delete=models.CASCADE, null=True, blank=True, verbose_name='活动')
+    rid = models.PositiveIntegerField(default=0, verbose_name='资源id')
     action = models.PositiveSmallIntegerField(choices=BotActionLogManager.ACTION_CHOICES, default=BotActionLogManager.ACTION_BLOG_COMMNET, verbose_name='行为')
     total = models.PositiveIntegerField(default=0, verbose_name='次数')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
