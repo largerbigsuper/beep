@@ -25,7 +25,8 @@ class BotNameBuilderAdmin(admin.ModelAdmin):
             if obj.done:
                 continue
             instances = []
-            values = obj.text.split('\r').split('\n')
+            text = obj.text.replace('\r', ' ').replace('\n', ' ')
+            values = text.split(' ')
             for value in values:
                 if value:
                     value = value.strip()
@@ -61,7 +62,8 @@ class BotAvatarBuilderAdmin(admin.ModelAdmin):
             if obj.done:
                 continue
             instances = []
-            values = obj.text.split('\r').split('\n')
+            text = obj.text.replace('\r', ' ').replace('\n', ' ')
+            values = text.split(' ')
             for value in values:
                 if value:
                     value = value.strip()
