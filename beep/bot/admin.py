@@ -131,6 +131,7 @@ class BotAdmin(admin.ModelAdmin):
         'update_at',
     )
     list_filter = ('is_on', 'create_at', 'update_at')
+    autocomplete_fields = ['user']
 
 
 @admin.register(BotComment)
