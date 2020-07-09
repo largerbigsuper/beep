@@ -76,6 +76,8 @@ class MyUserAdmin(UserAdmin):
         }),
     )
 
+    list_filter = ('is_superuser', 'is_bot', 'groups')
+
 admin.site.register(User, MyUserAdmin)
 
 

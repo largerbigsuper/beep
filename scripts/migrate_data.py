@@ -59,7 +59,7 @@ def migrate_user__total_followers():
 
 @timeit
 def run():
-    migrate_topic__total_blog()
+    # migrate_topic__total_blog()
     migrate_user__total_blog()
     migrate_user__total_following()
     migrate_user__total_followers()
