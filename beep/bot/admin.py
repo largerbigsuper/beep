@@ -4,6 +4,7 @@ from django.contrib import admin, messages
 from .models import BotName, BotNameBuilder, BotAvatar, BotAvatarBuilder, BotBuilder, Bot, BotComment, BotTask
 from beep.users.models import User
 from django.db import IntegrityError
+from django.utils.safestring import mark_safe
 
 
 @admin.register(BotName)
@@ -24,7 +25,7 @@ class BotNameBuilderAdmin(admin.ModelAdmin):
             if obj.done:
                 continue
             instances = []
-            values = obj.text.split('/n')
+            values = obj.text.split('\r').split('\n')
             for value in values:
                 if value:
                     value = value.strip()
@@ -39,8 +40,13 @@ class BotNameBuilderAdmin(admin.ModelAdmin):
 
 @admin.register(BotAvatar)
 class BotAvatarAdmin(admin.ModelAdmin):
-    list_display = ('id', 'text', 'used')
+    list_display = ('id', 'text', 'image_tag', 'used')
     list_filter = ('used',)
+
+    def image_tag(self, obj):
+        return mark_safe('<img src="{}" width="80" height="80" />'.format(obj.text))
+
+    image_tag.short_description = '图片'
 
 
 @admin.register(BotAvatarBuilder)
@@ -55,7 +61,7 @@ class BotAvatarBuilderAdmin(admin.ModelAdmin):
             if obj.done:
                 continue
             instances = []
-            values = obj.text.split('\r')
+            values = obj.text.split('\r').split('\n')
             for value in values:
                 if value:
                     value = value.strip()
@@ -80,16 +86,14 @@ class BotBuilderAdmin(admin.ModelAdmin):
         for obj in queryset:
             if obj.done:
                 continue
-            name_count = BotName.objects.filter(used=False).count()
-            if name_count < obj.total:
+            names = list(BotName.objects.filter(used=False).values())
+            if len(names) < obj.total:
                 messages.error(request, '可用账号名不足')
                 return
-            names = BotName.objects.filter(used=False).values()
-            avatar_count = BotAvatar.objects.filter(used=False).count()
-            if avatar_count < obj.total:
+            avatars = BotAvatar.objects.filter(used=False).values()
+            if len(avatars) < obj.total:
                 messages.error(request, '可用头像不足')
                 return
-            avatars = BotAvatar.objects.filter(used=False).values()
             results = []
             skip_names = []
             for index in range(obj.total):
@@ -100,6 +104,7 @@ class BotBuilderAdmin(admin.ModelAdmin):
                     skip_names.append(username)
                     continue
                 user = User(username=username, account=username, avatar_url=avatar, name=username, is_bot=True)
+                user.save()
                 bot = Bot(user=user)
                 bot.save()
                 results.append({"user_id": user.id, "id": bot.id, "username": user.username})
