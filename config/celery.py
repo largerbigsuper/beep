@@ -85,6 +85,11 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='*', hour='7-8'),
         'args': (7,),
     },
+    'task_add_user_following_after_create_blog': {
+        'task': 'beep.bot.tasks.task_add_user_following_after_create_blog',
+        'schedule': crontab(minute='*'),
+        'args': (),
+    },
 }
 
 
