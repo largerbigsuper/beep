@@ -370,6 +370,7 @@ def task_add_user_following_after_create_blog():
     创建博文后两天随机增加关注
     用户每新发一条博文／文章／活动，两天内，随机增加3-8个粉丝
     """
+    mm_BotTask.task_keep_open('task_add_user_following_after_create_blog')
     # 筛选符合的blog
     date_before = datetime.date.today() - datetime.timedelta(days=2)
     blog_filter = {
