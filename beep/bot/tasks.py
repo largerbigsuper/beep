@@ -65,7 +65,7 @@ def get_activity(bot_id=None, min_minutes=3, max_minutes=1200000, min_count=0, m
     else:
         return random.choice(list(final_ids))
 
-def get_blog(bot_id=None, min_minutes=3, max_minutes=1200000, min_count=2, max_count=8, action='action_comment'):
+def get_blog(bot_id=None, min_minutes=3, max_minutes=7200, min_count=2, max_count=8, action='action_comment'):
     """
     2. 获取有效博文
         2.1 根据时间筛选符合条件的博文id
@@ -362,3 +362,38 @@ def _add_user_following(user_id, following_id):
     # 更新我的粉丝个数
     mm_User.update_data(following_id, 'total_followers')
     return relation
+
+
+@app.task(queue="bot")
+def task_add_user_following_after_create_blog():
+    """
+    创建博文后两天随机增加关注
+    用户每新发一条博文／文章／活动，两天内，随机增加3-8个粉丝
+    """
+    # 筛选符合的blog
+    date_before = datetime.date.today() - datetime.timedelta(days=2)
+    blog_filter = {
+        "create_at__date__gt": date_before
+    }
+    blogs = mm_Blog.filter(**blog_filter).values_list('id', "user_id")
+    blog_dict = dict(list(blogs))
+    # 筛选剔除已满足的blog
+    log_filter = {
+        "action": mm_BotActionLog.ACTION_BLOG_ADD_FOLLOWING,
+        "total__gt": 8
+    }
+    done_blog_ids = list(mm_BotActionLog.filter(**log_filter).values_list('rid', flat=True))
+    usable_blog_ids = [blog_id for blog_id in blog_dict.keys() if blog_id not in done_blog_ids]
+    if not usable_blog_ids:
+        return
+    # 随机选择一个blog_id
+    rid = random.choice(usable_blog_ids)
+    following_id = blog_dict[rid]
+    # rid = 18159
+    # following_id = 24
+    # 剔除已关注的bot
+    following_bot_uids = mm_RelationShip.filter(following_id=following_id, user__is_bot=True).values_list('user_id', flat=True)
+    bot = mm_Bot.exclude(user_id__in=following_bot_uids).order_by("?").first()
+    if bot:
+        _add_user_following(user_id=bot.user_id, following_id=following_id)
+        mm_BotActionLog.add_log(bot_id=bot.id, action=mm_BotActionLog.ACTION_BLOG_ADD_FOLLOWING, rid=rid)

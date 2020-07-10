@@ -55,6 +55,7 @@ if settings.DEBUG:
         path('bot/forward', views_bot.test_task_add_blog_forward, name='test_task_blog_add_forward'),
         path('bot/activity', views_bot.test_task_add_activity_commnet, name='test_task_add_activity_commnet'),
         path('bot/following', views_bot.test_task_add_user_following, name='test_task_add_user_following'),
+        path('bot/following2', views_bot.test_task_add_user_following_after_create_blog, name='test_task_add_user_following_after_create_blog'),
     ]
 
 admin.site.site_header = 'beep后台管理'
