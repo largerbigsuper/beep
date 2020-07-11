@@ -25,7 +25,7 @@ def caculate_hotsearch():
     """
     cornjob_logger.info('task start..')
     # 几天内的文章
-    search_days = 2
+    search_days = 4
     limit = 100
     cornjob_logger.info('now: {}'.format(
         datetime.datetime.now().strftime(settings.DATETIME_FORMAT)))
