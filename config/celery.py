@@ -48,11 +48,13 @@ app.conf.beat_schedule = {
     'task_add_blog_comment': {
         'task': 'beep.bot.tasks.task_add_blog_comment',
         'schedule': crontab(minute='*'),
+        'schedule': 10.0,
         'args': (),
     },
     'task_add_blog_like': {
         'task': 'beep.bot.tasks.task_add_blog_like',
-        'schedule': crontab(minute='*'),
+        # 'schedule': crontab(minute='*'),
+        'schedule': 10,
         'args': (),
     },
     'task_add_blog_forward': {
@@ -62,32 +64,38 @@ app.conf.beat_schedule = {
     },
     'task_add_activity_commnet': {
         'task': 'beep.bot.tasks.task_add_activity_commnet',
-        'schedule': crontab(minute='*'),
+        # 'schedule': crontab(minute='*'),
+        'schedule': 10,
         'args': (),
     },
     'task_add_user_following_1': {
         'task': 'beep.bot.tasks.task_add_user_following',
-        'schedule': crontab(minute='*', hour='7-8'),
+        # 'schedule': crontab(minute='*', hour='7-8'),
+        'schedule': 10,
         'args': (1,),
     },
     'task_add_user_following_3': {
         'task': 'beep.bot.tasks.task_add_user_following',
-        'schedule': crontab(minute='*', hour='7-8'),
+        # 'schedule': crontab(minute='*', hour='7-8'),
+        'schedule': 10,
         'args': (3,),
     },
     'task_add_user_following_5': {
         'task': 'beep.bot.tasks.task_add_user_following',
-        'schedule': crontab(minute='*', hour='7-8'),
+        # 'schedule': crontab(minute='*', hour='7-8'),
+        'schedule': 10,
         'args': (5,),
     },
     'task_add_user_following_7': {
         'task': 'beep.bot.tasks.task_add_user_following',
-        'schedule': crontab(minute='*', hour='7-8'),
+        # 'schedule': crontab(minute='*', hour='7-8'),
+        'schedule': 10,
         'args': (7,),
     },
     'task_add_user_following_after_create_blog': {
         'task': 'beep.bot.tasks.task_add_user_following_after_create_blog',
-        'schedule': crontab(minute='*'),
+        # 'schedule': crontab(minute='*'),
+        'schedule': 10,
         'args': (),
     },
 }

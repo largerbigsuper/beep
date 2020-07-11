@@ -24,9 +24,9 @@ def get_bot():
     """
     1. 获取bot
     """
-    return mm_Bot.get_bots().first()
+    return mm_Bot.get_bots().order_by("?").first()
 
-def get_activity(bot_id=None, min_minutes=3, max_minutes=1200000, min_count=0, max_count=1, action='action_activity_comment'):
+def get_activity(bot_id=None, min_minutes=3, max_minutes=7200, min_count=0, max_count=1, action='action_activity_comment'):
     """
     2. 获取有效博文
         2.1 根据时间筛选符合条件的博文id
