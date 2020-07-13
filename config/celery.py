@@ -54,7 +54,13 @@ app.conf.beat_schedule = {
     'task_add_blog_like': {
         'task': 'beep.bot.tasks.task_add_blog_like',
         # 'schedule': crontab(minute='*'),
-        'schedule': 10,
+        'schedule': 2,
+        'args': (),
+    },
+    'task_add_blog_like2': {
+        'task': 'beep.bot.tasks.task_add_blog_like',
+        # 'schedule': crontab(minute='*'),
+        'schedule': 2,
         'args': (),
     },
     'task_add_blog_forward': {
