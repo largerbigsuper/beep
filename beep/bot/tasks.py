@@ -4,7 +4,7 @@ from django.db.models import Count, F, Subquery
 from django.db import transaction
 
 from config.celery import app
-from .models import mm_Bot, mm_BotActionStats, mm_BotComment, mm_BotActionLog, mm_BotTask
+from .models import mm_Bot, mm_BotActionStats, mm_BotComment, mm_BotActionLog, mm_BotTask, mm_BlogPlan
 from beep.blog.models import Comment, mm_Comment, mm_Blog, mm_Like, mm_Point, mm_Topic
 from beep.activity.models import mm_Activity
 from beep.users.models import mm_User, mm_RelationShip
@@ -93,21 +93,36 @@ def get_random_blog(min_minutes=3, max_minutes=60*12, min_count=2, max_count=8, 
     blog_filter = {
         "create_at__range": [min_time, max_time],
         "user__is_bot": False,
+        "activity__isnull": True,
     }
     blogs = mm_Blog.filter(**blog_filter)
     obj_ids = {obj.id for obj in blogs}
-    # 根据bot执行记录剔除不符合的博文id
-    action_gt = action + '__gt'
-    params = {
-        'blog_id__in': obj_ids,
-        action_gt: max_count
+    if not obj_ids:
+        return None
+    # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
+    minutes_length = random.choice(list(range(3, 9)))
+    update_at = datetime.datetime.now() + datetime.timedelta(minutes=minutes_length)
+    plan_filter_time = {
+        'update_at__lt': update_at,
+        'action': action,
     }
-    limited_blog_ids = mm_BotActionStats.filter(**params).values_list('blog_id', flat=True)
-    enable_blog_ids = [x for x in obj_ids if x not in limited_blog_ids]
+    limited_blogs_time = mm_BlogPlan.filter(**plan_filter_time).values_list('blog_id', flat=True)
+    enable_blogs_time = [x for x in obj_ids if x not in limited_blogs_time]
+    if not enable_blogs_time:
+        return None
+    # 根据博文执行结果排除博文
+    plan_filter = {
+        'done': True,
+        'blog_id__in': obj_ids,
+        'action': action
+    }
+    limited_blogs_count = mm_BlogPlan.filter(**plan_filter).values_list('blog_id', flat=True)
+    enable_blog_ids = [x for x in enable_blogs_time if x not in limited_blogs_count]
     if enable_blog_ids:
         return random.choice(enable_blog_ids)    
     else:
         return None
+
 
 def get_forward_blog(min_minutes=3, max_minutes=60*12, max_count=1, action='action_forward'):
     """
@@ -136,14 +151,27 @@ def get_forward_blog(min_minutes=3, max_minutes=60*12, max_count=1, action='acti
         return None
     
     obj_ids = {obj.id for obj in origin_blogs}
-    # 根据bot执行记录剔除不符合的博文id
-    action_gt = action + '__gt'
-    params = {
-        'blog_id__in': obj_ids,
-        action_gt: max_count
+    if not obj_ids:
+        return None
+    # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
+    minutes_length = random.choice(list(range(3, 9)))
+    update_at = datetime.datetime.now() + datetime.timedelta(minutes=minutes_length)
+    plan_filter_time = {
+        'update_at__lt': update_at,
+        'action': action,
     }
-    limited_blog_ids = mm_BotActionStats.filter(**params).values_list('blog_id', flat=True)
-    enable_blog_ids = [x for x in obj_ids if x not in limited_blog_ids]
+    limited_blogs_time = mm_BlogPlan.filter(**plan_filter_time).values_list('blog_id', flat=True)
+    enable_blogs_time = [x for x in obj_ids if x not in limited_blogs_time]
+    if not enable_blogs_time:
+        return None
+    # 根据博文执行结果排除博文
+    plan_filter = {
+        'done': True,
+        'blog_id__in': obj_ids,
+        'action': action
+    }
+    limited_blogs_count = mm_BlogPlan.filter(**plan_filter).values_list('blog_id', flat=True)
+    enable_blog_ids = [x for x in enable_blogs_time if x not in limited_blogs_count]
     if enable_blog_ids:
         return random.choice(enable_blog_ids)    
     else:
@@ -183,9 +211,10 @@ def task_add_blog_comment():
 
         obj = _add_blog_comment(blog_id=blog_id, user_id=bot.user_id, commnet=comment)
         if obj:
-            mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_comment')
+            # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_comment')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_comment', rid=blog_id)
             update_blog_data(blog_id)
+            mm_BlogPlan.update_plan(blog_id, action='action_comment', min_count=2, max_count=8)
     finally:
         mm_Bot.stop(bot.id)
 
@@ -230,9 +259,10 @@ def task_add_blog_like():
         mm_Bot.run(bot.id)
         obj = _add_blog_like(blog_id=blog_id, user_id=bot.user_id)
         if obj:
-            mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_like')
+            # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_like')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_like', rid=blog_id)
             update_blog_data(blog_id)
+            mm_BlogPlan.update_plan(blog_id, action='action_like', min_count=18, max_count=200)
     finally:
         mm_Bot.stop(bot.id)
 
@@ -277,9 +307,10 @@ def task_add_blog_forward():
         text = get_comment()
         obj = _add_blog_forward(blog_id=blog_id, user_id=bot.user_id, text=text)
         if obj:
-            mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_forward')
+            # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_forward')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_forward', rid=blog_id)
             update_blog_data(blog_id)
+            mm_BlogPlan.update_plan(blog_id, action='action_forward', min_count=1, max_count=2)
     finally:
         mm_Bot.stop(bot.id)
 

@@ -4,6 +4,7 @@ from django.conf import settings
 from utils.modelmanager import ModelManager
 from django_extensions.db.fields.json import JSONField
 from django.db.models import F
+import random
 
 
 class BotNameManager(ModelManager):
@@ -307,3 +308,41 @@ class BotTask(models.Model):
 
 
 mm_BotTask = BotTask.objects
+
+
+class BlogPlanManager(ModelManager):
+    
+    def update_plan(self, blog_id, action, min_count=18, max_count=200, avg=110):
+        """
+        更新计划
+        """
+        plan = self.filter(blog_id=blog_id, action=action).first()
+        if not plan:
+            total = random.randint(min_count, max_count)
+            plan = self.create(blog_id=blog_id, action=action, total=total)
+        plan.current += 1
+        if plan.current >= plan.total:
+            plan.done = True
+        plan.save()
+        return plan
+
+
+class BlogPlan(models.Model):
+    blog_id = models.IntegerField(verbose_name='博文id')
+    action = models.CharField(max_length=100, verbose_name='动作名')
+    current = models.IntegerField(default=0, verbose_name='当前完成量')
+    total = models.IntegerField(default=0, verbose_name='目标多少')
+    done = models.BooleanField(default=False, verbose_name='完成')
+    update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
+
+    objects = BlogPlanManager()
+
+    class Meta:
+        db_table = 'cms_blog_plan'
+        ordering = ['-id']
+        verbose_name = '博文任务计划'
+        verbose_name_plural = '博文任务计划'
+
+
+mm_BlogPlan = BlogPlan.objects
+
