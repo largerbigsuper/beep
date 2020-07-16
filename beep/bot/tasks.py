@@ -93,6 +93,7 @@ def get_random_blog(min_minutes=3, max_minutes=60*12, min_count=2, max_count=8, 
     blog_filter = {
         "create_at__range": [min_time, max_time],
         "user__is_bot": False,
+        "activity__isnull": True,
     }
     blogs = mm_Blog.filter(**blog_filter)
     obj_ids = {obj.id for obj in blogs}
