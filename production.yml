@@ -10,6 +10,7 @@ services:
   mysql:
     image: mysql:5.7
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=2000
+    restart: always
     expose:
       - "3306"
     ports:
@@ -22,6 +23,7 @@ services:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
     image: beep_production_django
+    restart: always
     volumes:
       - .:/app
     env_file:
@@ -42,6 +44,7 @@ services:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
     image: beep_production_django
+    restart: always
     # command: celery -A config worker --concurrency=2 -l info -f logs/celery.log
     command: ["/app/compose/production/django/celery/woker/start"]    
     volumes:
@@ -58,6 +61,7 @@ services:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
     image: beep_production_django
+    restart: always
     # command: celery -A config beat -l info -f logs/celery_beat.log
     command: ["/app/compose/production/django/celery/beat/start"]    
     volumes:
