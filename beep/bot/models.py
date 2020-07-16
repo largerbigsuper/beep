@@ -333,6 +333,7 @@ class BlogPlan(models.Model):
     current = models.IntegerField(default=0, verbose_name='当前完成量')
     total = models.IntegerField(default=0, verbose_name='目标多少')
     done = models.BooleanField(default=False, verbose_name='完成')
+    update_at = models.DateTimeField(auto_now=True, verbose_name='修改时间')
 
     objects = BlogPlanManager()
 

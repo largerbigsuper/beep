@@ -97,31 +97,31 @@ def get_random_blog(min_minutes=3, max_minutes=60*12, min_count=2, max_count=8, 
     }
     blogs = mm_Blog.filter(**blog_filter)
     obj_ids = {obj.id for obj in blogs}
+    if not obj_ids:
+        return None
+    # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
+    minutes_length = random.choice(list(range(3, 9)))
+    update_at = datetime.datetime.now() + datetime.timedelta(minutes=minutes_length)
+    plan_filter_time = {
+        'update_at__lt': update_at,
+        'action': action,
+    }
+    limited_blogs_time = mm_BlogPlan.filter(**plan_filter_time).values_list('blog_id', flat=True)
+    enable_blogs_time = [x for x in obj_ids if x not in limited_blogs_time]
+    if not enable_blogs_time:
+        return None
     # 根据博文执行结果排除博文
     plan_filter = {
         'done': True,
         'blog_id__in': obj_ids,
         'action': action
     }
-    limited_blog_ids = mm_BlogPlan.filter(**plan_filter).values_list('blog_id', flat=True)
-    enable_blog_ids = [x for x in obj_ids if x not in limited_blog_ids]
+    limited_blogs_count = mm_BlogPlan.filter(**plan_filter).values_list('blog_id', flat=True)
+    enable_blog_ids = [x for x in enable_blogs_time if x not in limited_blogs_count]
     if enable_blog_ids:
         return random.choice(enable_blog_ids)    
     else:
         return None
-
-    # 根据bot执行记录剔除不符合的博文id
-    # action_gt = action + '__gt'
-    # params = {
-    #     'blog_id__in': obj_ids,
-    #     action_gt: max_count
-    # }
-    # limited_blog_ids = mm_BotActionStats.filter(**params).values_list('blog_id', flat=True)
-    # enable_blog_ids = [x for x in obj_ids if x not in limited_blog_ids]
-    # if enable_blog_ids:
-    #     return random.choice(enable_blog_ids)    
-    # else:
-    #     return None
 
 
 def get_forward_blog(min_minutes=3, max_minutes=60*12, max_count=1, action='action_forward'):
@@ -151,14 +151,27 @@ def get_forward_blog(min_minutes=3, max_minutes=60*12, max_count=1, action='acti
         return None
     
     obj_ids = {obj.id for obj in origin_blogs}
+    if not obj_ids:
+        return None
+    # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
+    minutes_length = random.choice(list(range(3, 9)))
+    update_at = datetime.datetime.now() + datetime.timedelta(minutes=minutes_length)
+    plan_filter_time = {
+        'update_at__lt': update_at,
+        'action': action,
+    }
+    limited_blogs_time = mm_BlogPlan.filter(**plan_filter_time).values_list('blog_id', flat=True)
+    enable_blogs_time = [x for x in obj_ids if x not in limited_blogs_time]
+    if not enable_blogs_time:
+        return None
     # 根据博文执行结果排除博文
     plan_filter = {
         'done': True,
         'blog_id__in': obj_ids,
         'action': action
     }
-    limited_blog_ids = mm_BlogPlan.filter(**plan_filter).values_list('blog_id', flat=True)
-    enable_blog_ids = [x for x in obj_ids if x not in limited_blog_ids]
+    limited_blogs_count = mm_BlogPlan.filter(**plan_filter).values_list('blog_id', flat=True)
+    enable_blog_ids = [x for x in enable_blogs_time if x not in limited_blogs_count]
     if enable_blog_ids:
         return random.choice(enable_blog_ids)    
     else:
