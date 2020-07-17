@@ -101,9 +101,9 @@ def get_random_blog(min_minutes=3, max_minutes=60*12, min_count=2, max_count=8, 
         return None
     # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
     minutes_length = random.choice(list(range(3, 9)))
-    update_at = datetime.datetime.now() + datetime.timedelta(minutes=minutes_length)
+    update_at = datetime.datetime.now() - datetime.timedelta(minutes=minutes_length)
     plan_filter_time = {
-        'update_at__lt': update_at,
+        'update_at__gt': update_at,
         'action': action,
     }
     limited_blogs_time = mm_BlogPlan.filter(**plan_filter_time).values_list('blog_id', flat=True)
@@ -155,9 +155,9 @@ def get_forward_blog(min_minutes=3, max_minutes=60*12, max_count=1, action='acti
         return None
     # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
     minutes_length = random.choice(list(range(3, 9)))
-    update_at = datetime.datetime.now() + datetime.timedelta(minutes=minutes_length)
+    update_at = datetime.datetime.now() - datetime.timedelta(minutes=minutes_length)
     plan_filter_time = {
-        'update_at__lt': update_at,
+        'update_at__gt': update_at,
         'action': action,
     }
     limited_blogs_time = mm_BlogPlan.filter(**plan_filter_time).values_list('blog_id', flat=True)
