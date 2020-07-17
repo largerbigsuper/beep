@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserChangeForm
 from django.utils.translation import gettext, gettext_lazy as _
 from django.utils.html import mark_safe
 
-from .models import User, mm_User, LableApply, mm_LableApply, Point, mm_Point
+from .models import User, mm_User, LableApply, mm_LableApply, Point, mm_Point, UserInner, UserBot
 
 class MyUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
@@ -54,7 +54,7 @@ class MyUserAdmin(UserAdmin):
     add_form = UserCreationForm
     ordering = ('-id', )
 
-    user_info = ('name', 'age', 'gender', 'desc', 'email', 'mini_openid', 'openid', 'unionid', 'avatar_url', 'is_bot')
+    user_info = ('name', 'age', 'gender', 'desc', 'email', 'mini_openid', 'openid', 'unionid', 'avatar_url', 'is_bot', 'is_inner')
     data_info = ('total_blog', 'total_following', 'total_followers', 'label_type')
     user_info_tuple = user_info + data_info 
     fieldsets = (
@@ -76,11 +76,12 @@ class MyUserAdmin(UserAdmin):
         }),
     )
 
-    list_filter = ('is_superuser', 'is_bot', 'groups')
+    list_filter = ('is_superuser', 'is_bot', 'is_inner', 'groups')
 
 admin.site.register(User, MyUserAdmin)
 
-
+admin.site.register(UserInner, MyUserAdmin)
+admin.site.register(UserBot, MyUserAdmin)
 
 def make_apply_passed(modeladmin, request, queryset):
     """设置通过申请
