@@ -262,7 +262,7 @@ def task_add_blog_like():
             # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_like')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_like', rid=blog_id)
             update_blog_data(blog_id)
-            mm_BlogPlan.update_plan(blog_id, action='action_like', min_count=18, max_count=200)
+            mm_BlogPlan.update_plan(blog_id, action='action_like', min_count=10, max_count=70)
     finally:
         mm_Bot.stop(bot.id)
 
