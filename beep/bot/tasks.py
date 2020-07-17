@@ -77,9 +77,7 @@ def update_blog_data(blog_id):
 
 def get_random_blog(min_minutes=3, max_minutes=60*12, min_count=2, max_count=8, action='action_comment'):
     """
-    2. 获取有效博文
-        2.1 根据时间筛选符合条件的博文id
-        2.3 随机筛选一个博文id
+    机器人不能转发/评论/点赞机器人转发的博文
 
     Keyword Arguments:
         min_minutes {int} -- 最小发布时间 (default: {3})
@@ -90,13 +88,23 @@ def get_random_blog(min_minutes=3, max_minutes=60*12, min_count=2, max_count=8, 
     # 根据时间筛选符合条件的博文id
     min_time = datetime.datetime.now() - datetime.timedelta(minutes=max_minutes)
     max_time = datetime.datetime.now() - datetime.timedelta(minutes=min_minutes)
-    blog_filter = {
+    blog_filter_all = {
         "create_at__range": [min_time, max_time],
-        "user__is_bot": False,
+        # "user__is_bot": False,
         "activity__isnull": True,
     }
-    blogs = mm_Blog.filter(**blog_filter)
-    obj_ids = {obj.id for obj in blogs}
+    blogs = mm_Blog.filter(**blog_filter_all)
+    obj_ids_all = {obj.id for obj in blogs}
+    # 除去机器人转发的博文
+    blog_filter_bot_forward = {
+        "create_at__range": [min_time, max_time],
+        "user__is_bot": True,
+        "activity__isnull": True,
+        "forward_blog__isnull": False,
+    }
+    blogs = mm_Blog.filter(**blog_filter_bot_forward)
+    obj_ids_bot_forward = {obj.id for obj in blogs}
+    obj_ids = {x for x in obj_ids_all if x not in obj_ids_bot_forward}
     if not obj_ids:
         return None
     # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
