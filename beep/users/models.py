@@ -179,6 +179,7 @@ class User(AbstractUser):
     completed_profile = models.BooleanField(default=False, verbose_name='完善信息')
     invite_code = models.CharField(max_length=8, blank=True, null=True, unique=True, verbose_name='邀请码')
     is_bot = models.BooleanField(default=False, blank=True, verbose_name='机器人账号')
+    is_inner = models.BooleanField(default=False, blank=True, verbose_name='内部运营人员使用账号')
 
     objects = UserManager()
 
@@ -199,6 +200,38 @@ class User(AbstractUser):
 
 
 mm_User = User.objects
+
+
+class UserInnerManager(ModelManager):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(is_inner=True)
+
+
+class UserInner(User):
+    
+    objects = UserInnerManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = '用户信息_内部运营人员使用账号'
+        verbose_name_plural = '用户信息_内部运营人员使用账号'
+
+
+class UserBotManager(ModelManager):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(is_bot=True)
+
+
+class UserBot(User):
+
+    objects = UserBotManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = '用户信息_机器人账号'
+        verbose_name_plural = '用户信息_机器人账号'
 
 
 class PointManager(ModelManager):
