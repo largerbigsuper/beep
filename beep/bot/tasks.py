@@ -213,7 +213,6 @@ def task_add_blog_comment():
         if obj:
             # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_comment')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_comment', rid=blog_id)
-            update_blog_data(blog_id)
             mm_BlogPlan.update_plan(blog_id, action='action_comment', min_count=2, max_count=8)
     finally:
         mm_Bot.stop(bot.id)
@@ -234,6 +233,7 @@ def _add_blog_comment(blog_id, user_id, commnet):
         blog.topic.save()
     # 第一次评论
     mm_Comment.update_commnet_point(user_id=user_id)
+    update_blog_data(blog_id)
     return instance
 
 
@@ -257,11 +257,10 @@ def task_add_blog_like():
         return
     try:
         mm_Bot.run(bot.id)
-        obj = _add_blog_like(blog_id=blog_id, user_id=bot.user_id)
-        if obj:
+        created = _add_blog_like(blog_id=blog_id, user_id=bot.user_id)
+        if created:
             # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_like')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_like', rid=blog_id)
-            update_blog_data(blog_id)
             mm_BlogPlan.update_plan(blog_id, action='action_like', min_count=10, max_count=70)
     finally:
         mm_Bot.stop(bot.id)
@@ -277,7 +276,7 @@ def _add_blog_like(blog_id, user_id):
             mm_Blog.update_data(blog_id, 'total_like')
             mm_Point.add_action(user_id, mm_Point.ACTION_USER_ADD_BLOG_LIKE)
             update_blog_data(blog_id)
-        return obj
+        return created
 
 
 @app.task(queue='bot')
@@ -309,7 +308,6 @@ def task_add_blog_forward():
         if obj:
             # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_forward')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_forward', rid=blog_id)
-            update_blog_data(blog_id)
             mm_BlogPlan.update_plan(blog_id, action='action_forward', min_count=1, max_count=2)
     finally:
         mm_Bot.stop(bot.id)
@@ -332,6 +330,7 @@ def _add_blog_forward(blog_id, user_id, text):
     params['user_id'] = user_id
     instance = mm_Blog.model(**params)
     instance.save()
+    update_blog_data(blog_id)
     
     return instance
 
