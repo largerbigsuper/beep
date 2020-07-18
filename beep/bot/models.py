@@ -377,7 +377,7 @@ class BotSetting(models.Model):
         db_table = 'cms_bot_setting'
         ordering = ['-id']
         verbose_name = '机器人系统设置'
-        verbose_name_plural = '系统设置'
+        verbose_name_plural = '机器人系统设置'
 
     def __str__(self):
         return str(self.name)
