@@ -142,23 +142,27 @@ def get_forward_blog(min_minutes=3, max_minutes=60*12, max_count=1, action='acti
     # 原始博文
     origin_blog_filter = {
         "create_at__range": [min_time, max_time],
-        "user__is_bot": False,
+        # "user__is_bot": False,
+        "activity__isnull": True,
     }
-    origin_blogs = mm_Blog.filter(**origin_blog_filter)
-    origin_blog_count = origin_blogs.count()
+    all_blogs = mm_Blog.filter(**origin_blog_filter)
+    all_blog_count = all_blogs.count()
+
     # 转发博文
     forwrad_blog_filter = {
         "create_at__range": [min_time, max_time],
         "user__is_bot": True,
+        "forward_blog__isnull": False,
     }
     forwrad_blogs = mm_Blog.filter(**forwrad_blog_filter)
+    forward_blog_count = forwrad_blogs.count() + 1
     # 原始博文数量与转发博文数量对比 3:1 ～ 3:2
-    forward_blog_count = origin_blogs.count() + 1
+    origin_blog_count = all_blog_count - forward_blog_count
     ratio = origin_blog_count / forward_blog_count
     if ratio < 1.5:
         return None
     
-    obj_ids = {obj.id for obj in origin_blogs}
+    obj_ids = {obj.id for obj in all_blogs}
     if not obj_ids:
         return None
     # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
