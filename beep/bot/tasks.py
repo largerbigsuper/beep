@@ -4,7 +4,7 @@ from django.db.models import Count, F, Subquery
 from django.db import transaction
 
 from config.celery import app
-from .models import mm_Bot, mm_BotActionStats, mm_BotComment, mm_BotActionLog, mm_BotTask, mm_BlogPlan
+from .models import mm_Bot, mm_BotActionStats, mm_BotComment, mm_BotActionLog, mm_BotTask, mm_BlogPlan, mm_BotSetting
 from beep.blog.models import Comment, mm_Comment, mm_Blog, mm_Like, mm_Point, mm_Topic
 from beep.activity.models import mm_Activity
 from beep.users.models import mm_User, mm_RelationShip
@@ -75,28 +75,34 @@ def update_blog_data(blog_id):
     if blog.topic:
         mm_Topic.filter(pk=blog.topic.id).update(total_view=F('total_view') + 1)
 
-def get_random_blog(min_minutes=3, max_minutes=60*12, min_count=2, max_count=8, action='action_comment'):
+def get_random_blog(min_minutes=3, max_minutes=60*12, action='action_comment'):
     """
-    2. 获取有效博文
-        2.1 根据时间筛选符合条件的博文id
-        2.3 随机筛选一个博文id
+    机器人不能转发/评论/点赞机器人转发的博文
 
     Keyword Arguments:
         min_minutes {int} -- 最小发布时间 (default: {3})
         max_minutes {int} -- 最大发布时间 (default: {120})
-        min_count {int} -- 最小机器评论数 (default: {2})
-        max_count {int} -- 最大机器评论数 (default: {8})
     """
     # 根据时间筛选符合条件的博文id
     min_time = datetime.datetime.now() - datetime.timedelta(minutes=max_minutes)
     max_time = datetime.datetime.now() - datetime.timedelta(minutes=min_minutes)
-    blog_filter = {
+    blog_filter_all = {
         "create_at__range": [min_time, max_time],
-        "user__is_bot": False,
+        # "user__is_bot": False,
         "activity__isnull": True,
     }
-    blogs = mm_Blog.filter(**blog_filter)
-    obj_ids = {obj.id for obj in blogs}
+    blogs = mm_Blog.filter(**blog_filter_all)
+    obj_ids_all = {obj.id for obj in blogs}
+    # 除去机器人转发的博文
+    blog_filter_bot_forward = {
+        "create_at__range": [min_time, max_time],
+        "user__is_bot": True,
+        "activity__isnull": True,
+        "forward_blog__isnull": False,
+    }
+    blogs = mm_Blog.filter(**blog_filter_bot_forward)
+    obj_ids_bot_forward = {obj.id for obj in blogs}
+    obj_ids = {x for x in obj_ids_all if x not in obj_ids_bot_forward}
     if not obj_ids:
         return None
     # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
@@ -124,7 +130,7 @@ def get_random_blog(min_minutes=3, max_minutes=60*12, min_count=2, max_count=8, 
         return None
 
 
-def get_forward_blog(min_minutes=3, max_minutes=60*12, max_count=1, action='action_forward'):
+def get_forward_blog(min_minutes=3, max_minutes=60*12, action='action_forward'):
     """
     获取转的博文
     """
@@ -134,23 +140,27 @@ def get_forward_blog(min_minutes=3, max_minutes=60*12, max_count=1, action='acti
     # 原始博文
     origin_blog_filter = {
         "create_at__range": [min_time, max_time],
-        "user__is_bot": False,
+        # "user__is_bot": False,
+        "activity__isnull": True,
     }
-    origin_blogs = mm_Blog.filter(**origin_blog_filter)
-    origin_blog_count = origin_blogs.count()
+    all_blogs = mm_Blog.filter(**origin_blog_filter)
+    all_blog_count = all_blogs.count()
+
     # 转发博文
     forwrad_blog_filter = {
         "create_at__range": [min_time, max_time],
         "user__is_bot": True,
+        "forward_blog__isnull": False,
     }
     forwrad_blogs = mm_Blog.filter(**forwrad_blog_filter)
+    forward_blog_count = forwrad_blogs.count() + 1
     # 原始博文数量与转发博文数量对比 3:1 ～ 3:2
-    forward_blog_count = origin_blogs.count() + 1
+    origin_blog_count = all_blog_count - forward_blog_count
     ratio = origin_blog_count / forward_blog_count
     if ratio < 1.5:
         return None
     
-    obj_ids = {obj.id for obj in origin_blogs}
+    obj_ids = {obj.id for obj in all_blogs}
     if not obj_ids:
         return None
     # 最短执行时间过滤, 需要3至8分钟之间对同一资源可进行同一操作
@@ -213,8 +223,9 @@ def task_add_blog_comment():
         if obj:
             # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_comment')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_comment', rid=blog_id)
-            update_blog_data(blog_id)
-            mm_BlogPlan.update_plan(blog_id, action='action_comment', min_count=2, max_count=8)
+            min_count = mm_BotSetting.get_cfg_by_key('blog_comment_min_count', 2)
+            max_count = mm_BotSetting.get_cfg_by_key('blog_comment_max_count', 8)
+            mm_BlogPlan.update_plan(blog_id, action='action_comment', min_count=min_count, max_count=max_count)
     finally:
         mm_Bot.stop(bot.id)
 
@@ -234,6 +245,7 @@ def _add_blog_comment(blog_id, user_id, commnet):
         blog.topic.save()
     # 第一次评论
     mm_Comment.update_commnet_point(user_id=user_id)
+    update_blog_data(blog_id)
     return instance
 
 
@@ -244,7 +256,7 @@ def task_add_blog_like():
     """
     mm_BotTask.task_keep_open('task_add_blog_like')
     # 获取博文
-    blog_id = get_random_blog(min_count=2, max_count=200, action='action_like')
+    blog_id = get_random_blog(action='action_like')
     if not blog_id:
         return
     # 获取机器人
@@ -257,12 +269,13 @@ def task_add_blog_like():
         return
     try:
         mm_Bot.run(bot.id)
-        obj = _add_blog_like(blog_id=blog_id, user_id=bot.user_id)
-        if obj:
+        created = _add_blog_like(blog_id=blog_id, user_id=bot.user_id)
+        if created:
             # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_like')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_like', rid=blog_id)
-            update_blog_data(blog_id)
-            mm_BlogPlan.update_plan(blog_id, action='action_like', min_count=10, max_count=70)
+            min_count = mm_BotSetting.get_cfg_by_key('blog_like_min_count', 10)
+            max_count = mm_BotSetting.get_cfg_by_key('blog_like_max_count', 70)
+            mm_BlogPlan.update_plan(blog_id, action='action_like', min_count=min_count, max_count=max_count)
     finally:
         mm_Bot.stop(bot.id)
 
@@ -277,7 +290,7 @@ def _add_blog_like(blog_id, user_id):
             mm_Blog.update_data(blog_id, 'total_like')
             mm_Point.add_action(user_id, mm_Point.ACTION_USER_ADD_BLOG_LIKE)
             update_blog_data(blog_id)
-        return obj
+        return created
 
 
 @app.task(queue='bot')
@@ -294,7 +307,7 @@ def task_add_blog_forward():
     5. 记录bot执行记录
     """
     mm_BotTask.task_keep_open('task_add_blog_forward')
-    blog_id = get_forward_blog(max_count=2, action='action_forward')
+    blog_id = get_forward_blog(action='action_forward')
     if not blog_id:
         return
     # 获取符合要求的机器人
@@ -309,8 +322,10 @@ def task_add_blog_forward():
         if obj:
             # mm_BotActionStats.add_action(rid=blog_id, user_id=bot.user_id, action='action_forward')
             mm_BotActionLog.add_log(bot_id=bot.id, action='action_forward', rid=blog_id)
-            update_blog_data(blog_id)
-            mm_BlogPlan.update_plan(blog_id, action='action_forward', min_count=1, max_count=2)
+            # mm_BlogPlan.update_plan(blog_id, action='action_forward', min_count=1, max_count=2)
+            min_count = mm_BotSetting.get_cfg_by_key('blog_forward_min_count', 1)
+            max_count = mm_BotSetting.get_cfg_by_key('blog_forward_max_count', 2)
+            mm_BlogPlan.update_plan(blog_id, action='action_forward', min_count=min_count, max_count=max_count)
     finally:
         mm_Bot.stop(bot.id)
 
@@ -332,6 +347,7 @@ def _add_blog_forward(blog_id, user_id, text):
     params['user_id'] = user_id
     instance = mm_Blog.model(**params)
     instance.save()
+    update_blog_data(blog_id)
     
     return instance
 
