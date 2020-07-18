@@ -346,3 +346,38 @@ class BlogPlan(models.Model):
 
 mm_BlogPlan = BlogPlan.objects
 
+class BotSettingManager(ModelManager):
+
+    def _get_all_config(self):
+        """获取所有的配置
+        """
+        cfg_list = self.all().values_list('name', 'value')
+        cfg_dict = {}
+        if cfg_list:
+            cfg_dict = dict(cfg_list)
+        return cfg_dict
+    
+    def get_cfg_by_key(self, key, default):
+        key = key.upper()
+        cfg_dict = self._get_all_config()
+        return cfg_dict.get(key, default)
+
+class BotSetting(models.Model):
+    """系统设置
+    """
+    desc = models.CharField(max_length=20, verbose_name='说明')
+    name = models.CharField(max_length=20, verbose_name='变量名')
+    value = models.CharField(max_length=200, verbose_name='值')
+
+    objects = BotSettingManager()
+
+    class Meta:
+        db_table = 'cms_bot_setting'
+        ordering = ['-id']
+        verbose_name = '机器人系统设置'
+        verbose_name_plural = '系统设置'
+
+    def __str__(self):
+        return str(self.name)
+
+mm_BotSetting = BotSetting.objects
