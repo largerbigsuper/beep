@@ -360,13 +360,15 @@ class BotSettingManager(ModelManager):
     def get_cfg_by_key(self, key, default):
         key = key.upper()
         cfg_dict = self._get_all_config()
-        return cfg_dict.get(key, default)
+        value = cfg_dict.get(key, default)
+        return default.__class__(value)
+
 
 class BotSetting(models.Model):
     """系统设置
     """
-    desc = models.CharField(max_length=20, verbose_name='说明')
-    name = models.CharField(max_length=20, verbose_name='变量名')
+    desc = models.CharField(max_length=100, verbose_name='说明')
+    name = models.CharField(max_length=100, verbose_name='变量名')
     value = models.CharField(max_length=200, verbose_name='值')
 
     objects = BotSettingManager()
