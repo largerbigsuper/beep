@@ -25,7 +25,9 @@ def update_or_create_wxgroup(bot_wxid, groupinfo_dict):
 @shared_task
 def save_wxmessage(bot_wxid, wxmessage_dict):
     """保存微信信息
+    
     """
+    wxmessage_dict.pop('customid', '')
     mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
 
 @shared_task
