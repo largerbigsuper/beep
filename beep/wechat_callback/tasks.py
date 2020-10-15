@@ -52,7 +52,7 @@ def save_wxmessage(bot_wxid, wxmessage_dict):
         'create_at': wxmessage_dict.get('create_at'),
         'activity_id': wxmessage_dict.get('activity_id'),
     }
-    mm_WxMessage.create(bot_wxid=bot_wxid, **wxmessage_dict)
+    mm_WxMessage.create(bot_wxid=bot_wxid, **params)
 
 @shared_task
 def update_wxgroup_name(room_wxid, new_name):
