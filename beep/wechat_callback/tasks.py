@@ -29,8 +29,8 @@ def save_wxmessage(bot_wxid, wxmessage_dict):
     """
 
     params = {
-        'msg_id': wxmessage_dict.get('msg_id'),
-        'msg_timestamp': wxmessage_dict.get('msg_timestamp'),
+        'msg_id': wxmessage_dict.get('msg_id', 0),
+        'msg_timestamp': wxmessage_dict.get('msg_timestamp', 0),
         'msg_type': wxmessage_dict.get('msg_type'),
         'room_wxid': wxmessage_dict.get('room_wxid'),
         'wxid_from': wxmessage_dict.get('wxid_from'),
@@ -40,16 +40,15 @@ def save_wxmessage(bot_wxid, wxmessage_dict):
         'raw_msg': wxmessage_dict.get('raw_msg'),
         'file_index': wxmessage_dict.get('file_index'),
         'file_name': wxmessage_dict.get('file_name'),
-        'file_size': wxmessage_dict.get('file_size'),
+        'file_size': wxmessage_dict.get('file_size', 0),
         'emoji_url': wxmessage_dict.get('emoji_url'),
         'link_title': wxmessage_dict.get('link_title'),
         'link_desc': wxmessage_dict.get('link_desc'),
         'link_url': wxmessage_dict.get('link_url'),
         'link_img_url': wxmessage_dict.get('link_img_url'),
-        'sub_type': wxmessage_dict.get('sub_type'),
-        'user_id': wxmessage_dict.get('user_id'),
-        'user_type': wxmessage_dict.get('user_type'),
-        'create_at': wxmessage_dict.get('create_at'),
+        'sub_type': wxmessage_dict.get('sub_type', 0),
+        'user_id': wxmessage_dict.get('user_id', 0),
+        'user_type': wxmessage_dict.get('user_type', 0),
         'activity_id': wxmessage_dict.get('activity_id'),
     }
     mm_WxMessage.create(bot_wxid=bot_wxid, **params)
